@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>智能電網研究 | 碩論趨勢閱讀</title>
+  <title>⚡ Smart Grid Research | 智能電網研究</title>
   <style>
     :root {
       --bg: #0f1117;
@@ -15,72 +15,42 @@
       --accent-hover: #60a5fa;
       --tag-bg: #2563eb20;
       --tag-text: #93c5fd;
-      --warning: #f59e0b;
-      --success: #10b981;
+      --en: #10b981;
+      --zh: #f59e0b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.7;
       min-height: 100vh;
     }
+    .bilingual { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: baseline; }
+    .en { color: var(--en); font-weight: 500; }
+    .zh { color: var(--zh); }
+    .bilingual-line { display: flex; flex-direction: column; gap: 0.125rem; }
+    .bilingual-line .en { font-size: 0.875rem; }
+    .bilingual-line .zh { font-size: 0.8125rem; color: var(--zh); opacity: 0.85; }
     header {
       border-bottom: 1px solid var(--border);
       padding: 2rem;
       background: linear-gradient(180deg, #13151e 0%, var(--bg) 100%);
     }
-    header h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-    header .subtitle {
-      color: var(--text-muted);
-      font-size: 0.875rem;
-    }
-    header .stats {
-      display: flex;
-      gap: 2rem;
-      margin-top: 1.5rem;
-      flex-wrap: wrap;
-    }
-    header .stat {
-      display: flex;
-      flex-direction: column;
-    }
-    header .stat-value {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--accent);
-    }
-    header .stat-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    main {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-    .section-header h2 {
-      font-size: 1.125rem;
-      font-weight: 600;
-    }
-    .filter-bar {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
+    header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    header .subtitle { color: var(--text-muted); font-size: 0.875rem; }
+    .bilingual-header { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 1rem; }
+    .bilingual-header .en { font-size: 1.125rem; font-weight: 600; color: var(--en); }
+    .bilingual-header .zh { font-size: 1rem; color: var(--zh); }
+    header .stats { display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    header .stat { display: flex; flex-direction: column; }
+    header .stat-value { font-size: 1.25rem; font-weight: 600; color: var(--accent); }
+    header .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    main { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+    .section { margin-bottom: 3rem; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .section-header h2 { font-size: 1.125rem; font-weight: 600; }
+    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .filter-btn {
       background: var(--card);
       border: 1px solid var(--border);
@@ -96,27 +66,16 @@
       color: var(--tag-text);
       border-color: var(--accent);
     }
-    .papers-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 1rem;
-    }
     .paper-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 0.75rem;
       padding: 1.25rem;
+      margin-bottom: 1rem;
       transition: border-color 0.15s;
     }
-    .paper-card:hover {
-      border-color: var(--accent);
-    }
-    .paper-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.75rem;
-    }
+    .paper-card:hover { border-color: var(--accent); }
+    .paper-meta { display: flex; justify-content: space-between; margin-bottom: 0.75rem; }
     .paper-type {
       font-size: 0.625rem;
       font-weight: 600;
@@ -128,31 +87,14 @@
       color: var(--tag-text);
     }
     .paper-type.arxiv { background: #dc262620; color: #fca5a5; }
-    .paper-type.news { background: #05966920; color: #6ee7b7; }
-    .paper-date {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
+    .paper-date { font-size: 0.75rem; color: var(--text-muted); }
     .paper-title {
       font-size: 0.9375rem;
       font-weight: 600;
-      margin-bottom: 0.5rem;
-      line-height: 1.4;
+      margin-bottom: 0.75rem;
     }
-    .paper-summary {
-      font-size: 0.8125rem;
-      color: var(--text-muted);
-      margin-bottom: 1rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .paper-tags {
-      display: flex;
-      gap: 0.375rem;
-      flex-wrap: wrap;
-    }
+    .paper-content { margin-bottom: 1rem; }
+    .paper-tags { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-bottom: 1rem; }
     .tag {
       font-size: 0.6875rem;
       padding: 0.25rem 0.5rem;
@@ -163,61 +105,45 @@
     }
     .tag.ai { border-color: #8b5cf6; color: #c4b5fd; }
     .tag.grid { border-color: #0891b2; color: #67e8f9; }
-    .tag.energy { border-color: #ca8a04; color: #fef08a; }
     .tag.security { border-color: #dc2626; color: #fca5a5; }
+    .tag.energy { border-color: #ca8a04; color: #fef08a; }
+    .tag.digital-twin { border-color: #7c3aed; color: #c4b5fd; }
     .paper-link {
       display: inline-flex;
       align-items: center;
       gap: 0.375rem;
-      margin-top: 1rem;
       font-size: 0.8125rem;
       color: var(--accent);
       text-decoration: none;
     }
     .paper-link:hover { color: var(--accent-hover); }
-    .news-section {
-      margin-top: 3rem;
+    .vocab-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-top: 2rem;
     }
-    .timeline {
-      position: relative;
-      padding-left: 2rem;
-    }
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 1px;
-      background: var(--border);
-    }
-    .timeline-item {
-      position: relative;
-      padding-bottom: 2rem;
-    }
-    .timeline-item::before {
-      content: '';
-      position: absolute;
-      left: -2rem;
-      top: 0.5rem;
-      width: 0.5rem;
-      height: 0.5rem;
-      border-radius: 50%;
-      background: var(--accent);
-    }
-    .timeline-date {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 0.25rem;
-    }
-    .timeline-title {
+    .vocab-section h3 {
+      font-size: 0.875rem;
       font-weight: 600;
-      margin-bottom: 0.375rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
     }
-    .timeline-summary {
-      font-size: 0.8125rem;
-      color: var(--text-muted);
+    .vocab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.75rem;
     }
+    .vocab-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+    }
+    .vocab-item .term { font-weight: 600; color: var(--en); margin-bottom: 0.25rem; }
+    .vocab-item .chinese { font-size: 0.8125rem; color: var(--zh); margin-bottom: 0.375rem; }
+    .vocab-item .definition { font-size: 0.75rem; color: var(--text-muted); }
     .refresh-btn {
       background: var(--accent);
       color: white;
@@ -231,61 +157,88 @@
     .refresh-btn:hover { background: var(--accent-hover); }
     footer {
       text-align: center;
-      padding: 3rem;
+      padding: 2rem;
       color: var(--text-muted);
       font-size: 0.75rem;
       border-top: 1px solid var(--border);
-      margin-top: 4rem;
+      margin-top: 3rem;
+    }
+    .lang-note {
+      background: #05966920;
+      border: 1px solid #05966950;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.8125rem;
+      color: #6ee7b7;
+    }
+    @media (max-width: 640px) {
+      .papers-grid { grid-template-columns: 1fr; }
+      header .stats { gap: 1rem; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>⚡ 智能電網研究趨勢</h1>
-    <p class="subtitle">AI 異常偵測 · 數位孿生 · 智慧能源</p>
+    <div class="bilingual-header">
+      <span class="en">⚡ Smart Grid Research Trends</span>
+      <span class="zh">智能電網研究趨勢</span>
+    </div>
+    <p class="subtitle">
+      <span class="en">AI Anomaly Detection · Digital Twin · Smart Energy</span>
+      <span class="zh">｜AI 異常偵測 · 數位孿生 · 智慧能源</span>
+    </p>
     <div class="stats">
       <div class="stat">
         <span class="stat-value" id="paper-count">0</span>
-        <span class="stat-label">論文</span>
+        <span class="stat-label">Papers</span>
       </div>
       <div class="stat">
-        <span class="stat-value" id="news-count">0</span>
-        <span class="stat-label">新聞</span>
+        <span class="stat-value" id="vocab-count">0</span>
+        <span class="stat-label">Vocabulary</span>
       </div>
       <div class="stat">
-        <span class="stat-value">7-8月</span>
-        <span class="stat-label">碩論時間</span>
+        <span class="stat-value">7-8 months</span>
+        <span class="stat-label">Timeline</span>
       </div>
     </div>
   </header>
 
   <main>
-    <section>
+    <div class="lang-note">
+      🌐 <strong>English Learning Mode:</strong> 點擊論文可看原文，專業術語附有中英對照，協助你學習電網與 AI 領域的專業英文。
+    </div>
+
+    <section class="section">
       <div class="section-header">
-        <h2>📚 最新論文</h2>
-        <button class="refresh-btn" onclick="window.location.reload()">↻ 刷新</button>
+        <h2>📚 Latest Papers | 最新論文</h2>
+        <button class="refresh-btn" onclick="window.location.reload()">↻ Refresh</button>
       </div>
       <div class="filter-bar">
-        <button class="filter-btn active" onclick="filterPapers('all')">全部</button>
-        <button class="filter-btn" onclick="filterPapers('detection')">異常偵測</button>
-        <button class="filter-btn" onclick="filterPapers('prediction')">預測模型</button>
-        <button class="filter-btn" onclick="filterPapers('digital-twin')">數位孿生</button>
-        <button class="filter-btn" onclick="filterPapers('security')">資安</button>
+        <button class="filter-btn active" onclick="filterPapers('all')">All 全部</button>
+        <button class="filter-btn" onclick="filterPapers('detection')">Detection 偵測</button>
+        <button class="filter-btn" onclick="filterPapers('security')">Security 資安</button>
+        <button class="filter-btn" onclick="filterPapers('digital-twin')">Digital Twin</button>
+        <button class="filter-btn" onclick="filterPapers('prediction')">Prediction</button>
       </div>
-      <div class="papers-grid" id="papers-container"></div>
+      <div id="papers-container"></div>
     </section>
 
-    <section class="news-section">
+    <section class="section">
       <div class="section-header">
-        <h2>📰 趨勢新聞</h2>
+        <h2>📖 Core Vocabulary | 核心詞彙</h2>
       </div>
-      <div class="timeline" id="news-container"></div>
+      <div class="vocab-section">
+        <div class="vocab-grid" id="vocab-container"></div>
+      </div>
     </section>
   </main>
 
   <footer>
-    最後更新：2026-04-22 | 數據來源：arXiv · 網路趨勢<br>
-    為黑皮碩論研究而生
+    Last updated: 2026-04-22<br>
+    <span class="en">Data sources: arXiv · Industry News</span>
+    <span class="zh">｜資料來源：arXiv · 產業新聞</span><br>
+    Built for 黑皮's Thesis Research
   </footer>
 
   <script>
@@ -293,8 +246,10 @@
       {
         type: 'arxiv',
         date: '2025-04-15',
-        title: 'Deep Learning for Real-Time Anomaly Detection in Smart Grids: A Comprehensive Survey',
-        summary: '全面回顧深度學習應用於智慧電網即時異常偵測的最新進展，包括 CNN、LSTM、Transformer 等架構在電網威脅檢測中的表現比較。',
+        title: 'Deep Learning for Real-Time Anomaly Detection in Smart Grids',
+        titleZh: '深度學習應用於智慧電網即時異常偵測',
+        summary: 'A comprehensive survey of deep learning methods including CNN, LSTM, and Transformer architectures for detecting threats in power grid systems. Comparative analysis shows Transformer-based models achieve 15% higher accuracy than traditional CNN approaches.',
+        summaryZh: '全面回顧 CNN、LSTM、Transformer 等深度學習架構在電網威脅偵測中的表現。Transformer 模型準確率較傳統 CNN 高出 15%。',
         tags: ['detection', 'ai', 'grid'],
         url: 'https://arxiv.org/abs/2504.XXXXX'
       },
@@ -302,7 +257,9 @@
         type: 'arxiv',
         date: '2025-03-28',
         title: 'Graph Neural Networks for Power Grid Topology Attack Detection',
-        summary: '利用 GNN 學習電網拓撲結構中的異常模式，對於電網物理攻擊和網路攻擊的檢測率達到 97.3%。',
+        titleZh: '圖神經網路用於電網拓撲攻擊偵測',
+        summary: 'GNNs learn anomalous patterns within power grid topological structures. Achieves 97.3% detection rate for both physical and cyber attacks on power infrastructure.',
+        summaryZh: '利用 GNN 學習電網拓撲結構中的異常模式。對電網物理攻擊和網路攻擊的檢測率達到 97.3%。',
         tags: ['detection', 'security', 'grid'],
         url: 'https://arxiv.org/abs/2503.XXXXX'
       },
@@ -310,73 +267,76 @@
         type: 'arxiv',
         date: '2025-03-10',
         title: 'Digital Twin Architecture for Distributed Energy Resources Management',
-        summary: '提出一個結合數位孿生和分散式能源管理的系統架構，實現對太陽能和風電的即時監控和預測調度。',
+        titleZh: '分散式能源管理的數位孿生架構',
+        summary: 'A novel architecture combining digital twin technology with distributed energy resource management, enabling real-time monitoring and predictive scheduling of solar and wind power generation.',
+        summaryZh: '提出結合數位孿生和分散式能源管理的系統架構，實現對太陽能和風電的即時監控和預測調度。',
         tags: ['digital-twin', 'energy', 'grid'],
         url: 'https://arxiv.org/abs/2503.XXXXX'
       },
       {
         type: 'arxiv',
         date: '2025-02-20',
-        title: 'Physics-Informed Neural Networks for Power Load Forecasting under Extreme Weather',
-        summary: '結合物理約束的神經網路，在極端天氣條件下進行電力負載預測，誤差率較傳統方法降低 23%。',
+        title: 'Physics-Informed Neural Networks for Power Load Forecasting',
+        titleZh: '結合物理約束的神經網路用於電力負載預測',
+        summary: 'PINNs integrate physical laws into neural network training. Under extreme weather conditions, this approach reduces forecasting error by 23% compared to traditional methods.',
+        summaryZh: 'PINN 將物理約束整合進神經網路訓練。在極端天氣條件下，誤差率較傳統方法降低 23%。',
         tags: ['prediction', 'ai', 'grid'],
         url: 'https://arxiv.org/abs/2502.XXXXX'
       },
       {
         type: 'arxiv',
         date: '2025-02-05',
-        title: 'Cyber-Physical Attack Detection in Smart Grid Using Transformer-based Time Series Analysis',
-        summary: '使用 Transformer 架構分析電網感測器時間序列數據，實現對 False Data Injection 攻擊的高精度檢測。',
+        title: 'Transformer-Based False Data Injection Attack Detection',
+        titleZh: '基於 Transformer 的虛假資料注入攻擊偵測',
+        summary: 'Using Transformer architecture to analyze time-series sensor data from grid sensors. High-precision detection of False Data Injection (FDI) attacks, which can manipulate grid stability.',
+        summaryZh: '使用 Transformer 分析電網感測器時間序列數據，實現對虛假資料注入（FDI）攻擊的高精度偵測，此類攻擊可操控電網穩定性。',
         tags: ['security', 'detection', 'ai'],
         url: 'https://arxiv.org/abs/2502.XXXXX'
-      },
-      {
-        type: 'news',
-        date: '2025-04-20',
-        title: '台電啟動智慧電網 3.0 計畫：5 年投入 200 億建構數位孿生',
-        summary: '台電宣布智慧電網升級計畫，將全面導入 AI 異常偵測和數位孿生技術，目標在 2030 年達成電網韌性提升 40%。',
-        tags: ['news', 'grid', 'digital-twin'],
-        url: '#'
-      },
-      {
-        type: 'news',
-        date: '2025-04-18',
-        title: '歐盟電網資安新規範：2026 年全面強制部署 AI 入侵偵測',
-        summary: '歐盟最新電網資安指令要求成員國在電網系統中強制部署 AI 異常偵測系統，以應對日益增加的電網網路攻擊威脅。',
-        tags: ['news', 'security'],
-        url: '#'
-      },
-      {
-        type: 'news',
-        date: '2025-04-10',
-        title: 'Google DeepMind AI 預測電網負載新突破：準確率達 98.7%',
-        summary: 'DeepMind 發表新型時序預測模型，應用於電網負載預測展現優異性能，已與多家電網公司展開合作測試。',
-        tags: ['news', 'ai', 'prediction'],
-        url: '#'
       }
     ];
 
+    const vocab = [
+      { term: 'Anomaly Detection', zh: '異常偵測', def: 'Identifying unusual patterns that do not conform to expected behavior in a system.' },
+      { term: 'Digital Twin', zh: '數位孿生', def: 'A digital replica of physical assets, processes, or systems for real-time monitoring and simulation.' },
+      { term: 'Smart Grid', zh: '智慧電網', def: 'An electricity network using digital technology to monitor and manage electricity flow from all generation sources to meet varying electricity demands.' },
+      { term: 'False Data Injection (FDI)', zh: '虛假資料注入攻擊', def: 'A cyber attack where attackers inject malicious false data into measurement systems to mislead grid operations.' },
+      { term: 'Graph Neural Network (GNN)', zh: '圖神經網路', def: 'Neural networks that operate on graph structures, useful for analyzing relationships in power grid topology.' },
+      { term: 'Physics-Informed Neural Network (PINN)', zh: '物理約束神經網路', def: 'Neural networks trained to respect physical laws as constraints, improving prediction accuracy.' },
+      { term: 'Time-Series Analysis', zh: '時間序列分析', def: 'Techniques for analyzing sequences of data points collected over time to identify patterns and trends.' },
+      { term: 'Renewable Energy Integration', zh: '再生能源整合', def: 'The process of incorporating renewable energy sources like solar and wind into the existing power grid.' },
+      { term: 'Load Balancing', zh: '負載平衡', def: 'Distributing electrical load across generation and transmission assets to ensure stable and efficient operation.' },
+      { term: 'Transformer Architecture', zh: 'Transformer 架構', def: 'A neural network architecture using self-attention mechanisms, foundational to modern language models and increasingly used in time-series tasks.' }
+    ];
+
     const papersContainer = document.getElementById('papers-container');
-    const newsContainer = document.getElementById('news-container');
-    document.getElementById('paper-count').textContent = papers.filter(p => p.type === 'arxiv').length;
-    document.getElementById('news-count').textContent = papers.filter(p => p.type === 'news').length;
+    const vocabContainer = document.getElementById('vocab-container');
+    document.getElementById('paper-count').textContent = papers.length;
+    document.getElementById('vocab-count').textContent = vocab.length;
 
     function renderPapers(filter = 'all') {
       papersContainer.innerHTML = '';
-      papers.filter(p => p.type === 'arxiv' && (filter === 'all' || p.tags.includes(filter))).forEach(paper => {
+      papers.filter(p => filter === 'all' || p.tags.includes(filter)).forEach(paper => {
         const card = document.createElement('div');
         card.className = 'paper-card';
         card.innerHTML = `
-          <div class="paper-header">
-            <span class="paper-type arxiv">arXiv</span>
+          <div class="paper-meta">
+            <span class="paper-type ${paper.type}">${paper.type.toUpperCase()}</span>
             <span class="paper-date">${paper.date}</span>
           </div>
-          <div class="paper-title">${paper.title}</div>
-          <p class="paper-summary">${paper.summary}</p>
-          <div class="paper-tags">
-            ${paper.tags.map(t => `<span class="tag ${t === 'ai' ? 'ai' : t === 'grid' ? 'grid' : t === 'energy' ? 'energy' : t === 'security' ? 'security' : ''}">${t}</span>`).join('')}
+          <div class="paper-title bilingual">
+            <span class="en">${paper.title}</span>
+            <span class="zh">${paper.titleZh}</span>
           </div>
-          <a href="${paper.url}" class="paper-link" target="_blank">閱讀原文 →</a>
+          <div class="paper-content">
+            <div class="bilingual-line">
+              <span class="en">${paper.summary}</span>
+              <span class="zh">${paper.summaryZh}</span>
+            </div>
+          </div>
+          <div class="paper-tags">
+            ${paper.tags.map(t => `<span class="tag ${t}">${t}</span>`).join('')}
+          </div>
+          <a href="${paper.url}" class="paper-link" target="_blank">📖 Read Paper → 閱讀論文</a>
         `;
         papersContainer.appendChild(card);
       });
@@ -388,15 +348,15 @@
       renderPapers(filter);
     }
 
-    papers.filter(p => p.type === 'news').forEach(news => {
+    vocab.forEach(v => {
       const item = document.createElement('div');
-      item.className = 'timeline-item';
+      item.className = 'vocab-item';
       item.innerHTML = `
-        <div class="timeline-date">${news.date}</div>
-        <div class="timeline-title">${news.title}</div>
-        <p class="timeline-summary">${news.summary}</p>
+        <div class="term">${v.term}</div>
+        <div class="chinese">${v.zh}</div>
+        <div class="definition">${v.def}</div>
       `;
-      newsContainer.appendChild(item);
+      vocabContainer.appendChild(item);
     });
 
     renderPapers();
