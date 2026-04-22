@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DiceRPSGame
@@ -77,14 +78,74 @@ namespace DiceRPSGame
 
         // ==================== 按鈕：擲骰子 / 猜拳 ====================
 
-        private void btnRoll_Click(object sender, EventArgs e)
+        // ==================== 按鈕：擲骰子 / 猜拳 ====================
+
+        private async void btnRoll_Click(object sender, EventArgs e)
         {
             // ----------------------------------------------------------
             // B. 隨機骰子與動態圖片切換
-            // 產生 1~6 隨機數，根據點數載入對應 PNG 圖片
+            // 加入動畫效果：圖片快速更換，漸漸慢下來再停在結果
             // ----------------------------------------------------------
 
-            PlayRound(maxImages[currentMode]);
+            // 先鎖住按鈕防止連點
+            btnRoll.Enabled = false;
+            lblResult.Text = "...";
+            lblResult.BackColor = SystemColors.Control;
+            lblResult.ForeColor = SystemColors.ControlText;
+
+            // 預先取出真正結果
+            Random rng = new Random();
+            int realP1 = rng.Next(1, maxImages[currentMode] + 1);
+            int realP2 = rng.Next(1, maxImages[currentMode] + 1);
+
+            // --- 動畫階段：快速更換 → 漸漸慢下來 → 停在結果 ---
+            // 總共動畫時間約 1.8 秒
+            int totalStages = 12;
+            string prefix = modePrefix[currentMode];
+
+            for (int i = 0; i < totalStages; i++)
+            {
+                // 每回合的間隔時間：50ms → 300ms，呈現減速感
+                int delay = 50 + (i * 25);
+                bool isLast = (i == totalStages - 1);
+
+                // 最後一回合才顯示真正結果，之前顯示隨機假結果
+                int showP1 = isLast ? realP1 : rng.Next(1, maxImages[currentMode] + 1);
+                int showP2 = isLast ? realP2 : rng.Next(1, maxImages[currentMode] + 1);
+
+                // 載入圖片
+                string p1Path = imageFolder + prefix + showP1 + ".png";
+                string p2Path = imageFolder + prefix + showP2 + ".png";
+
+                try
+                {
+                    pbPlayer1.Image = Image.FromFile(p1Path);
+                    pbPlayer2.Image = Image.FromFile(p2Path);
+                    pbPlayer1.Refresh();
+                    pbPlayer2.Refresh();
+                }
+                catch
+                {
+                    // Fallback：圖片缺失時以數字代替
+                    DrawNumberOnPictureBox(pbPlayer1, showP1, Color.Red);
+                    DrawNumberOnPictureBox(pbPlayer2, showP2, Color.Blue);
+                }
+
+                await Task.Delay(delay);
+            }
+
+            // --- 動畫結束，設定真正結果 ---
+            player1Value = realP1;
+            player2Value = realP2;
+
+            // 判定勝負
+            DetermineWinner();
+
+            // 附加歷史紀錄
+            AppendHistory();
+
+            // 恢復按鈕
+            btnRoll.Enabled = true;
         }
 
         // ==================== 核心遊戲邏輯 ====================
