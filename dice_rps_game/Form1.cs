@@ -99,14 +99,14 @@ namespace DiceRPSGame
             int realP2 = rng.Next(1, maxImages[currentMode] + 1);
 
             // --- 動畫階段：快速更換 → 漸漸慢下來 → 停在結果 ---
-            // 總共動畫時間約 1.8 秒
-            int totalStages = 12;
+            // 總共動畫時間約 0.8 秒
+            int totalStages = 8;
             string prefix = modePrefix[currentMode];
 
             for (int i = 0; i < totalStages; i++)
             {
-                // 每回合的間隔時間：50ms → 300ms，呈現減速感
-                int delay = 50 + (i * 25);
+                // 每回合的間隔時間：30ms → 170ms，呈現減速感
+                int delay = 30 + (i * 20);
                 bool isLast = (i == totalStages - 1);
 
                 // 最後一回合才顯示真正結果，之前顯示隨機假結果
