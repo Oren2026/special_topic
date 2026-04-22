@@ -190,7 +190,7 @@ namespace DiceRPSGame
                 // 用差值判斷：(1-3的差=-2, 3-2=1, 2-1=1) → 差為-2時P1勝，否則輪流
                 int diff = player1Value - player2Value;
 
-                if (diff == 0)
+                if (player1Value == player2Value)
                 {
                     resultText = "===== Tie =====";
                     resultColor = Color.DarkOrange;
@@ -206,9 +206,10 @@ namespace DiceRPSGame
                     resultColor = Color.DarkBlue;
                 }
 
-                // 在結果加上實際出招
-                resultText +=
-                    $"   [{rpsNames[player1Value]}] vs [{rpsNames[player2Value]}]";
+                // 在結果加上實際出招名稱
+                string p1Choice = rpsNames[player1Value];
+                string p2Choice = rpsNames[player2Value];
+                resultText = resultText + "   [" + p1Choice + "] vs [" + p2Choice + "]";
             }
 
             // 更新結果標籤
@@ -338,26 +339,37 @@ namespace DiceRPSGame
         /// </summary>
         private void AppendHistory()
         {
-            string entry;
-            if (currentMode == 0)
+            string result;
+            if (player1Value == player2Value)
             {
-                entry = $"[{DateTime.Now:HH:mm:ss}] P1:{player1Value} vs P2:{player2Value} → {
-                    player1Value > player2Value ? "P1" :
-                    player1Value < player2Value ? "P2" : "Tie"}";
+                result = "Tie";
+            }
+            else if (currentMode == 0)
+            {
+                result = (player1Value > player2Value) ? "P1" : "P2";
             }
             else
             {
-                entry = $"[{DateTime.Now:HH:mm:ss}] P1:{rpsNames[player1Value]} vs P2:{rpsNames[player2Value]} → {
-                    player1Value == player2Value ? "Tie" :
-                    (player1Value - player2Value == 1 || player1Value - player2Value == -2) ? "P1" : "P2"}";
+                int diff = player1Value - player2Value;
+                result = (diff == 1 || diff == -2) ? "P1" : "P2";
             }
+
+            string p1Info = (currentMode == 0)
+                ? player1Value.ToString()
+                : rpsNames[player1Value];
+            string p2Info = (currentMode == 0)
+                ? player2Value.ToString()
+                : rpsNames[player2Value];
+
+            string entry = "[" + DateTime.Now.ToString("HH:mm:ss") + "] "
+                + "P1:" + p1Info + " vs P2:" + p2Info + " → " + result;
 
             // 保持最多 20 筆，超過時移除最舊的
             if (lbHistory.Items.Count >= 20)
                 lbHistory.Items.RemoveAt(0);
 
             lbHistory.Items.Add(entry);
-            lbHistory.TopIndex = lbHistory.Items.Count - 1; // 自動捲到最新
+            lbHistory.TopIndex = lbHistory.Items.Count - 1;
         }
 
         // ==================== 結束程式 ====================
