@@ -30,6 +30,7 @@
       color: var(--text);
       line-height: 1.6;
       min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
     }
     .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
     .bilingual { display: flex; flex-direction: column; gap: 0.125rem; }
@@ -55,6 +56,33 @@
       gap: 2rem;
       margin-top: 2rem;
       flex-wrap: wrap;
+    }
+    .theme-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .theme-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.375rem 0.875rem;
+      border-radius: 2rem;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .theme-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .theme-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      font-weight: 600;
     }
     .status-item {
       display: flex;
@@ -257,6 +285,12 @@
 </head>
 <body>
   <header>
+    <div class="theme-switcher">
+      <button class="theme-btn active" data-theme="warm" onclick="switchTheme('warm')">🔥 暖夜</button>
+      <button class="theme-btn" data-theme="ocean" onclick="switchTheme('ocean')">🌊 海洋</button>
+      <button class="theme-btn" data-theme="forest" onclick="switchTheme('forest')">🌿 森林</button>
+      <button class="theme-btn" data-theme="sand" onclick="switchTheme('sand')">🏜️ 沙漠</button>
+    </div>
     <h1>🎯 黑皮研究藍圖</h1>
     <div class="bilingual">
       <span class="en">Research Blueprint for 黑皮</span>
@@ -391,6 +425,68 @@
   </footer>
 
   <script>
+    const themes = {
+      warm: {
+        bg: '#14110f', card: '#1e1814', cardHover: '#261e19', border: '#3d3028',
+        text: '#f5f0e8', textMuted: '#a09080', accent: '#e07b39',
+        accentGlow: '#e07b3940', phase1: '#e05c3a', phase2: '#d4a843',
+        phase3: '#7cb342', phase4: '#5c9fd4', en: '#d4a843', zh: '#e07b39',
+        checked: '#7cb342', unchecked: '#3d3028'
+      },
+      ocean: {
+        bg: '#0d1319', card: '#142032', cardHover: '#1a2840', border: '#2a4060',
+        text: '#e8f0f8', textMuted: '#8090a0', accent: '#4a9fd4',
+        accentGlow: '#4a9fd440', phase1: '#e06060', phase2: '#4a9fd4',
+        phase3: '#4acd9f', phase4: '#9f7ae0', en: '#4a9fd4', zh: '#4acd9f',
+        checked: '#4acd9f', unchecked: '#2a4060'
+      },
+      forest: {
+        bg: '#0f1410', card: '#182019', cardHover: '#1e2a20', border: '#2a3d2c',
+        text: '#e8f4e8', textMuted: '#809080', accent: '#5cb85c',
+        accentGlow: '#5cb85c40', phase1: '#e07040', phase2: '#d4a843',
+        phase3: '#5cb85c', phase4: '#6090d0', en: '#d4a843', zh: '#5cb85c',
+        checked: '#5cb85c', unchecked: '#2a3d2c'
+      },
+      sand: {
+        bg: '#1a1612', card: '#2a231c', cardHover: '#342c24', border: '#4a3d30',
+        text: '#f4ece0', textMuted: '#a09080', accent: '#d4a043',
+        accentGlow: '#d4a04340', phase1: '#c87040', phase2: '#d4a043',
+        phase3: '#8fbc5c', phase4: '#6a9fd4', en: '#d4a043', zh: '#c87040',
+        checked: '#8fbc5c', unchecked: '#4a3d30'
+      }
+    };
+
+    function setTheme(name) {
+      const t = themes[name];
+      const root = document.documentElement;
+      root.style.setProperty('--bg', t.bg);
+      root.style.setProperty('--card', t.card);
+      root.style.setProperty('--card-hover', t.cardHover);
+      root.style.setProperty('--border', t.border);
+      root.style.setProperty('--text', t.text);
+      root.style.setProperty('--text-muted', t.textMuted);
+      root.style.setProperty('--accent', t.accent);
+      root.style.setProperty('--accent-glow', t.accentGlow);
+      root.style.setProperty('--phase1', t.phase1);
+      root.style.setProperty('--phase2', t.phase2);
+      root.style.setProperty('--phase3', t.phase3);
+      root.style.setProperty('--phase4', t.phase4);
+      root.style.setProperty('--en', t.en);
+      root.style.setProperty('--zh', t.zh);
+      root.style.setProperty('--checked', t.checked);
+      root.style.setProperty('--unchecked', t.unchecked);
+      localStorage.setItem('blueprint-theme', name);
+    }
+
+    function switchTheme(name) {
+      document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`[data-theme="${name}"]`).classList.add('active');
+      setTheme(name);
+    }
+
+    const savedTheme = localStorage.getItem('blueprint-theme') || 'warm';
+    switchTheme(savedTheme);
+
     const phases = {
       phase1: [
         '確認「智能電網 + AI」是主要方向',
