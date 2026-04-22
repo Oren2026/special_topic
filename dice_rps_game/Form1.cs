@@ -35,7 +35,9 @@ namespace DiceRPSGame
         // 圖片來源資料夾（執行檔目錄下的 images/）
         private string imageFolder;
 
-        // 骰子圖片最大數（6），猜拳圖片最大數（3）
+        // 骰子與猜拳的圖片前綴（避免檔名衝突）
+        // 骰子：d1.png ~ d6.png；猜拳：r1.png(剪刀) r2.png(石頭) r3.png(布)
+        private readonly string[] modePrefix = { "d", "r" };
         private readonly int[] maxImages = { 6, 3 };
 
         // 猜拳的名稱對照（用於結果顯示）
@@ -105,8 +107,10 @@ namespace DiceRPSGame
 
                 // --- Step 2：動態載入圖片到 PictureBox ---
                 // 說明：這裡用 try-catch 包住，防止圖片缺失時整個程式崩掉
-                string p1Path = imageFolder + player1Value + ".png";
-                string p2Path = imageFolder + player2Value + ".png";
+                // 檔名使用前綴區分：骰子 d1.png~d6.png，猜拳 r1.png~r3.png
+                string prefix = modePrefix[currentMode];
+                string p1Path = imageFolder + prefix + player1Value + ".png";
+                string p2Path = imageFolder + prefix + player2Value + ".png";
 
                 try
                 {
@@ -269,7 +273,9 @@ namespace DiceRPSGame
         {
             try
             {
-                string defaultPath = imageFolder + "1.png";
+                // 根據目前模式載入對應前綴的 1.png（例如 d1.png 或 r1.png）
+                string prefix = modePrefix[currentMode];
+                string defaultPath = imageFolder + prefix + "1.png";
                 if (System.IO.File.Exists(defaultPath))
                 {
                     pbPlayer1.Image = Image.FromFile(defaultPath);
