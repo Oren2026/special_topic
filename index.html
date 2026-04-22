@@ -6,17 +6,19 @@
   <title>⚡ Smart Grid Research | 智能電網研究</title>
   <style>
     :root {
-      --bg: #0f1117;
-      --card: #1a1d27;
-      --border: #2a2d3a;
-      --text: #e4e4e7;
-      --text-muted: #71717a;
-      --accent: #3b82f6;
-      --accent-hover: #60a5fa;
-      --tag-bg: #2563eb20;
-      --tag-text: #93c5fd;
-      --en: #10b981;
-      --zh: #f59e0b;
+      --bg: #faf6f0;
+      --card: #ffffff;
+      --card-hover: #fff9f0;
+      --border: #e8ddd0;
+      --text: #3d3028;
+      --text-muted: #7a6a58;
+      --accent: #c0682a;
+      --accent-hover: #a05820;
+      --accent-glow: #c0682a20;
+      --tag-bg: #c0682a15;
+      --tag-text: #c0682a;
+      --en: #8a6820;
+      --zh: #c0682a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -25,23 +27,47 @@
       color: var(--text);
       line-height: 1.7;
       min-height: 100vh;
-    }
+.container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
     .bilingual { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: baseline; }
-    .en { color: var(--en); font-weight: 500; }
+    .en { color: var(--en); font-weight: 600; }
     .zh { color: var(--zh); }
-    .bilingual-line { display: flex; flex-direction: column; gap: 0.125rem; }
-    .bilingual-line .en { font-size: 0.875rem; }
-    .bilingual-line .zh { font-size: 0.8125rem; color: var(--zh); opacity: 0.85; }
-    header {
-      border-bottom: 1px solid var(--border);
-      padding: 2rem;
-      background: linear-gradient(180deg, #13151e 0%, var(--bg) 100%);
-    }
-    header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
-    header .subtitle { color: var(--text-muted); font-size: 0.875rem; }
     .bilingual-header { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 1rem; }
     .bilingual-header .en { font-size: 1.125rem; font-weight: 600; color: var(--en); }
     .bilingual-header .zh { font-size: 1rem; color: var(--zh); }
+    .theme-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .theme-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.375rem 0.875rem;
+      border-radius: 2rem;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .theme-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .theme-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 2rem;
+      background: linear-gradient(180deg, #faf6f0 0%, var(--bg) 100%);
+    }
+    header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    header .subtitle { color: var(--text-muted); font-size: 0.875rem; }
     header .stats { display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap; }
     header .stat { display: flex; flex-direction: column; }
     header .stat-value { font-size: 1.25rem; font-weight: 600; color: var(--accent); }
@@ -86,7 +112,7 @@
       background: var(--tag-bg);
       color: var(--tag-text);
     }
-    .paper-type.arxiv { background: #dc262620; color: #fca5a5; }
+    .paper-type.arxiv { background: #c0402020; color: #c04020; }
     .paper-date { font-size: 0.75rem; color: var(--text-muted); }
     .paper-title {
       font-size: 0.9375rem;
@@ -103,13 +129,13 @@
       border-radius: 0.25rem;
       color: var(--text-muted);
     }
-    .tag.ai { border-color: #8b5cf6; color: #c4b5fd; }
-    .tag.grid { border-color: #0891b2; color: #67e8f9; }
-    .tag.security { border-color: #dc2626; color: #fca5a5; }
-    .tag.energy { border-color: #ca8a04; color: #fef08a; }
-    .tag.digital-twin { border-color: #7c3aed; color: #c4b5fd; }
-    .tag.nuclear { border-color: #dc2626; color: #fca5a5; }
-    .tag.prediction { border-color: #0891b2; color: #67e8f9; }
+    .tag.ai { border-color: #7c3aed; color: #7c3aed; }
+    .tag.grid { border-color: #0891b2; color: #0891b2; }
+    .tag.security { border-color: #dc2626; color: #dc2626; }
+    .tag.energy { border-color: #ca8a04; color: #ca8a04; }
+    .tag.digital-twin { border-color: #7c3aed; color: #7c3aed; }
+    .tag.nuclear { border-color: #c04020; color: #c04020; }
+    .tag.prediction { border-color: #0891b2; color: #0891b2; }
     .paper-link {
       display: inline-flex;
       align-items: center;
@@ -166,13 +192,13 @@
       margin-top: 3rem;
     }
     .lang-note {
-      background: #05966920;
-      border: 1px solid #05966950;
+      background: #c0682a15;
+      border: 1px solid #c0682a30;
       border-radius: 0.5rem;
       padding: 0.75rem 1rem;
       margin-bottom: 1.5rem;
       font-size: 0.8125rem;
-      color: #6ee7b7;
+      color: #8a5018;
     }
     @media (max-width: 640px) {
       .papers-grid { grid-template-columns: 1fr; }
@@ -182,6 +208,12 @@
 </head>
 <body>
   <header>
+    <div class="theme-switcher">
+      <button class="theme-btn active" data-theme="warm" onclick="switchTheme('warm')">🔥 暖</button>
+      <button class="theme-btn" data-theme="ocean" onclick="switchTheme('ocean')">🌊 海</button>
+      <button class="theme-btn" data-theme="forest" onclick="switchTheme('forest')">🌿 森</button>
+      <button class="theme-btn" data-theme="sand" onclick="switchTheme('sand')">🏜️ 漠</button>
+    </div>
     <div class="bilingual-header">
       <span class="en">⚡ Smart Grid Research Trends</span>
       <span class="zh">智能電網研究趨勢</span>
@@ -418,6 +450,54 @@
       `;
       vocabContainer.appendChild(item);
     });
+
+    const themes = {
+      warm: {
+        bg: '#faf6f0', card: '#ffffff', cardHover: '#fff9f0', border: '#e8ddd0',
+        text: '#3d3028', textMuted: '#7a6a58', accent: '#c0682a',
+        accentGlow: '#c0682a20', en: '#8a6820', zh: '#c0682a'
+      },
+      ocean: {
+        bg: '#0d1319', card: '#142032', cardHover: '#1a2840', border: '#2a4060',
+        text: '#e8f0f8', textMuted: '#8090a0', accent: '#4a9fd4',
+        accentGlow: '#4a9fd440', en: '#4a9fd4', zh: '#4acd9f'
+      },
+      forest: {
+        bg: '#0f1410', card: '#182019', cardHover: '#1e2a20', border: '#2a3d2c',
+        text: '#e8f4e8', textMuted: '#809080', accent: '#5cb85c',
+        accentGlow: '#5cb85c40', en: '#d4a843', zh: '#5cb85c'
+      },
+      sand: {
+        bg: '#f8f4ec', card: '#ffffff', cardHover: '#fdf8f0', border: '#e0d4c0',
+        text: '#3d3020', textMuted: '#7a6a50', accent: '#b08020',
+        accentGlow: '#b0802040', en: '#8a7018', zh: '#a86828'
+      }
+    };
+
+    function setTheme(name) {
+      const t = themes[name];
+      const root = document.documentElement;
+      root.style.setProperty('--bg', t.bg);
+      root.style.setProperty('--card', t.card);
+      root.style.setProperty('--card-hover', t.cardHover);
+      root.style.setProperty('--border', t.border);
+      root.style.setProperty('--text', t.text);
+      root.style.setProperty('--text-muted', t.textMuted);
+      root.style.setProperty('--accent', t.accent);
+      root.style.setProperty('--accent-glow', t.accentGlow);
+      root.style.setProperty('--en', t.en);
+      root.style.setProperty('--zh', t.zh);
+      localStorage.setItem('research-theme', name);
+    }
+
+    function switchTheme(name) {
+      document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`[data-theme="${name}"]`).classList.add('active');
+      setTheme(name);
+    }
+
+    const savedTheme = localStorage.getItem('research-theme') || 'warm';
+    switchTheme(savedTheme);
 
     renderPapers();
   </script>
