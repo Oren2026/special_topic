@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Random = System.Random;
 
@@ -9,15 +10,20 @@ namespace MidtermExam
     {
         private Label[] diceLabels = new Label[3];
         private Label lblScore;
+        private ListBox lstHistory;          // 紀錄列表
+        private List<string> historyRecords; // 儲存最近10筆紀錄
         private Random rand = new Random();
         
         public DiceForm()
         {
             this.Text = "擲骰子 - 期中考";
-            this.Size = new Size(400, 350);
+            this.Size = new Size(600, 350);  // 加寬視窗
             this.StartPosition = FormStartPosition.CenterScreen;
             
+            historyRecords = new List<string>();
+            
             InitializeDiceLabels();
+            InitializeHistoryPanel();
             InitializeButtons();
         }
         
@@ -43,6 +49,24 @@ namespace MidtermExam
             this.Controls.Add(lblScore);
         }
         
+        private void InitializeHistoryPanel()
+        {
+            // 紀錄標題
+            Label lblHistoryTitle = new Label();
+            lblHistoryTitle.Text = "📋 最近10筆紀錄";
+            lblHistoryTitle.Location = new Point(400, 30);
+            lblHistoryTitle.Size = new Size(150, 25);
+            lblHistoryTitle.Font = new Font("微軟正黑體", 11, FontStyle.Bold);
+            this.Controls.Add(lblHistoryTitle);
+            
+            // 紀錄列表
+            lstHistory = new ListBox();
+            lstHistory.Location = new Point(400, 60);
+            lstHistory.Size = new Size(170, 200);
+            lstHistory.Font = new Font("Consolas", 10);
+            this.Controls.Add(lstHistory);
+        }
+        
         private void InitializeButtons()
         {
             Button btnRoll = new Button();
@@ -58,6 +82,14 @@ namespace MidtermExam
             btnGame.Size = new Size(130, 40);
             btnGame.Click += BtnGame_Click;
             this.Controls.Add(btnGame);
+            
+            // C. 清空紀錄按鈕
+            Button btnClearHistory = new Button();
+            btnClearHistory.Text = "C. 清空紀錄";
+            btnClearHistory.Location = new Point(400, 270);
+            btnClearHistory.Size = new Size(170, 35);
+            btnClearHistory.Click += BtnClearHistory_Click;
+            this.Controls.Add(btnClearHistory);
         }
         
         private void BtnRoll_Click(object sender, EventArgs e)
@@ -71,7 +103,13 @@ namespace MidtermExam
                 diceLabels[i].Text = dice[i].ToString();
                 sum += dice[i];
             }
-            lblScore.Text = $"分數：{sum}";
+            
+            string result = $"分數：{sum}";
+            lblScore.Text = result;
+            
+            // 記錄：骰子[1,2,3] = 總分6
+            string record = $"骰子[{dice[0]},{dice[1]},{dice[2]}] = 總分{sum}";
+            AddToHistory(record);
         }
         
         private void BtnGame_Click(object sender, EventArgs e)
@@ -85,7 +123,37 @@ namespace MidtermExam
             }
             
             int score = CalculateGameScore(dice);
-            lblScore.Text = GetResultText(dice, score);
+            string resultText = GetResultText(dice, score);
+            lblScore.Text = resultText;
+            
+            // 記錄
+            string record = $"骰子[{dice[0]},{dice[1]},{dice[2]}] → {resultText}";
+            AddToHistory(record);
+        }
+        
+        private void BtnClearHistory_Click(object sender, EventArgs e)
+        {
+            historyRecords.Clear();
+            lstHistory.Items.Clear();
+        }
+        
+        // 新增紀錄到歷史列表（最多10筆）
+        private void AddToHistory(string record)
+        {
+            historyRecords.Insert(0, record);  // 最新的在上面
+            
+            // 保持最多10筆
+            if (historyRecords.Count > 10)
+            {
+                historyRecords.RemoveAt(historyRecords.Count - 1);
+            }
+            
+            // 更新顯示
+            lstHistory.Items.Clear();
+            for (int i = 0; i < historyRecords.Count; i++)
+            {
+                lstHistory.Items.Add($"{i + 1}. {historyRecords[i]}");
+            }
         }
         
         private int CalculateGameScore(int[] dice)
