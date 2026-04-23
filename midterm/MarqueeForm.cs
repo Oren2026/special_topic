@@ -1,7 +1,6 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using SystemTimer = System.Timers.Timer;
 
 namespace MidtermExam
 {
@@ -14,15 +13,14 @@ namespace MidtermExam
         // 位置：0=上, 1=右, 2=下, 3=左 (順時鐘順序)
         private int[] positions = { 0, 1, 2, 3 };
         
-        // 動畫用的計時器
-        private SystemTimer animationTimer;
+        // 動畫用的計時器 (Windows.Forms.Timer 在 UI 執行緒上跑)
+        private Timer animationTimer;
         private int animationStep = 0;
         private bool isAnimating = false;
         
         // 動畫狀態
-        private float[] currentScales;  // 每個標籤目前的縮放
-        private float targetScale = 1.0f;
-        private float pulseScale = 0.5f;  // 動畫時縮小到50%
+        private float[] currentScales;
+        private float pulseScale = 0.6f;
         
         public MarqueeForm()
         {
@@ -34,10 +32,10 @@ namespace MidtermExam
             currentScales = new float[4];
             for (int i = 0; i < 4; i++) currentScales[i] = 1.0f;
             
-            // 動畫計時器：每30ms更新一次
-            animationTimer = new SystemTimer();
-            animationTimer.Interval = 30;
-            animationTimer.Elapsed += AnimationTimer_Tick;
+            // Windows.Forms.Timer：每40ms更新一次動畫
+            animationTimer = new Timer();
+            animationTimer.Interval = 40;
+            animationTimer.Tick += AnimationTimer_Tick;
             
             InitializeLabels();
             InitializeButtons();
@@ -89,7 +87,6 @@ namespace MidtermExam
         
         private Point[] GetTargetPositions()
         {
-            // 上下左右四個位置（更靠近中心）
             return new Point[] {
                 new Point(160, 30),   // 上 - 北
                 new Point(300, 150),  // 右 - 東
@@ -112,14 +109,14 @@ namespace MidtermExam
             for (int i = 0; i < 4; i++)
             {
                 float scale = currentScales[i];
-                // 使用 Font 的縮放效果：改變字體大小
                 int baseSize = 36;
                 int fontSize = (int)(baseSize * scale);
-                if (fontSize < 10) fontSize = 10;
+                if (fontSize < 8) fontSize = 8;
                 labels[i].Font = new Font("微軟正黑體", fontSize, FontStyle.Bold);
                 
                 // 調整透明度配合動畫
-                int alpha = (int)(150 + 105 * scale);
+                int alpha = (int)(120 + 135 * scale);
+                if (alpha > 255) alpha = 255;
                 labels[i].ForeColor = Color.FromArgb(alpha, colors[i]);
             }
         }
@@ -136,25 +133,19 @@ namespace MidtermExam
         {
             animationStep++;
             
-            if (animationStep <= 5)
+            if (animationStep <= 4)
             {
-                // 第一階段：縮小（所有標籤一起縮小）
-                float t = animationStep / 5f;
+                // 第一階段：縮小
+                float t = animationStep / 4f;
                 for (int i = 0; i < 4; i++)
                 {
                     currentScales[i] = 1.0f - (1.0f - pulseScale) * t;
                 }
             }
-            else if (animationStep == 6)
+            else if (animationStep <= 8)
             {
-                // 第二階段：中間點，換位置
-                if (sender is SystemTimer) { }
-                // 已經在事件處理前換位置了，這裡不做額外事
-            }
-            else if (animationStep <= 11)
-            {
-                // 第三階段：恢復（所有標籤一起放大）
-                float t = (animationStep - 6) / 5f;
+                // 第二階段：放大回來
+                float t = (animationStep - 4) / 4f;
                 for (int i = 0; i < 4; i++)
                 {
                     currentScales[i] = pulseScale + (1.0f - pulseScale) * t;
@@ -174,12 +165,11 @@ namespace MidtermExam
             UpdateLabelScales();
         }
         
-        // 左轉：逆時鐘轉動 (北→西→南→東→北)
+        // 左轉：逆時鐘轉動
         private void BtnLeft_Click(object sender, EventArgs e)
         {
             if (isAnimating) return;
             
-            // 先換位置
             int last = positions[3];
             for (int i = 3; i > 0; i--)
             {
@@ -187,17 +177,15 @@ namespace MidtermExam
             }
             positions[0] = last;
             
-            // 啟動動畫
-            StartAnimation();
             UpdateLabelPositions();
+            StartAnimation();
         }
         
-        // 右轉：順時鐘轉動 (北→東→南→西→北)
+        // 右轉：順時鐘轉動
         private void BtnRight_Click(object sender, EventArgs e)
         {
             if (isAnimating) return;
             
-            // 先換位置
             int first = positions[0];
             for (int i = 0; i < 3; i++)
             {
@@ -205,9 +193,8 @@ namespace MidtermExam
             }
             positions[3] = first;
             
-            // 啟動動畫
-            StartAnimation();
             UpdateLabelPositions();
+            StartAnimation();
         }
         
         protected override void OnFormClosed(FormClosedEventArgs e)
