@@ -13,28 +13,33 @@ namespace MidtermExam
         // 位置：0=上, 1=右, 2=下, 3=左 (順時鐘順序)
         private int[] positions = { 0, 1, 2, 3 };
         
-        // Windows.Forms.Timer 在 UI 執行緒上跑
-        private System.Windows.Forms.Timer animationTimer;
-        private int animationStep = 0;
-        private bool isAnimating = false;
+        // 四個定點座標
+        private Point[] targetPoints;
         
-        // 動畫狀態
-        private float[] currentScales;
-        private float pulseScale = 0.6f;
+        // 動畫用
+        private System.Windows.Forms.Timer animationTimer;
+        private int animationFrame = 0;
+        private int totalFrames = 8;
+        private Point[][] framePositions;  // 每幀每個label的位置
+        private bool isAnimating = false;
         
         public MarqueeForm()
         {
             this.Text = "跑馬燈 - 期中考";
-            this.Size = new Size(400, 400);
+            this.Size = new Size(420, 450);
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = Color.FromArgb(30, 30, 30);
+            this.BackColor = Color.FromArgb(240, 235, 224);  // 溫暖米白背景
             
-            currentScales = new float[4];
-            for (int i = 0; i < 4; i++) currentScales[i] = 1.0f;
+            // 四個定點座標（上下左右）
+            targetPoints = new Point[] {
+                new Point(170, 40),    // 上 - 北
+                new Point(320, 150),   // 右 - 東
+                new Point(170, 260),   // 下 - 南
+                new Point(20, 150)      // 左 - 西
+            };
             
-            // Windows.Forms.Timer：每40ms更新一次動畫
             animationTimer = new System.Windows.Forms.Timer();
-            animationTimer.Interval = 40;
+            animationTimer.Interval = 30;
             animationTimer.Tick += AnimationTimer_Tick;
             
             InitializeLabels();
@@ -49,120 +54,151 @@ namespace MidtermExam
                 labels[i] = new Label();
                 labels[i].Text = texts[i];
                 labels[i].ForeColor = colors[i];
-                labels[i].Font = new Font("微軟正黑體", 36, FontStyle.Bold);
+                labels[i].Font = new Font("Microsoft JhengHei", 32, FontStyle.Bold);
                 labels[i].AutoSize = false;
                 labels[i].Size = new Size(80, 80);
                 labels[i].TextAlign = ContentAlignment.MiddleCenter;
-                labels[i].BackColor = Color.FromArgb(50, 50, 50);
+                labels[i].BackColor = Color.White;
                 labels[i].FlatStyle = FlatStyle.Flat;
                 labels[i].BorderStyle = BorderStyle.FixedSingle;
+                labels[i].Cursor = Cursors.Hand;
+                
+                // 加入陰影效果
+                labels[i].Paint += Label_Paint;
                 this.Controls.Add(labels[i]);
+            }
+        }
+        
+        private void Label_Paint(object sender, PaintEventArgs e)
+        {
+            Label lbl = sender as Label;
+            if (lbl == null) return;
+            
+            // 簡單陰影
+            using (Pen pen = new Pen(Color.FromArgb(50, 0, 0, 0), 2))
+            {
+                Rectangle rect = new Rectangle(lbl.Left + 3, lbl.Top + 3, lbl.Width, lbl.Height);
+                e.Graphics.DrawRectangle(pen, rect);
             }
         }
         
         private void InitializeButtons()
         {
             Button btnLeft = new Button();
-            btnLeft.Text = "◀ 左轉 (逆時鐘)";
-            btnLeft.Size = new Size(130, 45);
-            btnLeft.Location = new Point(60, 330);
-            btnLeft.Font = new Font("微軟正黑體", 11);
-            btnLeft.BackColor = Color.FromArgb(60, 60, 60);
+            btnLeft.Text = "◀ 左轉";
+            btnLeft.Size = new Size(120, 45);
+            btnLeft.Location = new Point(70, 380);
+            btnLeft.Font = new Font("Microsoft JhengHei", 12, FontStyle.Bold);
+            btnLeft.BackColor = Color.FromArgb(70, 130, 180);  //  SteelBlue
             btnLeft.ForeColor = Color.White;
             btnLeft.FlatStyle = FlatStyle.Flat;
+            btnLeft.FlatAppearance.BorderSize = 0;
             btnLeft.Click += BtnLeft_Click;
             this.Controls.Add(btnLeft);
             
             Button btnRight = new Button();
-            btnRight.Text = "右轉 (順時鐘) ▶";
-            btnRight.Size = new Size(130, 45);
-            btnRight.Location = new Point(210, 330);
-            btnRight.Font = new Font("微軟正黑體", 11);
-            btnRight.BackColor = Color.FromArgb(60, 60, 60);
+            btnRight.Text = "右轉 ▶";
+            btnRight.Size = new Size(120, 45);
+            btnRight.Location = new Point(220, 380);
+            btnRight.Font = new Font("Microsoft JhengHei", 12, FontStyle.Bold);
+            btnRight.BackColor = Color.FromArgb(205, 133, 63);  //  Peru / 棕色
             btnRight.ForeColor = Color.White;
             btnRight.FlatStyle = FlatStyle.Flat;
+            btnRight.FlatAppearance.BorderSize = 0;
             btnRight.Click += BtnRight_Click;
             this.Controls.Add(btnRight);
         }
         
-        private Point[] GetTargetPositions()
+        private Point[] GetStartPositions()
         {
-            return new Point[] {
-                new Point(160, 30),   // 上 - 北
-                new Point(300, 150),  // 右 - 東
-                new Point(160, 260),  // 下 - 南
-                new Point(20, 150)    // 左 - 西
-            };
+            Point[] starts = new Point[4];
+            for (int i = 0; i < 4; i++)
+            {
+                starts[positions[i]] = targetPoints[i];
+            }
+            return starts;
+        }
+        
+        private Point[] GetEndPositions(int[] newPositions)
+        {
+            Point[] ends = new Point[4];
+            for (int i = 0; i < 4; i++)
+            {
+                ends[newPositions[i]] = targetPoints[i];
+            }
+            return ends;
         }
         
         private void UpdateLabelPositions()
         {
-            Point[] points = GetTargetPositions();
             for (int i = 0; i < 4; i++)
             {
-                labels[positions[i]].Location = points[i];
+                labels[positions[i]].Location = targetPoints[i];
             }
         }
         
-        private void UpdateLabelScales()
+        // 計算兩點之間的中間點
+        private Point MidPoint(Point p1, Point p2, float t)
         {
-            for (int i = 0; i < 4; i++)
+            return new Point(
+                (int)(p1.X + (p2.X - p1.X) * t),
+                (int)(p1.Y + (p2.Y - p1.Y) * t)
+            );
+        }
+        
+        // 計算動畫幀
+        private void PrepareAnimationFrames(Point[] startPos, Point[] endPos)
+        {
+            framePositions = new Point[totalFrames + 1][];
+            
+            for (int frame = 0; frame <= totalFrames; frame++)
             {
-                float scale = currentScales[i];
-                int baseSize = 36;
-                int fontSize = (int)(baseSize * scale);
-                if (fontSize < 8) fontSize = 8;
-                labels[i].Font = new Font("微軟正黑體", fontSize, FontStyle.Bold);
+                float t = (float)frame / totalFrames;
+                // 使用 easeInOut 曲線讓動畫更平滑
+                float easedT = EaseInOut(t);
                 
-                // 調整透明度配合動畫
-                int alpha = (int)(120 + 135 * scale);
-                if (alpha > 255) alpha = 255;
-                labels[i].ForeColor = Color.FromArgb(alpha, colors[i]);
+                framePositions[frame] = new Point[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    framePositions[frame][i] = MidPoint(startPos[i], endPos[i], easedT);
+                }
             }
+        }
+        
+        // 緩入緩出曲線
+        private float EaseInOut(float t)
+        {
+            return t < 0.5f 
+                ? 2 * t * t 
+                : -1 + (4 - 2 * t) * t;
         }
         
         private void StartAnimation()
         {
             if (isAnimating) return;
             isAnimating = true;
-            animationStep = 0;
+            animationFrame = 0;
             animationTimer.Start();
         }
         
         private void AnimationTimer_Tick(object sender, EventArgs e)
         {
-            animationStep++;
+            animationFrame++;
             
-            if (animationStep <= 4)
+            if (animationFrame <= totalFrames)
             {
-                // 第一階段：縮小
-                float t = animationStep / 4f;
+                // 更新每個label的位置
                 for (int i = 0; i < 4; i++)
                 {
-                    currentScales[i] = 1.0f - (1.0f - pulseScale) * t;
-                }
-            }
-            else if (animationStep <= 8)
-            {
-                // 第二階段：放大回來
-                float t = (animationStep - 4) / 4f;
-                for (int i = 0; i < 4; i++)
-                {
-                    currentScales[i] = pulseScale + (1.0f - pulseScale) * t;
+                    labels[i].Location = framePositions[animationFrame][i];
                 }
             }
             else
             {
-                // 完成動畫
+                // 動畫結束
                 animationTimer.Stop();
                 isAnimating = false;
-                for (int i = 0; i < 4; i++)
-                {
-                    currentScales[i] = 1.0f;
-                }
             }
-            
-            UpdateLabelScales();
         }
         
         // 左轉：逆時鐘轉動
@@ -170,14 +206,26 @@ namespace MidtermExam
         {
             if (isAnimating) return;
             
-            int last = positions[3];
+            // 儲存動畫前的位置
+            Point[] startPos = GetStartPositions();
+            
+            // 計算新位置（逆時針）
+            int[] newPositions = (int[])positions.Clone();
+            int last = newPositions[3];
             for (int i = 3; i > 0; i--)
             {
-                positions[i] = positions[i - 1];
+                newPositions[i] = newPositions[i - 1];
             }
-            positions[0] = last;
+            newPositions[0] = last;
             
-            UpdateLabelPositions();
+            // 計算動畫幀
+            Point[] endPos = GetEndPositions(newPositions);
+            PrepareAnimationFrames(startPos, endPos);
+            
+            // 更新邏輯位置
+            positions = newPositions;
+            
+            // 開始動畫
             StartAnimation();
         }
         
@@ -186,14 +234,20 @@ namespace MidtermExam
         {
             if (isAnimating) return;
             
-            int first = positions[0];
+            Point[] startPos = GetStartPositions();
+            
+            int[] newPositions = (int[])positions.Clone();
+            int first = newPositions[0];
             for (int i = 0; i < 3; i++)
             {
-                positions[i] = positions[i + 1];
+                newPositions[i] = newPositions[i + 1];
             }
-            positions[3] = first;
+            newPositions[3] = first;
             
-            UpdateLabelPositions();
+            Point[] endPos = GetEndPositions(newPositions);
+            PrepareAnimationFrames(startPos, endPos);
+            
+            positions = newPositions;
             StartAnimation();
         }
         
