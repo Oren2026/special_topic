@@ -9,20 +9,23 @@ namespace MidtermExam
     public class DiceForm : Form
     {
         private Label[] diceLabels = new Label[3];
-        private Label lblScore;
-        private ListBox lstHistory;          // 紀錄列表
-        private List<string> historyRecords; // 儲存最近10筆紀錄
+        private Label lblScore;                      // 大格顯示結果
+        private ListBox lstHistory;                   // 紀錄列表
+        private List<string> historyRecords;
         private Random rand = new Random();
+        private int recordCounter;                    // 紀錄編號
         
         public DiceForm()
         {
             this.Text = "擲骰子 - 期中考";
-            this.Size = new Size(600, 350);  // 加寬視窗
+            this.Size = new Size(620, 420);
             this.StartPosition = FormStartPosition.CenterScreen;
             
             historyRecords = new List<string>();
+            recordCounter = 0;
             
             InitializeDiceLabels();
+            InitializeScorePanel();
             InitializeHistoryPanel();
             InitializeButtons();
         }
@@ -33,19 +36,27 @@ namespace MidtermExam
             {
                 diceLabels[i] = new Label();
                 diceLabels[i].Text = "?";
-                diceLabels[i].Font = new Font("Times New Roman", 36, FontStyle.Bold);
-                diceLabels[i].Location = new Point(60 + i * 100, 50);
-                diceLabels[i].Size = new Size(80, 80);
+                diceLabels[i].Font = new Font("Times New Roman", 42, FontStyle.Bold);
+                diceLabels[i].Location = new Point(50 + i * 95, 40);
+                diceLabels[i].Size = new Size(85, 85);
                 diceLabels[i].TextAlign = ContentAlignment.MiddleCenter;
                 diceLabels[i].BorderStyle = BorderStyle.FixedSingle;
                 this.Controls.Add(diceLabels[i]);
             }
-            
+        }
+        
+        // 大的計分結果格子
+        private void InitializeScorePanel()
+        {
             lblScore = new Label();
-            lblScore.Text = "分數：0";
-            lblScore.Location = new Point(130, 150);
-            lblScore.AutoSize = true;
-            lblScore.Font = new Font("微軟正黑體", 14);
+            lblScore.Name = "lblScore";
+            lblScore.Text = "等待擲骰子...";
+            lblScore.Location = new Point(30, 140);
+            lblScore.Size = new Size(340, 80);
+            lblScore.TextAlign = ContentAlignment.MiddleCenter;
+            lblScore.Font = new Font("微軟正黑體", 18, FontStyle.Bold);
+            lblScore.BorderStyle = BorderStyle.FixedSingle;
+            lblScore.BackColor = Color.White;
             this.Controls.Add(lblScore);
         }
         
@@ -53,16 +64,16 @@ namespace MidtermExam
         {
             // 紀錄標題
             Label lblHistoryTitle = new Label();
-            lblHistoryTitle.Text = "📋 最近10筆紀錄";
+            lblHistoryTitle.Text = "📋 遊戲紀錄 (最近10筆)";
             lblHistoryTitle.Location = new Point(400, 30);
-            lblHistoryTitle.Size = new Size(150, 25);
+            lblHistoryTitle.Size = new Size(200, 25);
             lblHistoryTitle.Font = new Font("微軟正黑體", 11, FontStyle.Bold);
             this.Controls.Add(lblHistoryTitle);
             
             // 紀錄列表
             lstHistory = new ListBox();
             lstHistory.Location = new Point(400, 60);
-            lstHistory.Size = new Size(170, 200);
+            lstHistory.Size = new Size(200, 250);
             lstHistory.Font = new Font("Consolas", 10);
             this.Controls.Add(lstHistory);
         }
@@ -70,24 +81,28 @@ namespace MidtermExam
         private void InitializeButtons()
         {
             Button btnRoll = new Button();
-            btnRoll.Text = "A. 擲三顆骰子";
-            btnRoll.Location = new Point(50, 200);
-            btnRoll.Size = new Size(130, 40);
+            btnRoll.Name = "btnRoll";
+            btnRoll.Text = "A. 擲三顆骰子 (總分)";
+            btnRoll.Location = new Point(30, 240);
+            btnRoll.Size = new Size(170, 45);
+            btnRoll.Font = new Font("微軟正黑體", 10);
             btnRoll.Click += BtnRoll_Click;
             this.Controls.Add(btnRoll);
             
             Button btnGame = new Button();
-            btnGame.Text = "B. 遊戲得分";
-            btnGame.Location = new Point(200, 200);
-            btnGame.Size = new Size(130, 40);
+            btnGame.Name = "btnGame";
+            btnGame.Text = "B. 遊戲得分模式";
+            btnGame.Location = new Point(210, 240);
+            btnGame.Size = new Size(170, 45);
+            btnGame.Font = new Font("微軟正黑體", 10);
             btnGame.Click += BtnGame_Click;
             this.Controls.Add(btnGame);
             
-            // C. 清空紀錄按鈕
             Button btnClearHistory = new Button();
             btnClearHistory.Text = "C. 清空紀錄";
-            btnClearHistory.Location = new Point(400, 270);
-            btnClearHistory.Size = new Size(170, 35);
+            btnClearHistory.Location = new Point(400, 320);
+            btnClearHistory.Size = new Size(200, 35);
+            btnClearHistory.Font = new Font("微軟正黑體", 10);
             btnClearHistory.Click += BtnClearHistory_Click;
             this.Controls.Add(btnClearHistory);
         }
@@ -104,11 +119,11 @@ namespace MidtermExam
                 sum += dice[i];
             }
             
-            string result = $"分數：{sum}";
-            lblScore.Text = result;
+            lblScore.Text = $"【A模式】總分：{sum}";
+            lblScore.BackColor = Color.LightBlue;
             
-            // 記錄：骰子[1,2,3] = 總分6
-            string record = $"骰子[{dice[0]},{dice[1]},{dice[2]}] = 總分{sum}";
+            recordCounter++;
+            string record = $"#{recordCounter} [A] {dice[0]},{dice[1]},{dice[2]} → 總分 {sum}";
             AddToHistory(record);
         }
         
@@ -123,11 +138,13 @@ namespace MidtermExam
             }
             
             int score = CalculateGameScore(dice);
-            string resultText = GetResultText(dice, score);
-            lblScore.Text = resultText;
+            string resultText = GetResultText(score);
             
-            // 記錄
-            string record = $"骰子[{dice[0]},{dice[1]},{dice[2]}] → {resultText}";
+            lblScore.Text = $"【B模式】{resultText}";
+            lblScore.BackColor = Color.LightGreen;
+            
+            recordCounter++;
+            string record = $"#{recordCounter} [B] {dice[0]},{dice[1]},{dice[2]} → {resultText}";
             AddToHistory(record);
         }
         
@@ -135,54 +152,48 @@ namespace MidtermExam
         {
             historyRecords.Clear();
             lstHistory.Items.Clear();
+            recordCounter = 0;
         }
         
-        // 新增紀錄到歷史列表（最多10筆）
         private void AddToHistory(string record)
         {
-            historyRecords.Insert(0, record);  // 最新的在上面
+            historyRecords.Insert(0, record);
             
-            // 保持最多10筆
             if (historyRecords.Count > 10)
             {
                 historyRecords.RemoveAt(historyRecords.Count - 1);
             }
             
-            // 更新顯示
             lstHistory.Items.Clear();
             for (int i = 0; i < historyRecords.Count; i++)
             {
-                lstHistory.Items.Add($"{i + 1}. {historyRecords[i]}");
+                lstHistory.Items.Add(historyRecords[i]);
             }
         }
         
         private int CalculateGameScore(int[] dice)
         {
-            // 豹子/一色：三個相同
             if (dice[0] == dice[1] && dice[1] == dice[2])
                 return -1;
             
-            // 逼基：123
             int[] sorted = (int[])dice.Clone();
             Array.Sort(sorted);
             if (sorted[0] == 1 && sorted[1] == 2 && sorted[2] == 3)
                 return -2;
             
-            // 兩個相同：扣除相同的，找出不同的當分數
             if (dice[0] == dice[1]) return dice[2];
             if (dice[1] == dice[2]) return dice[0];
             if (dice[0] == dice[2]) return dice[1];
             
-            // 三個都不同 = 0分
             return 0;
         }
         
-        private string GetResultText(int[] dice, int score)
+        private string GetResultText(int score)
         {
-            if (score == -1) return "【豹子/一色】三個相同！";
-            if (score == -2) return "【逼基】123！";
-            if (score == 0)  return "【0分】三個點數不同";
-            return $"【得分：{score}】";
+            if (score == -1) return "豹子/一色！";
+            if (score == -2) return "逼基！";
+            if (score == 0)  return "0分 (三個都不同)";
+            return $"得分：{score}";
         }
     }
 }
