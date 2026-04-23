@@ -17,7 +17,7 @@ namespace MidtermExam
         public DiceForm()
         {
             this.Text = "擲骰子 - 期中考";
-            this.Size = new Size(620, 420);
+            this.Size = new Size(680, 360);
             this.StartPosition = FormStartPosition.CenterScreen;
             
             historyRecords = new List<string>();
@@ -35,23 +35,23 @@ namespace MidtermExam
             {
                 diceLabels[i] = new Label();
                 diceLabels[i].Text = "?";
-                diceLabels[i].Font = new Font("Times New Roman", 42, FontStyle.Bold);
-                diceLabels[i].Location = new Point(50 + i * 95, 40);
-                diceLabels[i].Size = new Size(85, 85);
+                diceLabels[i].Font = new Font("Times New Roman", 40, FontStyle.Bold);
+                diceLabels[i].Location = new Point(30 + i * 100, 30);
+                diceLabels[i].Size = new Size(90, 90);
                 diceLabels[i].TextAlign = ContentAlignment.MiddleCenter;
                 diceLabels[i].BorderStyle = BorderStyle.FixedSingle;
                 this.Controls.Add(diceLabels[i]);
             }
         }
         
-        // 大的計分結果格子
+        // 大的計分結果格子（寬度增加，高度減少）
         private void InitializeScorePanel()
         {
             lblScore = new Label();
             lblScore.Name = "lblScore";
             lblScore.Text = "等待擲骰子...";
-            lblScore.Location = new Point(30, 140);
-            lblScore.Size = new Size(340, 80);
+            lblScore.Location = new Point(20, 135);
+            lblScore.Size = new Size(400, 50);
             lblScore.TextAlign = ContentAlignment.MiddleCenter;
             lblScore.Font = new Font("微軟正黑體", 18, FontStyle.Bold);
             lblScore.BorderStyle = BorderStyle.FixedSingle;
@@ -64,15 +64,15 @@ namespace MidtermExam
             // 紀錄標題
             Label lblHistoryTitle = new Label();
             lblHistoryTitle.Text = "📋 遊戲紀錄 (最近10筆)";
-            lblHistoryTitle.Location = new Point(400, 30);
-            lblHistoryTitle.Size = new Size(200, 25);
+            lblHistoryTitle.Location = new Point(440, 30);
+            lblHistoryTitle.Size = new Size(220, 25);
             lblHistoryTitle.Font = new Font("微軟正黑體", 11, FontStyle.Bold);
             this.Controls.Add(lblHistoryTitle);
             
             // 紀錄列表
             lstHistory = new ListBox();
-            lstHistory.Location = new Point(400, 60);
-            lstHistory.Size = new Size(200, 250);
+            lstHistory.Location = new Point(440, 60);
+            lstHistory.Size = new Size(220, 200);
             lstHistory.Font = new Font("Consolas", 10);
             this.Controls.Add(lstHistory);
         }
@@ -82,8 +82,8 @@ namespace MidtermExam
             Button btnRoll = new Button();
             btnRoll.Name = "btnRoll";
             btnRoll.Text = "A. 擲三顆骰子 (總分)";
-            btnRoll.Location = new Point(30, 240);
-            btnRoll.Size = new Size(170, 45);
+            btnRoll.Location = new Point(20, 200);
+            btnRoll.Size = new Size(190, 45);
             btnRoll.Font = new Font("微軟正黑體", 10);
             btnRoll.Click += BtnRoll_Click;
             this.Controls.Add(btnRoll);
@@ -91,16 +91,16 @@ namespace MidtermExam
             Button btnGame = new Button();
             btnGame.Name = "btnGame";
             btnGame.Text = "B. 遊戲得分模式";
-            btnGame.Location = new Point(210, 240);
-            btnGame.Size = new Size(170, 45);
+            btnGame.Location = new Point(220, 200);
+            btnGame.Size = new Size(190, 45);
             btnGame.Font = new Font("微軟正黑體", 10);
             btnGame.Click += BtnGame_Click;
             this.Controls.Add(btnGame);
             
             Button btnClearHistory = new Button();
             btnClearHistory.Text = "C. 清空紀錄";
-            btnClearHistory.Location = new Point(400, 320);
-            btnClearHistory.Size = new Size(200, 35);
+            btnClearHistory.Location = new Point(440, 270);
+            btnClearHistory.Size = new Size(220, 35);
             btnClearHistory.Font = new Font("微軟正黑體", 10);
             btnClearHistory.Click += BtnClearHistory_Click;
             this.Controls.Add(btnClearHistory);
