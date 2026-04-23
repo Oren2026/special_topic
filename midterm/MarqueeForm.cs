@@ -13,8 +13,8 @@ namespace MidtermExam
         // 位置：0=上, 1=右, 2=下, 3=左 (順時鐘順序)
         private int[] positions = { 0, 1, 2, 3 };
         
-        // 動畫用的計時器 (Windows.Forms.Timer 在 UI 執行緒上跑)
-        private Timer animationTimer;
+        // Windows.Forms.Timer 在 UI 執行緒上跑
+        private System.Windows.Forms.Timer animationTimer;
         private int animationStep = 0;
         private bool isAnimating = false;
         
@@ -33,7 +33,7 @@ namespace MidtermExam
             for (int i = 0; i < 4; i++) currentScales[i] = 1.0f;
             
             // Windows.Forms.Timer：每40ms更新一次動畫
-            animationTimer = new Timer();
+            animationTimer = new System.Windows.Forms.Timer();
             animationTimer.Interval = 40;
             animationTimer.Tick += AnimationTimer_Tick;
             
