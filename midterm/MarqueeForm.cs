@@ -26,7 +26,7 @@ namespace MidtermExam
         public MarqueeForm()
         {
             this.Text = "跑馬燈 - 期中考";
-            this.Size = new Size(420, 450);
+            this.Size = new Size(480, 480);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.FromArgb(240, 235, 224);  // 溫暖米白背景
             
@@ -84,28 +84,29 @@ namespace MidtermExam
         
         private void InitializeButtons()
         {
+            // 視窗480寬，兩個按鈕140+20間距+140=300，居中起點=(480-300)/2=90
             Button btnLeft = new Button();
-            btnLeft.Text = "◀ 左轉";
-            btnLeft.Size = new Size(120, 45);
-            btnLeft.Location = new Point(70, 380);
+            btnLeft.Text = "◀ 左轉 (逆時針)";
+            btnLeft.Size = new Size(140, 50);
+            btnLeft.Location = new Point(90, 400);
             btnLeft.Font = new Font("Microsoft JhengHei", 12, FontStyle.Bold);
             btnLeft.BackColor = Color.FromArgb(70, 130, 180);  //  SteelBlue
             btnLeft.ForeColor = Color.White;
             btnLeft.FlatStyle = FlatStyle.Flat;
             btnLeft.FlatAppearance.BorderSize = 0;
-            btnLeft.Click += BtnLeft_Click;
+            btnLeft.Click += BtnLeft_Click;  // 左轉 = 逆時針
             this.Controls.Add(btnLeft);
             
             Button btnRight = new Button();
-            btnRight.Text = "右轉 ▶";
-            btnRight.Size = new Size(120, 45);
-            btnRight.Location = new Point(220, 380);
+            btnRight.Text = "右轉 (順時針) ▶";
+            btnRight.Size = new Size(140, 50);
+            btnRight.Location = new Point(250, 400);
             btnRight.Font = new Font("Microsoft JhengHei", 12, FontStyle.Bold);
             btnRight.BackColor = Color.FromArgb(205, 133, 63);  //  Peru / 棕色
             btnRight.ForeColor = Color.White;
             btnRight.FlatStyle = FlatStyle.Flat;
             btnRight.FlatAppearance.BorderSize = 0;
-            btnRight.Click += BtnRight_Click;
+            btnRight.Click += BtnRight_Click;  // 右轉 = 順時針
             this.Controls.Add(btnRight);
         }
         
