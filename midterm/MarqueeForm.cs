@@ -58,7 +58,6 @@ namespace MidtermExam
                 labels[i].BackColor = Color.FromArgb(50, 50, 50);
                 labels[i].FlatStyle = FlatStyle.Flat;
                 labels[i].BorderStyle = BorderStyle.FixedSingle;
-                labels[i].BorderColor = colors[i];
                 this.Controls.Add(labels[i]);
             }
         }
