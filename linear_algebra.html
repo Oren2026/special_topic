@@ -466,96 +466,141 @@
     <!-- ===== OVERVIEW ===== -->
     <div class="chapter-page active" id="overview">
       <div class="overview-hero">
-        <h2>線性代數學什麼？</h2>
-        <p>現實世界的問題——電網功率流向、影像辨識、推薦系統——本質上都是「一堆數字之間的線性關係」。線性代數就是處理這些關係的語言和工具。</p>
-        <div class="big-formula">A·x = b</div>
+        <h2>線性代數的骨架</h2>
+        <p>從「解方程式」到「理解空間的結構」——這門課教你用同一套框架處理從電網到神經網路的所有線性系統。</p>
+        <div class="big-formula">A · x = b</div>
         <div style="font-size:0.875rem;opacity:0.8;margin-bottom:1.5rem;">這一個式子，涵蓋了線性代數 80% 的核心問題</div>
         <div class="chapters-preview">
-          <span class="ch-pill">Ch1 解方程式 →</span>
-          <span class="ch-pill">Ch2 矩陣語言 →</span>
-          <span class="ch-pill">Ch3 行列式 →</span>
-          <span class="ch-pill">Ch4-6 結構 →</span>
-          <span class="ch-pill">Ch7 應用核心</span>
+          <span class="ch-pill" style="border-color:rgba(255,255,255,0.4);">Ch1-Ch2 ✅ →</span>
+          <span class="ch-pill" style="border-color:rgba(255,255,255,0.4);">Ch3-Ch4 ✅ →</span>
+          <span class="ch-pill" style="border-color:rgba(255,255,255,0.4);">Ch5 內積 →</span>
+          <span class="ch-pill" style="border-color:rgba(255,255,255,0.4);">Ch6 轉換 →</span>
+          <span class="ch-pill" style="border-color:rgba(255,255,255,0.4);">Ch7 特徵值</span>
         </div>
       </div>
 
+      <!-- 核心框架 -->
       <div class="section">
-        <h2><span class="icon">🗺️</span> 為什麼要先學 Ch1 和 Ch2</h2>
-        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1rem;">這兩章是線性代數的「工具章」——學完之後，你才有辦法用精確的語言描述更抽象的概念（向量空間、特徵值）。很多學生跳過基礎猛攻後面的章節，最後還是要回來補。踏實走，不走冤枉路。</p>
+        <h2><span class="icon">🧭</span> 這門課的三個維度——每個概念都從這三個角度切進去</h2>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1rem;">不是三個不同的東西，是同一個概念的三種看法。看得懂幾何，幫助建立直覺；會代數計算，才能實際操作；理解結構理論，才能把知識遷移到新問題。</p>
         <div class="card-grid">
-          <div class="card" style="border-left:3px solid var(--ch1);">
-            <h4><span class="icon">1️⃣</span> Ch1 解決的問題</h4>
-            <p>面對 m 條方程式、n 個未知數，如何系統化地求出所有解？</p>
-            <div class="math-block" style="font-size:0.8rem;margin:0.5rem 0;">
-2x + 3y - z = 5
-x - 4y + 2z = -1
-3x + y + 5z = 12</div>
-            <div class="keywords"><span class="kw">高斯消去</span><span class="kw">解的存在性</span><span class="kw">方程組建模</span></div>
+          <div class="card" style="border-left:3px solid var(--la);">
+            <h4><span class="icon">📐</span> 幾何直覺</h4>
+            <p>這個東西在空間裡長什麼樣？向量是箭頭，矩陣是對空間的變形，特徵向量是「變換後方向不變」的特殊向量。</p>
+            <div class="keywords"><span class="kw">視覺化</span><span class="kw">方向</span><span class="kw">面積/體積</span></div>
           </div>
           <div class="card" style="border-left:3px solid var(--ch2);">
-            <h4><span class="icon">2️⃣</span> Ch2 解決的問題</h4>
-            <p>如何用一個「方塊」（矩陣）封裝整個方程組的結構，並對它進行有效運算？</p>
-            <div class="math-block" style="font-size:0.8rem;margin:0.5rem 0; text-align:center;">
-A(m×n) · x(n×1) = b(m×1)</div>
-            <div class="keywords"><span class="kw">矩陣代數</span><span class="kw">逆矩陣</span><span class="kw">馬可夫鏈</span></div>
+            <h4><span class="icon">🔢</span> 代數計算</h4>
+            <p>一步一步怎麼算。高斯消去怎麼做，反矩陣怎麼找，det 怎麼展開。算得對、算得快，是基本功。</p>
+            <div class="keywords"><span class="kw">算法</span><span class="kw">O(n³)</span><span class="kw">步骤</span></div>
+          </div>
+          <div class="card" style="border-left:3px solid var(--accent);">
+            <h4><span class="icon">🏗️</span> 結構理論</h4>
+            <p>這個概念在整個系統裡的位置。rank 是什麼維度的不變量，基底為什麼重要，特徵值為什麼貫穿全場。</p>
+            <div class="keywords"><span class="kw">定理</span><span class="kw">不變量</span><span class="kw">维度和秩</span></div>
+          </div>
+        </div>
+        <div class="info-box" style="margin-top:1rem;">
+          <strong>💡 這個框架怎麼用</strong>
+          學每個概念的時候問自己三件事：它長什麼樣（幾何）、怎麼算出來（代數）、它為什麼重要（結構）。回答得出來，這個概念就內化了。例如 Ch4 的「基底」：幾何是座標軸，代數是找出最少向量個數，結構是同一個空間可以有不同基底但維度不變。
+        </div>
+      </div>
+
+      <!-- 學習路徑 -->
+      <div class="section">
+        <h2><span class="icon">🗺️</span> 學習路徑——七章的邏輯連結</h2>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1rem;">線性代數不是七個獨立章節，是一條從具體到抽象的連續譜。跳著看會迷路，但跟著順序走，每章都會發現自己在為下一章鋪路。</p>
+        <div class="roadmap">
+          <div class="roadmap-list">
+            <div class="roadmap-item active" onclick="switchTab('ch1')">
+              <span class="ch-icon">📐</span>
+              <div class="ch-title"><span class="en">Ch1 線性方程式系統</span><span class="zh">｜簡介 · 高斯消去 · 高斯-喬登 · 應用</span></div>
+              <span class="status" style="background:var(--success);color:white;">完成 ✅</span>
+            </div>
+            <div class="roadmap-item active" onclick="switchTab('ch2')">
+              <span class="ch-icon">🔢</span>
+              <div class="ch-title"><span class="en">Ch2 矩陣</span><span class="zh">｜矩陣運算 · 性質 · 反矩陣 · 基本矩陣 · 馬可夫鏈</span></div>
+              <span class="status" style="background:var(--success);color:white;">完成 ✅</span>
+            </div>
+            <div class="roadmap-item active" onclick="switchTab('ch3')">
+              <span class="ch-icon">📊</span>
+              <div class="ch-title"><span class="en">Ch3 行列式</span><span class="zh">｜矩陣的行列式 · 基本運算 · 性質 · 應用（Cramer's Rule）</span></div>
+              <span class="status" style="background:var(--success);color:white;">完成 ✅</span>
+            </div>
+            <div class="roadmap-item active" onclick="switchTab('ch4')">
+              <span class="ch-icon">🧭</span>
+              <div class="ch-title"><span class="en">Ch4 向量空間</span><span class="zh">｜Rⁿ向量 · 空間定義 · 子空間 · 生成與獨立 · 基底與維度 · 秩與方程組 · 座標變換 · 應用</span></div>
+              <span class="status" style="background:var(--success);color:white;">完成 ✅</span>
+            </div>
+            <div class="roadmap-item" onclick="switchTab('ch5')">
+              <span class="ch-icon">📍</span>
+              <div class="ch-title"><span class="en">Ch5 內積空間</span><span class="zh">｜長度 · 夾角 · Cauchy-Schwarz · 正交基底 · 最小平方法</span></div>
+              <span class="status" style="background:var(--accent);color:white;">進行中 🔥</span>
+            </div>
+            <div class="roadmap-item" onclick="switchTab('ch6')">
+              <span class="ch-icon">🔄</span>
+              <div class="ch-title"><span class="en">Ch6 線性轉換</span><span class="zh">｜矩陣作為轉換 · 核與像 · 合成 · 轉換矩陣</span></div>
+              <span class="status">預定</span>
+            </div>
+            <div class="roadmap-item" onclick="switchTab('ch7')">
+              <span class="ch-icon">🎯</span>
+              <div class="ch-title"><span class="en">Ch7 特徵值與特徵向量</span><span class="zh">｜Ax=λx · 對角化 · SVD · PCA · 電網穩定性</span></div>
+              <span class="status">預定</span>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- 實用性比喻 -->
       <div class="section">
-        <h2><span class="icon">🔗</span> 實用性比喻 — 為什麼電網研究需要這個</h2>
+        <h2><span class="icon">🔗</span> 為什麼電網研究需要這個——三個具體連結</h2>
         <div class="card-grid">
           <div class="card">
             <h4><span class="icon">⚡</span> 電網功率流向</h4>
-            <p class="sub">現實的電網問題</p>
-            <p>電從發電廠流到用戶，要滿足「每條線路的功率」和「每個節點的電壓」這些約束。加起來是几十條非線性方程式，線性代數是求解這類問題的底層工具。</p>
+            <p class="sub">Power Flow 問題</p>
+            <p>電從發電廠流到用戶，要同時滿足功率約束和電壓約束。線性代數處理這個問題的方式：先把非線性問題局部線性化（牛頓法），再用高斯消去反覆求解。</p>
             <div class="analogy">
-              <strong>💬 比喻</strong>
-              就像城市自來水管網——水壓（電壓）和水流（功率）必須同時滿足所有管道的物理約束。
+              <strong>💬 連結章節</strong>
+              Ch1 的高斯消去 → Ch4 的 rank → Ch6 的線性轉換 → Ch7 的特徵值分析電網穩定性。這是一條完整的應用鏈。
             </div>
           </div>
           <div class="card">
             <h4><span class="icon">📡</span> 感測器異常偵測</h4>
             <p class="sub">你的研究核心</p>
-            <p>N個時間點 × M個感測器 = 一個 N×M 的數據矩陣。PCA/SVD 找這個矩陣的主要結構，偏離正常模式的數據就是異常。</p>
+            <p>N 個時間點 × M 個感測器 = N×M 數據矩陣。PCA/SVD 把這個矩陣分解成「主結構」+「雜訊」——主結構就是 Ch4 的基底、Ch7 的特徵值在說的事情。</p>
             <div class="analogy">
-              <strong>💬 比喻</strong>
-              就像「正常的心電圖長這樣」——你建立一個心電圖的典型模式，任何大幅偏離這個模式的讀數都是警訊。
+              <strong>💬 連結章節</strong>
+              Ch4 的座標變換 → Ch7 的 SVD/PCA → 異常偵測。知道為什麼 PCA work，就知道異常訊號長什麼樣。
             </div>
           </div>
           <div class="card">
             <h4><span class="icon">🧠</span> 神經網路的底層</h4>
-            <p class="sub">深度學習的語言</p>
-            <p>Forward pass = 一連串矩陣乘法。Backpropagation = 鏈式法則作用在矩陣上。loss landscape = 誤差函數的特徵值結構。</p>
+            <p class="sub">Deep Learning 語言</p>
+            <p>Forward pass = 一連串矩陣乘法（Ch2）。Backpropagation = 鏈式法則在矩陣上作用（Ch6 線性轉換的推廣）。Loss landscape = 誤差的特徵值結構（Ch7）。</p>
             <div class="analogy">
-              <strong>💬 比喻</strong>
-              就像建築結構力學——鋼筋水泥（矩陣）怎麼排列，決定了建築物（神經網路）能承受多大的壓力。
+              <strong>💬 連結章節</strong>
+              理解 Ch4 的向量空間和 Ch7 的特徵值，你就能用線性代數的語言說清楚：神經網路為什麼收斂、為什麼有局部最小值問題。
             </div>
           </div>
         </div>
       </div>
 
+      <!-- 各章核心問題 -->
       <div class="section">
-        <h2><span class="icon">🗂️</span> 速覽：課本七章在幹嘛</h2>
-        <div class="roadmap">
-          <div class="roadmap-list">
-            <div class="roadmap-item" onclick="switchTab('ch1')">
-              <span class="ch-icon">📐</span>
-              <div class="ch-title"><span class="en">Ch1 線性方程式系統</span><span class="zh">｜高斯消去 · 高斯喬登 · 應用</span></div>
-              <span class="status">起點</span>
-            </div>
-            <div class="roadmap-item" onclick="switchTab('ch2')">
-              <span class="ch-icon">🔢</span>
-              <div class="ch-title"><span class="en">Ch2 矩陣</span><span class="zh">｜矩陣運算 · 反矩陣 · 馬可夫鏈</span></div>
-              <span class="status">語言</span>
-            </div>
-            <div class="roadmap-item"><span class="ch-icon">📊</span><div class="ch-title"><span class="en">Ch3 行列式</span><span class="zh">｜det(A) · 克拉瑪公式</span></div><span class="status">工具</span></div>
-            <div class="roadmap-item"><span class="ch-icon">🧭</span><div class="ch-title"><span class="en">Ch4 向量空間</span><span class="zh">｜子空間 · 維度 · 基底</span></div><span class="status">結構</span></div>
-            <div class="roadmap-item"><span class="ch-icon">📍</span><div class="ch-title"><span class="en">Ch5 內積空間</span><span class="zh">｜長度 · 角度 · 正交</span></div><span class="status">幾何</span></div>
-            <div class="roadmap-item"><span class="ch-icon">🔄</span><div class="ch-title"><span class="en">Ch6 線性轉換</span><span class="zh">｜矩陣作為轉換 · 核與像</span></div><span class="status">動態</span></div>
-            <div class="roadmap-item"><span class="ch-icon">🎯</span><div class="ch-title"><span class="en">Ch7 特徵值與特徵向量</span><span class="zh">｜Ax=λx · PCA · 穩定性</span></div><span class="status">核心</span></div>
-          </div>
-        </div>
+        <h2><span class="icon">❓</span> 每章要回答的核心問題</h2>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1rem;">記住這些問題，學完每章回來回答。答得出來，表示概念懂了。</p>
+        <table class="ref-table">
+          <thead><tr><th>章節</th><th>核心問題</th><th>關鍵概念</th></tr></thead>
+          <tbody>
+            <tr><td>Ch1 線性方程式系統</td><td>面對多個未知數，如何系統化找到所有解？</td><td>高斯消去 · pivot · 解的三種情況</td></tr>
+            <tr><td>Ch2 矩陣</td><td>如何用一個「方塊」封裝整個方程組並有效運算？</td><td>矩陣乘法 · 逆矩陣 · rank · 馬可夫鏈</td></tr>
+            <tr><td>Ch3 行列式</td><td>一個方陣有多「好」？矩陣變換改變了多少面積/體積？</td><td>det(A) · det(AB)=det(A)det(B) · Cramer's Rule</td></tr>
+            <tr><td>Ch4 向量空間</td><td>什麼是「維度」？同一個空間為什麼可以有不同基底？</td><td>基底 · 維度 · ker(A) · im(A) · rank · 座標變換</td></tr>
+            <tr><td>Ch5 內積空間</td><td>向量空間裡如何定義「長度」和「角度」？</td><td>內積 · 正交 · 投影 · 最小平方法</td></tr>
+            <tr><td>Ch6 線性轉換</td><td>矩陣對空間做的事，在不同基底之間如何描述？</td><td>核 · 像 · 合成 · 轉換矩陣 · 合成轉換</td></tr>
+            <tr><td>Ch7 特徵值</td><td>矩陣有哪些「不變」的性質？如何用它們壓縮資訊？</td><td>特徵值 · 對角化 · SVD · PCA · 穩定性分析</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
