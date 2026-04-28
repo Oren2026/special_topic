@@ -1910,7 +1910,7 @@ x + y + z = 6
 x + y + 2z = 7</div>
 
 <div class="math-label">Step 1：寫出增廣矩陣 [A | b]</div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,2,1],[1,3,1],[1,1,2]],
   [[6,12,7]]
 )}</div>
@@ -1919,7 +1919,7 @@ x + y + 2z = 7</div>
 <div class="step"><div class="step-num">1</div><div class="step-text">Pivot 在 (1,1) = 1。目標：把 (2,1) 和 (3,1) 變成 0。</div></div>
 <div class="step"><div class="step-num">2</div><div class="step-text">R₂ → R₂ − 2·R₁：把第二列第一個元素變成 0</div></div>
 <div class="step"><div class="step-num">3</div><div class="step-text">R₃ → R₃ − R₁：把第三列第一個元素變成 0</div></div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,0,0],[1,1,0],[1,2,1]],
   [[6,0,1]]
 )}
@@ -1944,7 +1944,7 @@ x + y + z = 6
 x + y + 2z = 7</div>
 
 <div class="math-label">Step 1：做完高斯消去（上三角形）</div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,0,0],[1,1,0],[1,-1,1]],
   [[6,0,1]]
 )}</div>
@@ -1952,7 +1952,7 @@ x + y + 2z = 7</div>
 <div class="math-label">Step 2：繼續往上消（RREF）</div>
 <div class="step"><div class="step-num">1</div><div class="step-text">第三行 pivot 在 (3,3) = 1。上方沒有元素要消。</div></div>
 <div class="step"><div class="step-num">2</div><div class="step-text">第二行 pivot 在 (2,2) = 1。消去第一行第二個元素：R₁ → R₁ − R₂</div></div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,0,0],[0,1,0],[2,-1,1]],
   [[6,0,1]]
 )}
@@ -1961,7 +1961,7 @@ x + y + 2z = 7</div>
 <div class="step"><div class="step-num">4</div><div class="step-text">第二行：消去 (2,3)：R₂ → R₂ + R₃</div></div>
 
 <div class="math-label">最終 RREF</div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,0,0],[0,1,0],[0,0,1]],
   [[4,1,1]]
 )}
@@ -2003,7 +2003,7 @@ C[2,2] = row2(A) · col2(B)
        = 3×7 + 4×10 = 21 + 40 = 61</div>
 
 <div class="math-label">結果</div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[23,51],[27,61]],
   null
 )}</div>
@@ -2015,47 +2015,47 @@ C[2,2] = row2(A) · col2(B)
         title: '📐 範例：求反矩陣（高斯-喬登法）',
         body: `
 <div class="math-label">題目：求 A = | 2   1 | 的反矩陣</div>
-<div class="math-block center">| 1   1 |</div>
+<div class="math-block">| 1   1 |</div>
 
 <div class="math-label">Step 1：寫出增廣矩陣 [A | I]</div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[2,1],[1,1]],
   [[1,0],[0,1]]
 )}</div>
 
 <div class="math-label">Step 2：高斯-喬登消去</div>
 <div class="step"><div class="step-num">1</div><div class="step-text">Swap R1 ↔ R2（把 pivot 變成 1）</div></div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,2],[1,1]],
   [[0,1],[1,0]]
 )}</div>
 <div class="step"><div class="step-num">2</div><div class="step-text">R₂ → R₂ − 2·R₁（消去 (2,1)）</div></div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,0],[1,-1]],
   [[0,1],[1,-2]]
 )}</div>
 <div class="step"><div class="step-num">3</div><div class="step-text">R₂ → −1·R₂（讓 pivot = 1）</div></div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,0],[0,1]],
   [[0,-1],[1,-2]]
 )}</div>
 <div class="step"><div class="step-num">4</div><div class="step-text">R₁ → R₁ − R₂（消去 (1,2)）</div></div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,0],[0,1]],
   [[1,-1],[-1,2]]
 )}</div>
 
 <div class="math-label">結果</div>
-<div class="math-block center">
+<div class="math-block">
 左邊 = I  →  右邊就是 A⁻¹
 </div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,-1],[-1,2]],
   null
 )}</div>
 
 <div class="math-label">驗證：A · A⁻¹ = I</div>
-<div class="math-block center">| 2   1 |     |  1   -1 |     | 1   0 |
+<div class="math-block">| 2   1 |     |  1   -1 |     | 1   0 |
 | 1   1 |  ×  | -1    2 |  =  | 0   1 |  ✅</div>
 
 <div class="result">✅ A⁻¹ = |  1   -1 |<br>| -1    2 |</div>
@@ -2065,7 +2065,7 @@ C[2,2] = row2(A) · col2(B)
         title: '📐 範例：2×2 行列式 + 幾何意義',
         body: `
 <div class="math-label">題目</div>
-<div class="math-block center">A = | 3   1 |
+<div class="math-block">A = | 3   1 |
      | 1   2 |</div>
 
 <div class="math-label">Step 1：計算 det(A)</div>
@@ -2106,18 +2106,18 @@ det(A) = 2×2 − 1×4 = 0  ← 塌縮！
 
 <div class="math-label">Step 1：R₁ → R₁ − 2·R₂（列替換）</div>
 <div class="step"><div class="step-num">替換</div><div class="step-text">det( R₁−2·R₂ ) 不改變 det！</div></div>
-<div class="math-block center">${fmtMatrix([[0,4],[1,3]], null)}</div>
+<div class="math-block">${fmtMatrix([[0,4],[1,3]], null)}</div>
 
 <div class="math-label">Step 2：交換 R₁ ↔ R₂（交換）</div>
 <div class="step"><div class="step-num">交換</div><div class="step-text">交換後 det 變號。</div></div>
-<div class="math-block center">${fmtMatrix([[3,4],[0,1]], null)}</div>
+<div class="math-block">${fmtMatrix([[3,4],[0,1]], null)}</div>
 
 <div class="math-label">Step 3：R₁ → R₁ − 3·R₂（列替換）</div>
 <div class="step"><div class="step-num">替換</div><div class="step-text">det 不變。</div></div>
-<div class="math-block center">${fmtMatrix([[0,4],[0,1]], null)}</div>
+<div class="math-block">${fmtMatrix([[0,4],[0,1]], null)}</div>
 
 <div class="math-label">結果：上三角矩陣</div>
-<div class="math-block center">${fmtMatrix([[0,4],[0,1]], null)}
+<div class="math-block">${fmtMatrix([[0,4],[0,1]], null)}
 det = 0 × 1 = 0</div>
 
 <div class="result">✅ det(A) = 0（中間經過兩次列替換不變號，最後交換一次 → det 變號，但上三角後直接取對角線乘積）</div>
@@ -2132,7 +2132,7 @@ det = 0 × 1 = 0</div>
  x + 3y = 6</div>
 
 <div class="math-label">Step 1：寫成 Ax = b</div>
-<div class="math-block center">A = | 2   1 |    b = | 5 |
+<div class="math-block">A = | 2   1 |    b = | 5 |
     | 1   3 |        | 6 |</div>
 
 <div class="math-label">Step 2：計算 det(A)</div>
@@ -2141,14 +2141,14 @@ det(A) = 2×3 − 1×1 = 6 − 1 = 5
 </div>
 
 <div class="math-label">Step 3：求 x₁（把 A 的第 1 行置換成 b）</div>
-<div class="math-block center">A₁ = | 5   1 |    det(A₁) = 5×3 − 1×6 = 15 − 6 = 9
+<div class="math-block">A₁ = | 5   1 |    det(A₁) = 5×3 − 1×6 = 15 − 6 = 9
     | 6   3 |</div>
 <div class="math-block">
 x₁ = det(A₁) / det(A) = 9 / 5 = 1.8
 </div>
 
 <div class="math-label">Step 4：求 x₂（把 A 的第 2 行置換成 b）</div>
-<div class="math-block center">A₂ = | 2   5 |    det(A₂) = 2×6 − 5×1 = 12 − 5 = 7
+<div class="math-block">A₂ = | 2   5 |    det(A₂) = 2×6 − 5×1 = 12 − 5 = 7
     | 1   6 |</div>
 <div class="math-block">
 x₂ = det(A₂) / det(A) = 7 / 5 = 1.4
@@ -2181,18 +2181,18 @@ c₁(1,2,-1) + c₂(2,3,1) + c₃(4,7,1) = (0,0,0)
 </div>
 
 <div class="math-label">Step 3：寫成增廣矩陣並化簡</div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,2,4],[2,3,7],[-1,1,1]],
-  [[0],[0],[0]]
+  [[0,0,0]]
 )}</div>
 
 <div class="math-label">高斯消去</div>
-<div class="step"><div class="step-num">R₂→R₂−2R₁</div><div class="step-text">${fmtMatrix([[1,2,4],[0,-1,-1],[-1,1,1]],[[0],[0],[0]])}</div></div>
-<div class="step"><div class="step-num">R₃→R₃+R₁</div><div class="step-text">${fmtMatrix([[1,2,4],[0,-1,-1],[0,3,5]],[[0],[0],[0]])}</div></div>
-<div class="step"><div class="step-num">R₃→R₃+3R₂</div><div class="step-text">${fmtMatrix([[1,2,4],[0,-1,-1],[0,0,2]],[[0],[0],[0]])}</div></div>
+<div class="step"><div class="step-num">R₂→R₂−2R₁</div><div class="step-text">${fmtMatrix([[1,2,4],[0,-1,-1],[-1,1,1]],[[0,0,0]])}</div></div>
+<div class="step"><div class="step-num">R₃→R₃+R₁</div><div class="step-text">${fmtMatrix([[1,2,4],[0,-1,-1],[0,3,5]],[[0,0,0]])}</div></div>
+<div class="step"><div class="step-num">R₃→R₃+3R₂</div><div class="step-text">${fmtMatrix([[1,2,4],[0,-1,-1],[0,0,2]],[[0,0,0]])}</div></div>
 
 <div class="math-label">分析 RREF</div>
-<div class="math-block center">| 1   0   0 | 0 |
+<div class="math-block">| 1   0   0 | 0 |
 | 0   1   0 | 0 |  →  c₃ = 0, c₂ = 0, c₁ = 0
 | 0   0   1 | 0 |</div>
 <div class="step"><div class="step-num">結論</div><div class="step-text">只有零解 → 三個向量線性獨立</div></div>
@@ -2214,12 +2214,12 @@ v₁, v₂, v₃ 線性獨立
              | 2   4   2 |</div>
 
 <div class="math-label">Step 1：求 ker(A)（解 Ax = 0）</div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,2,1],[2,4,2]],
-  [[0],[0]]
-)}</div>
-<div class="step"><div class="step-num">R₂→R₂−2R₁</div><div class="step-text">${fmtMatrix([[1,2,1],[0,0,0]],[[0],[0]])}</div></div>
-<div class="math-block center">
+  [[0,0]]
+)}
+</div>
+<div class="step"><div class="step-num">R₂→R₂−2R₁</div><div class="step-text">${fmtMatrix([[1,2,1],[0,0,0]],[[0,0]])}</div></div>
 RREF：| 1   2   1 | 0 |
       | 0   0   0 | 0 |
 </div>
@@ -2270,7 +2270,7 @@ A 把 R³ 映射到 R²，核心（ker）是「消失的維度」，像是「看
 b₁ = (1,1) 在 S 中 = (1,1)
 b₂ = (1,-1) 在 S 中 = (1,-1)
 </div>
-<div class="math-block center">P = | 1   1 |
+<div class="math-block">P = | 1   1 |
      | 1  -1 |</div>
 
 <div class="math-label">Step 2：求 P 的反矩陣 P⁻¹</div>
@@ -2285,7 +2285,7 @@ P⁻¹ = (1/−2) · | -1  -1 |
 </div>
 
 <div class="math-label">Step 3：計算 [v]ᵦ = P⁻¹ · [v]ₛ</div>
-<div class="math-block center">${fmtMatrix(
+<div class="math-block">${fmtMatrix(
   [[1,1],[1,-1]],
   null
 )}
