@@ -1201,6 +1201,36 @@ A² 的第 (i,j) 元素 = 從 i 到 j 的「長度為2」路徑數量</div>
 
   <script>
     // Examples data
+    // 矩陣格式化工具：根據實際最大位數動態決定每欄寬度
+    // aParts: array of column arrays (each inner array = values in that column)
+    // bParts: array of column arrays for augmented part (can be null if no augmented)
+    function fmtMatrix(aParts, bParts, opts = {}) {
+      const { brackets = true, vbars = true } = opts;
+      const pad = (s, w) => String(s).padStart(w);
+      const wA = aParts.map(col => Math.max(1, ...col.map(v => String(v).length)));
+      const lines = aParts[0].map((_, rowIdx) => {
+        const aCells = aParts.map((col, j) => pad(col[rowIdx], wA[j]));
+        let row;
+        if (bParts) {
+          const wB = bParts.map(col => Math.max(2, ...col.map(v => String(v).length)));
+          const bCells = bParts.map((col, j) => pad(col[rowIdx], wB[j]));
+          if (brackets) {
+            row = '| ' + aCells.join('   ') + ' | ' + bCells.join('   ') + ' |';
+          } else {
+            row = '  ' + aCells.join('   ') + '   ' + bCells.join('   ');
+          }
+        } else {
+          if (brackets) {
+            row = '| ' + aCells.join('   ') + ' |';
+          } else {
+            row = '  ' + aCells.join('   ') + ' ';
+          }
+        }
+        return row;
+      });
+      return lines.join('\n');
+    }
+
     const examples = {
       gauss: {
         title: '📐 範例：高斯消去法（3×3 方程組）',
@@ -1211,20 +1241,22 @@ x + y + z = 6
 2x + 3y + z = 12
 x + y + 2z = 7</div>
 
-<div class="math-label">Step 1：寫出增廣矩陣</div>
-<div class="math-block center">
-| 1   1   1 | 6 |
-| 2   3   1 | 12 |
-| 1   1   2 | 7 |</div>
+<div class="math-label">Step 1：寫出增廣矩陣 [A | b]</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,2,1],[1,3,1],[1,1,2]],
+  [[6,12,7]]
+)}</div>
 
 <div class="math-label">Step 2：前向消去（Forward Elimination）</div>
 <div class="step"><div class="step-num">1</div><div class="step-text">Pivot 在 (1,1) = 1。目標：把 (2,1) 和 (3,1) 變成 0。</div></div>
 <div class="step"><div class="step-num">2</div><div class="step-text">R₂ → R₂ − 2·R₁：把第二列第一個元素變成 0</div></div>
 <div class="step"><div class="step-num">3</div><div class="step-text">R₃ → R₃ − R₁：把第三列第一個元素變成 0</div></div>
-<div class="math-block center">
-| 1   1   1 | 6  |
-| 0   1  -1 | 0  |  ← R₂ − 2·R₁
-| 0   0   1 | 1  |  ← R₃ − R₁</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,0,0],[1,1,0],[1,2,1]],
+  [[6,0,1]]
+)}
+  ← R₂ − 2·R₁
+  ← R₃ − R₁</div>
 
 <div class="math-label">Step 3：回代（Back Substitution）</div>
 <div class="step"><div class="step-num">1</div><div class="step-text">最後一行：z = 1</div></div>
@@ -1244,26 +1276,30 @@ x + y + z = 6
 x + y + 2z = 7</div>
 
 <div class="math-label">Step 1：做完高斯消去（上三角形）</div>
-<div class="math-block center">
-| 1   1   1 | 6  |
-| 0   1  -1 | 0  |
-| 0   0   1 | 1  |</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,0,0],[1,1,0],[1,2,1]],
+  [[6,0,1]]
+)}</div>
 
 <div class="math-label">Step 2：繼續往上消（RREF）</div>
 <div class="step"><div class="step-num">1</div><div class="step-text">第三行 pivot 在 (3,3) = 1。上方沒有元素要消。</div></div>
 <div class="step"><div class="step-num">2</div><div class="step-text">第二行 pivot 在 (2,2) = 1。消去第一行第二個元素：R₁ → R₁ − R₂</div></div>
-<div class="math-block center">
-| 1   0   2 | 6  |  ← R₁ − R₂
-| 0   1  -1 | 0  |
-| 0   0   1 | 1  |</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,0,0],[0,1,0],[1,2,1]],
+  [[6,0,1]]
+)}
+  ← R₁ − R₂</div>
 <div class="step"><div class="step-num">3</div><div class="step-text">第一行 pivot 在 (1,1) = 1。消去第一行第三個元素：R₁ → R₁ − 2·R₃</div></div>
 <div class="step"><div class="step-num">4</div><div class="step-text">第二行：消去 (2,3)：R₂ → R₂ + R₃</div></div>
 
 <div class="math-label">最終 RREF</div>
-<div class="math-block center">
-| 1   0   0 | 4  |  ← x = 4
-| 0   1   0 | 1  |  ← y = 1
-| 0   0   1 | 1  |  ← z = 1</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,0,0],[0,1,0],[0,0,1]],
+  [[4,1,1]]
+)}
+  ← x = 4
+  ← y = 1
+  ← z = 1</div>
 
 <div class="result">✅ 解：x = 4, y = 1, z = 1｜直接讀出，不需要回代！</div>
         `
@@ -1273,14 +1309,14 @@ x + y + 2z = 7</div>
         body: `
 <div class="math-label">題目</div>
 <div class="math-block">
-| 1  2 |       | 5  7 |
-|     |   ×   |      |   =  ?
-| 3  4 |       | 9  10 |</div>
+| 1   2 |       | 5    7 |
+|       |   ×   |        |   =  ?
+| 3   4 |       | 9   10 |</div>
 
 <div class="math-label">Step 1：確認維度</div>
 <div class="step"><div class="step-num">A</div><div class="step-text">A 是 2×2，B 也是 2×2<br>結果 C 也是 2×2</div></div>
 
-<div class="math-label">Step 2：C 的每個元素 = A 的row × B的column</div>
+<div class="math-label">Step 2：C 的每個元素 = A 的 row · B 的 column</div>
 <div class="math-block">
 C[1,1] = row1(A) · col1(B)
        = [1, 2] · [5, 9]
@@ -1299,9 +1335,10 @@ C[2,2] = row2(A) · col2(B)
        = 3×7 + 4×10 = 21 + 40 = 61</div>
 
 <div class="math-label">結果</div>
-<div class="math-block center">
-| 23  27 |
-| 51  61 |</div>
+<div class="math-block center">${fmtMatrix(
+  [[23,51],[27,61]],
+  null
+)}</div>
 
 <div class="result">✅ 驗證：手算每一個 row·col 點積，就是這四個數字</div>
         `
@@ -1309,46 +1346,51 @@ C[2,2] = row2(A) · col2(B)
       inverse: {
         title: '📐 範例：求反矩陣（高斯-喬登法）',
         body: `
-<div class="math-label">題目：求 A = | 2  1 | 的反矩陣</div>
-<div class="math-block center">
-| 1  1 |</div>
+<div class="math-label">題目：求 A = | 2   1 | 的反矩陣</div>
+<div class="math-block center">| 1   1 |</div>
 
 <div class="math-label">Step 1：寫出增廣矩陣 [A | I]</div>
-<div class="math-block center">
-| 2   1 | 1   0 |
-| 1   1 | 0   1 |</div>
+<div class="math-block center">${fmtMatrix(
+  [[2,1],[1,1]],
+  [[1,0],[0,1]]
+)}</div>
 
 <div class="math-label">Step 2：高斯-喬登消去</div>
-<div class="step"><div class="step-num">1</div><div class="step-text">Swap R1 and R2（把 pivot 變成 1）</div></div>
-<div class="math-block center">
-| 1   1 | 0   1 |
-| 2   1 | 1   0 |</div>
+<div class="step"><div class="step-num">1</div><div class="step-text">Swap R1 ↔ R2（把 pivot 變成 1）</div></div>
+<div class="math-block center">${fmtMatrix(
+  [[1,2],[1,1]],
+  [[0,1],[1,0]]
+)}</div>
 <div class="step"><div class="step-num">2</div><div class="step-text">R₂ → R₂ − 2·R₁（消去 (2,1)）</div></div>
-<div class="math-block center">
-| 1   1 |  0   1 |
-| 0  -1 |  1  -2 |</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,0],[1,-1]],
+  [[0,1],[1,-2]]
+)}</div>
 <div class="step"><div class="step-num">3</div><div class="step-text">R₂ → −1·R₂（讓 pivot = 1）</div></div>
-<div class="math-block center">
-| 1   1 |  0   1 |
-| 0   1 | -1   2 |</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,0],[0,1]],
+  [[0,-1],[1,-2]]
+)}</div>
 <div class="step"><div class="step-num">4</div><div class="step-text">R₁ → R₁ − R₂（消去 (1,2)）</div></div>
-<div class="math-block center">
-| 1   0 |  1  -1 |
-| 0   1 | -1   2 |</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,0],[0,1]],
+  [[1,-1],[-1,2]]
+)}</div>
 
 <div class="math-label">結果</div>
 <div class="math-block center">
 左邊 = I  →  右邊就是 A⁻¹
+</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,-1],[-1,2]],
+  null
+)}</div>
 
-A⁻¹ = | 1  -1 |
-      | -1   2 |</div>
+<div class="math-label">驗證：A · A⁻¹ = I</div>
+<div class="math-block center">| 2   1 |     |  1   -1 |     | 1   0 |
+| 1   1 |  ×  | -1    2 |  =  | 0   1 |  ✅</div>
 
-<div class="math-label">驗證</div>
-<div class="math-block center">
-A · A⁻¹ = | 2  1 | · | 1  -1 | = | 1   0 | = I ✅
-            | 1  1 |   | -1  2 |   | 0   1 |</div>
-
-<div class="result">✅ A⁻¹ = | 1  -1 |<br>| -1   2 |</div>
+<div class="result">✅ A⁻¹ = |  1   -1 |<br>| -1    2 |</div>
         `
       }
     };
