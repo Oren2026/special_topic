@@ -1154,27 +1154,650 @@ A² 的第 (i,j) 元素 = 從 i 到 j 的「長度為2」路徑數量</div>
       </div>
     </div>
 
-    <!-- ===== CH3-Ch7 Placeholders ===== -->
+    <!-- ===== CH3: 行列式 ===== -->
     <div class="chapter-page" id="ch3">
       <div class="ch-header">
         <h1><span class="en">Ch3 行列式</span> <span class="zh">｜Determinants</span></h1>
-        <p class="ch-desc">（待討論）行列式的定義、性質與應用。</p>
+        <p class="ch-desc">行列式是附著在「方陣」上的一個純量。它回答：一個矩陣是不是「好的」（可逆）？以及它代表的線性變換的面積/體積改變了多少？</p>
+        <div class="ch-tags">
+          <span class="ch-tag intro">矩陣的行列式</span>
+          <span class="ch-tag method">行列式與基本運算 · 行列式的性質</span>
+          <span class="ch-tag app">Cramer's Rule · 幾何意涵</span>
+        </div>
       </div>
+
+      <!-- §3.1 -->
+      <div class="ch-subsection-title">§3.1 矩陣的行列式</div>
+
       <div class="content-block">
-        <h3>🚧 此章節內容待討論後補充</h3>
-        <p>Ch3 的詳細內容需要等討論完 Ch1 和 Ch2 以後再處理。預計內容：</p>
-        <ul>
-          <li>行列式的定義（代數餘因子展開）</li>
-          <li>det(AB) = det(A)·det(B) 的意義</li>
-          <li>Cramer's Rule：如何用行列式優雅地解方程組</li>
-          <li>行列式的幾何意涵（面積/體積縮放因子）</li>
-        </ul>
+        <h3>行列式的定義：從 2×2 開始</h3>
+        <p>行列式是只有「方陣」（n×n）才有的屬性。記作 det(A) 或 |A|。</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">2×2</span> 基本公式</h4>
+            <div class="math-block center">
+| a   b |
+| c   d |  =  ad − bc</div>
+            <p style="margin-top:0.5rem;font-size:0.8125rem;color:var(--text-muted);">記憶技巧：ad 減去 bc（反對角線減正對角線）</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">3×3</span> 代數餘因子展開</h4>
+            <p>沿第一行展開：</p>
+            <div class="math-block center">
+det(A) = a₁₁C₁₁ + a₁₂C₁₂ + a₁₃C₁₃
+where Cᵢⱼ = (−1)ⁱ⁺ʲ · det(Mᵢⱼ)</div>
+            <p style="margin-top:0.5rem;font-size:0.8125rem;color:var(--text-muted);">Mᵢⱼ = 劃去第 i 列第 j 行後的 (n−1)×(n−1) 子矩陣</p>
+          </div>
+        </div>
+        <button class="example-trigger" onclick="openExample('det_2x2')" style="margin-top:0.75rem;">📐 觀看 2×2 行列式 + 幾何意義（面積）</button>
+      </div>
+
+      <div class="content-block">
+        <h3>幾何意涵：行列式 = 面積（或體積）縮放因子</h3>
+        <div class="highlight-box">
+          <strong>💡 幾何直覺</strong>
+          在二維：如果 A 是 R² 中的一個線性變換，則 |det(A)| = A 將「單位正方形」變換後的面積。
+          <ul style="margin-top:0.5rem;padding-left:1.25rem;">
+            <li>det(A) > 0 → 方向不翻轉（右手座標系保持右手座標系）</li>
+            <li>det(A) < 0 → 方向翻轉（鏡射）</li>
+            <li>det(A) = 0 → 面積塌縮成 0 → 維度降低 → 不可逆！</li>
+          </ul>
+        </div>
+        <div class="info-box">
+          <strong>📌 為什麼這個重要（連結你的研究）</strong>
+          在電網異常偵測中，數據矩陣的「SVD 奇異值」等於行列式的推廣概念。當奇異值變得很小（接近 0），代表數據矩陣「快要不可逆」——這正是異常偵測的訊號。
+        </div>
+      </div>
+
+      <!-- §3.2 -->
+      <div class="ch-subsection-title">§3.2 行列式與基本運算</div>
+
+      <div class="content-block">
+        <h3>三種基本列運算對行列式的影響</h3>
+        <p>這個章節的價值：用列運算把複雜矩陣變簡單，再算行列式。</p>
+        <div class="card-grid">
+          <div class="card" style="border-left:3px solid #dc2626;">
+            <h4><span class="icon">↔️</span> 列交換（Swap）</h4>
+            <div class="math-block center">det(P) = −1</div>
+            <p>交換一次 → det 變號。交換兩次 → 回到原值。</p>
+          </div>
+          <div class="card" style="border-left:3px solid var(--accent);">
+            <h4><span class="icon">×</span> 列倍加（Scale）</h4>
+            <div class="math-block center">det(c·Rᵢ) = c · det(A)</div>
+            <p>把一列乘以 c，行列式也乘以 c。</p>
+          </div>
+          <div class="card" style="border-left:3px solid var(--success);">
+            <h4><span class="icon">+</span> 列替換（Replace）</h4>
+            <div class="math-block center">det(Rᵢ + c·Rⱼ) = det(A)</div>
+            <p>最神奇的性質：這個操作不改變 det。</p>
+          </div>
+        </div>
+        <button class="example-trigger" onclick="openExample('det_row_ops')" style="margin-top:0.75rem;">📐 觀看：基本列運算追蹤 det 的變化</button>
+      </div>
+
+      <div class="content-block">
+        <h3>實際應用：用列運算簡化行列式計算</h3>
+        <p>把矩陣用列運算變成上三角形，然後直接取對角線乘積。</p>
+        <div class="highlight-box">
+          <strong>💡 實用算法</strong>
+          如果能用「列替換」把矩陣變成上三角形（不交換、不倍加），則：
+          <div class="math-block center" style="margin-top:0.5rem;">
+上三角矩陣的 det = 對角線元素的乘積
+</div>
+          這比直接用代數餘因子展開快很多——尤其矩陣變大的時候。
+        </div>
+      </div>
+
+      <!-- §3.3 -->
+      <div class="ch-subsection-title">§3.3 行列式的性質</div>
+
+      <div class="content-block">
+        <h3>最重要的性質</h3>
+        <table class="ref-table">
+          <thead><tr><th>性質</th><th>公式</th><th>重要程度</th></tr></thead>
+          <tbody>
+            <tr><td>乘積的行列式</td><td><code>det(AB) = det(A)·det(B)</code></td><td>⭐⭐⭐⭐⭐</td></tr>
+            <tr><td>轉置的行列式</td><td><code>det(Aᵀ) = det(A)</code></td><td>⭐⭐⭐⭐</td></tr>
+            <tr><td>反矩陣的行列式</td><td><code>det(A⁻¹) = 1/det(A)</code></td><td>⭐⭐⭐⭐</td></tr>
+            <tr><td>純量乘法</td><td><code>det(cA) = cⁿ·det(A)</code></td><td>⭐⭐⭐</td></tr>
+            <tr><td>上/下三角矩陣</td><td><code>det = 對角線元素乘積</code></td><td>⭐⭐⭐⭐⭐</td></tr>
+            <tr><td>有零行/零列</td><td><code>det = 0</code></td><td>⭐⭐⭐</td></tr>
+            <tr><td>兩行相等</td><td><code>det = 0</code></td><td>⭐⭐⭐</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="content-block">
+        <h3>det(AB) = det(A)·det(B) 的深層意義</h3>
+        <div class="highlight-box">
+          <strong>為什麼這個性質這麼重要？</strong>
+          <p>如果 A 和 B 都是可逆的（det ≠ 0），則 AB 的可逆性由 det(A)·det(B) 決定。</p>
+          <p>推論：如果 det(A) ≠ 0，則 A 是一對一的映射（有反函數）。</p>
+        </div>
+        <div class="warning-box">
+          <strong>⚠️ 常見誤解</strong>
+          <ul>
+            <li>det(A+B) ≠ det(A) + det(B) — 這個公式根本不存在！</li>
+            <li>det(A) = 0 ≠ A = 0 — 零矩陣行列式為零，但行列式為零的矩陣不一定是零矩陣</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>det(A) = 0 的完整意義（連結 Ch2）</h3>
+        <div class="compare-grid">
+          <div class="compare-item" style="border-top:3px solid var(--success);">
+            <div class="label">det(A) ≠ 0</div>
+            <div class="value">A 可逆（nonsingular）</div>
+            <div class="cond">rank(A) = n · A 的列全部線性獨立</div>
+          </div>
+          <div class="compare-item" style="border-top:3px solid #dc2626;">
+            <div class="label">det(A) = 0</div>
+            <div class="value">A 不可逆（singular）</div>
+            <div class="cond">rank(A) &lt; n · 列線性相關 · Ax=0 有非零解</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- §3.4 -->
+      <div class="ch-subsection-title">§3.4 行列式的應用</div>
+
+      <div class="content-block">
+        <h3>Cramer's Rule：用行列式優雅地解方程組</h3>
+        <p>對於 n×n 方程組 Ax = b（當 A 可逆時），Cramer's Rule 說：</p>
+        <div class="math-block center">
+xᵢ = det(Aᵢ) / det(A)
+</div>
+        <p>其中 Aᵢ 是把 A 的第 i 行置換成 b 向量後的矩陣。</p>
+        <button class="example-trigger" onclick="openExample('cramers_rule')" style="margin-top:0.5rem;">📐 觀看 Cramer's Rule 完整範例</button>
+        <div class="warning-box" style="margin-top:0.75rem;">
+          <strong>⚠️ 數值警告</strong>
+          Cramer's Rule 看起來很漂亮，但計算複雜度是 O(n!) 或 O(n⁴)。實際上——高斯消去只需要 O(n³)。這個公式只適合「紙上推導」和「小型理論證明」，不適合實際計算。記住它很漂亮，但果斷放棄用它算大型方程組。
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>行列式的其他應用</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">📐</span> 幾何：面積與體積</h4>
+            <p>三個點 (x₁,y₁), (x₂,y₂), (x₃,y₃) 決定的三角形面積：</p>
+            <div class="math-block center" style="font-size:0.8rem;">
+| x₁  y₁  1 |
+| x₂  y₂  1 |  / 2
+| x₃  y₃  1 |</div>
+            <p style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-muted);">在電網中可用於電壓三角形、功率三角形的面積分析。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🧮</span> 行列式測試</h4>
+            <p>在演算法中，快速檢測矩陣是否接近奇異：</p>
+            <p>如果 det(A) ≈ 0，矩陣接近不可逆，數值計算時會遇到「病態條件」問題。</p>
+            <div class="analogy">
+              <strong>💬 連結你的研究</strong>
+              PCA 中，如果數據矩陣的行列式（所有奇異值的乘積）非常小，說明數據的「有效維度」遠低於原始維度——這就是維度壓縮的依據。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">📖</span> 詞彙（中英對照）</h2>
+        <div class="vocab-section">
+          <div class="vocab-grid">
+            <div class="vocab-item"><div class="term">Determinant</div><div class="chinese">行列式</div><div class="definition">方陣 A 的純量屬性，記作 det(A) 或 |A|。det(A) ≠ 0 ⟺ A 可逆。</div></div>
+            <div class="vocab-item"><div class="term">Cofactor Expansion</div><div class="chinese">代數餘因子展開</div><div class="definition">沿某一行或列展開 det(A) = Σ aᵢⱼ · Cᵢⱼ where Cᵢⱼ = (−1)ⁱ⁺ʲ · det(Mᵢⱼ)。</div></div>
+            <div class="vocab-item"><div class="term">Minor</div><div class="chinese">子行列式</div><div class="definition">Mᵢⱼ：劃去第 i 列第 j 行後的 (n−1)×(n−1) 子矩陣的行列式。</div></div>
+            <div class="vocab-item"><div class="term">Cofactor</div><div class="chinese">餘因子</div><div class="definition">Cᵢⱼ = (−1)ⁱ⁺ʲ · Mᵢⱼ。帶符號的子行列式。</div></div>
+            <div class="vocab-item"><div class="term">Cramer's Rule</div><div class="chinese">克拉瑪公式</div><div class="definition">xᵢ = det(Aᵢ)/det(A)。用行列式解線性方程組的公式。漂亮但數值不稳定。</div></div>
+            <div class="vocab-item"><div class="term">Singular Matrix</div><div class="chinese">奇異矩陣</div><div class="definition">det(A) = 0 的方陣。不可逆，列線性相關，方程組可能無解或無限多解。</div></div>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- ===== CH4: 向量空間 ===== -->
     <div class="chapter-page" id="ch4">
-      <div class="ch-header"><h1><span class="en">Ch4 向量空間</span> <span class="zh">｜Vector Space</span></h1><p class="ch-desc">（待討論）向量空間的結構理論。</p></div>
-      <div class="content-block"><h3>🚧 此章節內容待討論後補充</h3></div>
+      <div class="ch-header">
+        <h1><span class="en">Ch4 向量空間</span> <span class="zh">｜Vector Spaces</span></h1>
+        <p class="ch-desc">這章是線性代數的骨幹。從具體的 Rⁿ 出發，慢慢推廣到「只要能線性組合」的東西都是向量——多項式、函數、聲音訊號。全都適用同一套理論。</p>
+        <div class="ch-tags">
+          <span class="ch-tag intro">Rⁿ的向量 · 向量空間定義</span>
+          <span class="ch-tag method">子空間 · 生成與獨立 · 基底與維度 · 秩</span>
+          <span class="ch-tag app">座標變換 · 電網/ML應用</span>
+        </div>
+      </div>
+
+      <!-- §4.1 -->
+      <div class="ch-subsection-title">§4.1 Rⁿ 的向量</div>
+
+      <div class="content-block">
+        <h3>Rⁿ 是什麼</h3>
+        <p>Rⁿ 是所有 n 個實數組成有序 tuple 的集合。</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">R¹</span> 數線</h4>
+            <p>一維：所有實數。可以用一個數字定位一個點。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">R²</span> 平面</h4>
+            <p>二維：(x, y)。用兩個座標定位平面上一個點。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">R³</span> 空間</h4>
+            <p>三維：(x, y, z)。用三個座標定位空間中一個點。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">Rⁿ</span> 超空間</h4>
+            <p>n 維：沒辦法畫圖，但數學上完全合法。每個維度可以是一個感測器、一個時間點...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>向量的兩種視角</h3>
+        <div class="compare-grid">
+          <div class="compare-item" style="border-top:3px solid var(--la);">
+            <div class="label">幾何視角</div>
+            <div class="value">向量 = 帶方向和大小的箭頭</div>
+            <div class="cond">加法 = 頭接尾的移動 · 純量乘法 = 拉長/縮短/反向</div>
+          </div>
+          <div class="compare-item" style="border-top:3px solid var(--accent);">
+            <div class="label">代數視角</div>
+            <div class="value">向量 = 有序 n 元組 (x₁, x₂, ..., xₙ)</div>
+            <div class="cond">加法 = 各分量相加 · 純量乘法 = 各分量乘以純量</div>
+          </div>
+        </div>
+        <div class="info-box" style="margin-top:1rem;">
+          <strong>兩種視角同等重要</strong>
+          幾何視角幫你建立直覺（R² 和 R³ 可以畫圖）。代數視角讓你處理任何維度的問題（N 個感測器 = Rⁿ）。你的碩論處理的電力數據：100 個時間點 × 50 個感測器 = R⁵⁰⁰⁰ 的向量。
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>向量的基本運算</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">➕</span> 向量加法</h4>
+            <div class="math-block center" style="font-size:0.85rem;">
+(1, 2, 3) + (4, 5, 6) = (5, 7, 9)</div>
+            <p>各分量分開加。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">✖️</span> 純量乘法</h4>
+            <div class="math-block center" style="font-size:0.85rem;">
+3 · (1, 2, 4) = (3, 6, 12)</div>
+            <p>每個分量都乘以純量 3。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">·</span> 點積（Dot Product）</h4>
+            <div class="math-block center" style="font-size:0.85rem;">
+(1,2,3) · (4,5,6) = 1×4+2×5+3×6 = 32</div>
+            <p>對應分量相乘後相加。這個連接到 Ch5 的內積概念。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- §4.2 -->
+      <div class="ch-subsection-title">§4.2 向量空間（抽象定義）</div>
+
+      <div class="content-block">
+        <h3>為什麼要抽象化？</h3>
+        <p>R²、R³ 很具體。但現實中，很多東西可以「線性組合」——</p>
+        <ul>
+          <li>多項式：a₀ + a₁x + a₂x²（向量空間 P₂）</li>
+          <li>矩陣：m×n 矩陣可以相加、純量乘法（向量空間 Mₘₙ）</li>
+          <li>聲音訊號：離散時間訊號序列（向量空間 Rᵀ）</li>
+          <li>函數：連續函數（向量空間 C[a,b]）</li>
+        </ul>
+        <p>如果我們只會處理 Rⁿ，那上面這些全部都要用不同的工具。但如果它們都滿足同一套公理，就可以用同一套理論處理。</p>
+      </div>
+
+      <div class="content-block">
+        <h3>向量空間的八條公理</h3>
+        <p>一個集合 V 如果對「加法」和「純量乘法」封閉，且滿足以下八條公理，就是向量空間：</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">A₁-4</span> 加法封閉性</h4>
+            <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.25rem;">
+              <li>A1：u + v = v + u（交換律）</li>
+              <li>A2：(u+v)+w = u+(v+w)（結合律）</li>
+              <li>A3：存在零向量 0 使得 v+0 = v</li>
+              <li>A4：每個 v 都有負向量 −v 使得 v+(−v) = 0</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4><span class="icon">M₁-4</span> 純量乘法封閉性</h4>
+            <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.25rem;">
+              <li>M1：1·v = v（單位元）</li>
+              <li>M2：(cd)·v = c·(d·v)（結合律）</li>
+              <li>M3：c·(u+v) = c·u + c·v（分配律）</li>
+              <li>M4：(c+d)·v = c·v + d·v（分配律）</li>
+            </ul>
+          </div>
+        </div>
+        <div class="highlight-box" style="margin-top:1rem;">
+          <strong>💡 記住的技巧</strong>
+          A1-A4 = 「加法要有群結構」（交換群）。M1-M4 = 「純量乘法要有線性性質」。滿足這八條的，就是向量空間——跟你的具體集合是什麼無關。
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>向量空間的例子</h3>
+        <table class="ref-table">
+          <thead><tr><th>向量空間</th><th>元素長什麼樣</th><th>維度</th></tr></thead>
+          <tbody>
+            <tr><td>Rⁿ</td><td>(x₁, x₂, ..., xₙ)</td><td>n</td></tr>
+            <tr><td>Pₙ</td><td>a₀ + a₁x + ... + aₙxⁿ</td><td>n+1</td></tr>
+            <tr><td>Mₘₙ</td><td>m×n 矩陣</td><td>m×n</td></tr>
+            <tr><td>Rᵀ</td><td>(x₀, x₁, ..., xᵀ₋₁) 訊號序列</td><td>T</td></tr>
+            <tr><td>C[a,b]</td><td>[a,b] 上的連續函數</td><td>無限維</td></tr>
+          </tbody>
+        </table>
+        <div class="info-box" style="margin-top:1rem;">
+          <strong>⚡ 連結你的研究</strong>
+          電網中的測量數據：1000 個時間點 × 50 個 bus = 50,000 維向量。在這個向量空間裡，「正常數據」構成一個低維子空間，異常是偏離這個子空間的向量。PCA 就是把這個低維子空間找出來的工具。
+        </div>
+      </div>
+
+      <!-- §4.3 -->
+      <div class="ch-subsection-title">§4.3 向量空間的子空間</div>
+
+      <div class="content-block">
+        <h3>什麼是子空間</h3>
+        <p>向量空間 V 的子集 H，如果對加法和純量乘法封閉，則 H 本身就是一個向量空間——稱為 V 的子空間。</p>
+        <div class="highlight-box">
+          <strong>封閉性檢驗（Subspace Test）</strong>
+          要證明 H 是 V 的子空間，只需要確認：
+          <ul style="margin-top:0.5rem;padding-left:1.25rem;">
+            <li>① 零向量 0 在 H 中</li>
+            <li>② 封閉加法：u, v ∈ H ⇒ u+v ∈ H</li>
+            <li>③ 封閉純量乘法：v ∈ H, c ∈ R ⇒ c·v ∈ H</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>重要的子空間：核（Null Space）與像（Column Space）</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">ker(A)</span> 核（零空間）</h4>
+            <div class="math-block" style="font-size:0.8rem;">ker(A) = { x ∈ Rⁿ | Ax = 0 }</div>
+            <p>Ax = 0 的所有解的集合。<br>是 Rⁿ 的一個子空間。</p>
+            <p class="kw" style="margin-top:0.5rem;">幾何：穿過原點的直線或平面</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">im(A)</span> 像（列空間）</h4>
+            <div class="math-block" style="font-size:0.8rem;">im(A) = { Ax | x ∈ Rⁿ } ⊆ Rᵐ</div>
+            <p>A 的所有行向量線性組合的結果。<br>是 Rᵐ 的一個子空間。</p>
+            <p class="kw" style="margin-top:0.5rem;">幾何：Rᵐ 中的某個平面或線</p>
+          </div>
+        </div>
+        <button class="example-trigger" onclick="openExample('null_col_space')" style="margin-top:0.75rem;">📐 觀看：求 ker(A) 和 im(A) 的完整範例</button>
+      </div>
+
+      <div class="content-block">
+        <h3>為什麼核與像是最重要的子空間？</h3>
+        <div class="highlight-box">
+          <strong>Dimension Theorem（維度定理）</strong>
+          <div class="math-block center">
+dim(ker(A)) + dim(im(A)) = n（A 的列數）
+</div>
+          這個定理把「解方程組」（找核）和「求值域」（成像）連結起來。當你知道其中一個維度，就能推出另一個。
+        </div>
+        <div class="info-box">
+          <strong>⚡ 連結你的研究：電網狀態估計</strong>
+          測量值 y = Ax + 雜訊。x 是電網狀態（電壓相位）。A 是測量矩陣。
+          <ul style="margin-top:0.5rem;">
+            <li>如果 y 不在 im(A) 中 → 測量有異常或壞資料</li>
+            <li>y 在 im(A) 中的程度 → 決定了數據的「一致性」</li>
+          </ul>
+          這就是「不良資料偵測」（Bad Data Detection）的線性代數原理。
+        </div>
+      </div>
+
+      <!-- §4.4 -->
+      <div class="ch-subsection-title">§4.4 生成集合與線性獨立</div>
+
+      <div class="content-block">
+        <h3>Span（張成）：我能用這些向量碰出多大的空間？</h3>
+        <div class="math-block center">
+Span{v₁, v₂} = { c₁v₁ + c₂v₂ | c₁, c₂ ∈ R }
+</div>
+        <p>所有可能的線性組合。幾何上：是 v₁ 和 v₂ 決定的平面（如果它們線性獨立）。</p>
+      </div>
+
+      <div class="content-block">
+        <h3>線性獨立：這組向量裡有沒有「多餘的」？</h3>
+        <div class="highlight-box">
+          <strong>定義：線性獨立</strong>
+          v₁, v₂, ..., vₖ 線性獨立
+          ⟺ c₁v₁ + c₂v₂ + ... + cₖvₖ = 0 只有 c₁=c₂=...=cₖ=0 這組解
+          <br><br>
+          翻譯：沒有任何一個向量可以表示成其他向量的線性組合。
+        </div>
+        <div class="compare-grid" style="margin-top:1rem;">
+          <div class="compare-item" style="border-top:3px solid var(--success);">
+            <div class="label">線性獨立</div>
+            <div class="value">v₁ = (1,0), v₂ = (0,1) 在 R² 中</div>
+            <div class="cond">c₁(1,0)+c₂(0,1)=(0,0) 只有 c₁=c₂=0</div>
+          </div>
+          <div class="compare-item" style="border-top:3px solid #dc2626;">
+            <div class="label">線性相關</div>
+            <div class="value">v₁ = (1,0), v₂ = (2,0) 在 R² 中</div>
+            <div class="cond">2·v₁ − 1·v₂ = (0,0)，有非零解</div>
+          </div>
+        </div>
+        <button class="example-trigger" onclick="openExample('linear_indep')" style="margin-top:0.75rem;">📐 觀看：判斷向量集合是否線性獨立的步驟</button>
+      </div>
+
+      <div class="content-block">
+        <h3>幾何直覺：R³ 中的線性相關</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">1個向量</span> v ≠ 0</h4>
+            <p>Span{v} = 穿過原點的一條直線</p>
+            <p class="kw">1 個維度</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">2個無關向量</span> v₁, v₂ 無關</h4>
+            <p>Span{v₁, v₂} = 穿過原點的平面</p>
+            <p class="kw">2 個維度</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">3個無關向量</span> v₁, v₂, v₃ 無關</h4>
+            <p>Span{v₁, v₂, v₃} = 整個 R³ 空間</p>
+            <p class="kw">3 個維度</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">3個相關向量</span> v₃ = v₁ + v₂</h4>
+            <p>Span{v₁, v₂, v₃} = Span{v₁, v₂} = 那個平面（v₃ 沒貢獻新維度）</p>
+            <p class="kw">仍然是 2 個維度，v₃ 多餘</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- §4.5 -->
+      <div class="ch-subsection-title">§4.5 基底與維度</div>
+
+      <div class="content-block">
+        <h3>基底：向量空間的「最小生成集」</h3>
+        <div class="highlight-box">
+          <strong>基底的定義</strong>
+          B = {v₁, v₂, ..., vₙ} 是 V 的基底，當且僅當：
+          <ul style="margin-top:0.5rem;padding-left:1.25rem;">
+            <li>① B 中的向量線性獨立（沒有多餘的）</li>
+            <li>② Span(B) = V（張成整個空間）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>維度：基底的向量個數</h3>
+        <p>同一個向量空間的所有基底，向量個數相同。這個數字叫做維度。</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">標準基底</span> R³</h4>
+            <div class="math-block center" style="font-size:0.8rem;">
+{(1,0,0), (0,1,0), (0,0,1)}</div>
+            <p>三個向量，互相垂直，長度為 1。最「自然」的基底。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">非標準基底</span> R²</h4>
+            <div class="math-block center" style="font-size:0.8rem;">
+{(1,1), (1,-1)}</div>
+            <p>這也是 R² 的基底！向量 (3,1) 在標準基底是 (3,1)，在這個基底是 (2,1)——同一個向量，不同座標。</p>
+          </div>
+        </div>
+        <div class="info-box" style="margin-top:1rem;">
+          <strong>⚡ 連結你的研究：PCA 就是找更好的基底</strong>
+          你的感測器數據本來用「每個感測器」做一個維度（標準基底）。但這個基底可能不是最好的——很多維度之間高度相關。PCA 找的是：找出「數據變異最大方向」的新基底，用少數幾個維度就能捕捉大部分資訊。
+        </div>
+      </div>
+
+      <!-- §4.6 -->
+      <div class="ch-subsection-title">§4.6 矩陣的秩與線性方程式系統</div>
+
+      <div class="content-block">
+        <h3>rank(A) 的完整定義（連結 Ch1）</h3>
+        <p>Ch1 的 rank = 方程組有多少 pivot。這只是表面。Ch4 的 rank = 向量空間的維度。</p>
+        <div class="compare-grid">
+          <div class="compare-item" style="border-top:3px solid var(--la);">
+            <div class="label">Ch1 的 rank（工具視角）</div>
+            <div class="value">A 做高斯消去後，非零列的個數</div>
+            <div class="cond">用來判斷方程組解的情況</div>
+          </div>
+          <div class="compare-item" style="border-top:3px solid var(--accent);">
+            <div class="label">Ch4 的 rank（結構視角）</div>
+            <div class="value">dim(col(A)) = dim(row(A))</div>
+            <div class="cond">行空間維度 = 列空間維度 = 不變的結構量</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>維度定理的完整陳述</h3>
+        <div class="math-block center">
+dim(ker(A)) = n − rank(A)
+dim(im(A)) = rank(A)
+</div>
+        <div class="highlight-box" style="margin-top:0.75rem;">
+          <strong>這個定理的實際用法</strong>
+          當你用高斯消去把 A 變成 RREF 之後：
+          <ul style="margin-top:0.5rem;padding-left:1.25rem;">
+            <li>非零列的個數 = rank(A)</li>
+            <li>自由變數的個數 = n − rank(A) = dim(ker(A))</li>
+          </ul>
+          這把「算法」（高斯消去）和「結構」（維度）連結起來了。
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>rank 與方程組解的完整分類</h3>
+        <table class="ref-table">
+          <thead><tr><th>條件</th><th>幾何意義</th><th>方程組解</th></tr></thead>
+          <tbody>
+            <tr><td>rank(A) = rank([A|b]) = n</td><td>列空間維度 = n</td><td>唯一解</td></tr>
+            <tr><td>rank(A) = rank([A|b]) &lt; n</td><td>ker(A) 有維度 > 0</td><td>無限多解（自由度 = n−rank）</td></tr>
+            <tr><td>rank(A) &lt; rank([A|b])</td><td>b 不在 col(A) 中</td><td>無解（矛盾）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- §4.7 -->
+      <div class="ch-subsection-title">§4.7 座標與基底變換</div>
+
+      <div class="content-block">
+        <h3>同一個向量，不同基底，不同座標</h3>
+        <p>這是 Ch4 最實用的一節。學完這節，你就知道 PCA 為什麼 work。</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">標準基底</span> S = {(1,0), (0,1)} in R²</h4>
+            <p>向量 v = (3,1) 在 S 中：座標 = (3,1)</p>
+            <p style="font-size:0.75rem;color:var(--text-muted);">意義：v = 3·e₁ + 1·e₂</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">新基底</span> B = {(1,1), (1,-1)}</h4>
+            <p>同一個 v = (3,1) 在 B 中：座標 = (2,1)</p>
+            <p style="font-size:0.75rem;color:var(--text-muted);">意義：v = 2·(1,1) + 1·(1,-1)</p>
+          </div>
+        </div>
+        <button class="example-trigger" onclick="openExample('change_of_basis')" style="margin-top:0.75rem;">📐 觀看：求座標變換矩陣 + 完整步驟</button>
+      </div>
+
+      <div class="content-block">
+        <h3>基底變換矩陣（Transition Matrix）</h3>
+        <p>從舊基底到新基底的轉換：</p>
+        <div class="math-block center">
+[v]ᵦ = P⁻¹ · [v]ₛ</div>
+        <p>P 的行 = 新基底的每個向量在舊基底中的座標</p>
+        <div class="highlight-box" style="margin-top:0.75rem;">
+          <strong>💡 PCA 的線性代數原理</strong>
+          PCA 找的新基底 = 數據協變異數矩陣的特徵向量組成的基底。
+          <ul style="margin-top:0.5rem;">
+            <li>原始數據：用標準基底 → 維度之間高度相關</li>
+            <li>PCA基底：用特徵向量基底 → 維度之間完全不相關（正交）</li>
+            <li>保留前 k 個維度 → 維度壓縮，去除雜訊</li>
+          </ul>
+          這整個過程，就是「座標變換」。
+        </div>
+      </div>
+
+      <!-- §4.8 -->
+      <div class="ch-subsection-title">§4.8 向量空間的應用</div>
+
+      <div class="card-grid">
+        <div class="card">
+          <h4><span class="icon">⚡</span> 電網狀態估計</h4>
+          <p class="sub">測量空間 → 狀態空間</p>
+          <p>測量值 y ∈ Rᵐ 是 m 維，電網狀態 x ∈ Rⁿ 是 n 維（n ≪ m 通常）。</p>
+          <p>y = Ax + ε（測量模型）</p>
+          <p>A 的 rank 決定了「可觀測狀態」的數量。</p>
+          <div class="analogy">
+            <strong>💬 向量空間視角</strong>
+            「可觀測狀態」 = im(A)。如果 rank(A) = n，則所有狀態都可以從測量值重建（狀態估計可行）。
+          </div>
+        </div>
+        <div class="card">
+          <h4><span class="icon">🧠</span> 機器學習：特徵空間</h4>
+          <p class="sub">所有的「特徵」構成一個向量空間</p>
+          <p>每個數據點 = 特徵空間中的一個向量。</p>
+          <p>維度 = 特徵數量。</p>
+          <p>PCA = 在特徵空間中找更好的基底。</p>
+        </div>
+        <div class="card">
+          <h4><span class="icon">📡</span> 信號處理：時域 ↔ 頻域</h4>
+          <p class="sub">傅立葉變換 = 基底變換</p>
+          <p>時域：訊號用 (1, t, t²...) 基底表示。</p>
+          <p>頻域：用 (sin(nt), cos(nt)) 基底表示。</p>
+          <p>同一個訊號，不同基底，資訊的呈現方式不同。</p>
+        </div>
+        <div class="card">
+          <h4><span class="icon">🎨</span> 影像壓縮：JPEG</h4>
+          <p class="sub">DCT = 另一種基底變換</p>
+          <p>原始影像：每個像素是一維，維度 = 像素數。</p>
+          <p>DCT基底：8×8 區塊用頻率基底表示。</p>
+          <p>壓縮：保留低頻係數（少數維度），丟棄高頻係數（視覺影響小的細節）。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">📖</span> 詞彙（中英對照）</h2>
+        <div class="vocab-section">
+          <div class="vocab-grid">
+            <div class="vocab-item"><div class="term">Vector Space</div><div class="chinese">向量空間</div><div class="definition">滿足八條公理的集合，對加法和純量乘法封閉。V = (V, +, ·)</div></div>
+            <div class="vocab-item"><div class="term">Subspace</div><div class="chinese">子空間</div><div class="definition">V 的子集 H，對加法和純量乘法封閉。包含零向量。</div></div>
+            <div class="vocab-item"><div class="term">Span</div><div class="chinese">張成空間</div><div class="definition">Span{v₁,...,vₖ} = 所有 c₁v₁+...+cₖvₖ 的集合。</div></div>
+            <div class="vocab-item"><div class="term">Linear Independence</div><div class="chinese">線性獨立</div><div class="definition">c₁v₁+...+cₖvₖ=0 只有零解 ⟺ 沒有向量可表示成其他向量的線性組合。</div></div>
+            <div class="vocab-item"><div class="term">Basis</div><div class="chinese">基底</div><div class="definition">線性獨立 + 張成整個空間。基底的向量個數 = 維度。</div></div>
+            <div class="vocab-item"><div class="term">Dimension</div><div class="chinese">維度</div><div class="definition">向量空間的基底中向量的個數。記作 dim(V)。</div></div>
+            <div class="vocab-item"><div class="term">Null Space (Kernel)</div><div class="chinese">核 / 零空間</div><div class="definition">ker(A) = {x | Ax = 0}。Ax=0 的所有解的集合。</div></div>
+            <div class="vocab-item"><div class="term">Column Space (Image)</div><div class="chinese">列空間 / 像</div><div class="definition">im(A) = {Ax | x ∈ Rⁿ}。A 的行向量能張成的空間。</div></div>
+            <div class="vocab-item"><div class="term">Rank</div><div class="chinese">秩</div><div class="definition">rank(A) = dim(col(A)) = dim(row(A))。也是非零 pivot 的個數。</div></div>
+            <div class="vocab-item"><div class="term">Transition Matrix</div><div class="chinese">基底變換矩陣</div><div class="definition">P 的行 = 新基底的向量在舊基底中的座標。換基底：P⁻¹x。</div></div>
+            <div class="vocab-item"><div class="term">Change of Basis</div><div class="chinese">座標變換</div><div class="definition">同一個向量在不同基底下的座標不同。PCA 就是換基底。</div></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="chapter-page" id="ch5">
@@ -1391,6 +2014,260 @@ C[2,2] = row2(A) · col2(B)
 | 1   1 |  ×  | -1    2 |  =  | 0   1 |  ✅</div>
 
 <div class="result">✅ A⁻¹ = |  1   -1 |<br>| -1    2 |</div>
+        `
+      },
+      det_2x2: {
+        title: '📐 範例：2×2 行列式 + 幾何意義',
+        body: `
+<div class="math-label">題目</div>
+<div class="math-block center">A = | 3   1 |
+     | 1   2 |</div>
+
+<div class="math-label">Step 1：計算 det(A)</div>
+<div class="math-block">
+det(A) = a·d − b·c
+        = 3 × 2 − 1 × 1
+        = 6 − 1 = 5
+</div>
+
+<div class="math-label">Step 2：幾何意義——面積縮放因子</div>
+<div class="step"><div class="step-num">1</div><div class="step-text">單位正方形（頂點：(0,0),(1,0),(0,1),(1,1)）經過 A 變換後，變成平行四邊形。</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text">這個平行四邊形的面積 = |det(A)| = |5| = 5。</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text">det(A) > 0，所以沒有翻轉（方向保持）。</div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text">驗證：|3 1| 和 |1 2| 兩個向量組成的平行四邊形，底×高 = 5 ✅</div></div>
+
+<div class="math-label">det = 0 的幾何意義</div>
+<div class="math-block">
+如果 A = | 2   1 |
+         | 4   2 |
+det(A) = 2×2 − 1×4 = 0  ← 塌縮！
+
+兩列成比例：(2,1) 和 (4,2) = 2×(2,1)
+經過變換後，整個平面塌縮成一條直線。
+面積 = 0。不可逆。
+</div>
+
+<div class="result">✅ det(A) = 5 ≠ 0 → A 可逆，面積放大 5 倍</div>
+        `
+      },
+      det_row_ops: {
+        title: '📐 範例：基本列運算對行列式的影響',
+        body: `
+<div class="math-label">題目：求 | 2   4 |
+                   | 1   3 |  的行列式</div>
+
+<div class="math-label">策略：用列替換把矩陣變簡單</div>
+<div class="step"><div class="step-num">原始</div><div class="step-text">A = | 2   4 |，det = 2×3 − 4×1 = 2</div></div>
+
+<div class="math-label">Step 1：R₁ → R₁ − 2·R₂（列替換）</div>
+<div class="step"><div class="step-num">替換</div><div class="step-text">det( R₁−2·R₂ ) 不改變 det！</div></div>
+<div class="math-block center">${fmtMatrix([[0,4],[1,3]], null)}</div>
+
+<div class="math-label">Step 2：交換 R₁ ↔ R₂（交換）</div>
+<div class="step"><div class="step-num">交換</div><div class="step-text">交換後 det 變號。</div></div>
+<div class="math-block center">${fmtMatrix([[3,4],[0,1]], null)}</div>
+
+<div class="math-label">Step 3：R₁ → R₁ − 3·R₂（列替換）</div>
+<div class="step"><div class="step-num">替換</div><div class="step-text">det 不變。</div></div>
+<div class="math-block center">${fmtMatrix([[0,4],[0,1]], null)}</div>
+
+<div class="math-label">結果：上三角矩陣</div>
+<div class="math-block center">${fmtMatrix([[0,4],[0,1]], null)}
+det = 0 × 1 = 0</div>
+
+<div class="result">✅ det(A) = 0（中間經過兩次列替換不變號，最後交換一次 → det 變號，但上三角後直接取對角線乘積）</div>
+        `
+      },
+      cramers_rule: {
+        title: '📐 範例：Cramer\'s Rule 解方程組',
+        body: `
+<div class="math-label">題目</div>
+<div class="math-block">
+2x +  y = 5
+ x + 3y = 6</div>
+
+<div class="math-label">Step 1：寫成 Ax = b</div>
+<div class="math-block center">A = | 2   1 |    b = | 5 |
+    | 1   3 |        | 6 |</div>
+
+<div class="math-label">Step 2：計算 det(A)</div>
+<div class="math-block">
+det(A) = 2×3 − 1×1 = 6 − 1 = 5
+</div>
+
+<div class="math-label">Step 3：求 x₁（把 A 的第 1 行置換成 b）</div>
+<div class="math-block center">A₁ = | 5   1 |    det(A₁) = 5×3 − 1×6 = 15 − 6 = 9
+    | 6   3 |</div>
+<div class="math-block">
+x₁ = det(A₁) / det(A) = 9 / 5 = 1.8
+</div>
+
+<div class="math-label">Step 4：求 x₂（把 A 的第 2 行置換成 b）</div>
+<div class="math-block center">A₂ = | 2   5 |    det(A₂) = 2×6 − 5×1 = 12 − 5 = 7
+    | 1   6 |</div>
+<div class="math-block">
+x₂ = det(A₂) / det(A) = 7 / 5 = 1.4
+</div>
+
+<div class="math-label">驗證（代入原方程組）</div>
+<div class="math-block">
+2(1.8) + (1.4) = 3.6 + 1.4 = 5 ✅
+  (1.8) + 3(1.4) = 1.8 + 4.2 = 6 ✅
+</div>
+
+<div class="result">✅ 解：x₁ = 9/5 = 1.8，x₂ = 7/5 = 1.4｜Cramer's Rule很漂亮，但高斯消去更快</div>
+        `
+      },
+      linear_indep: {
+        title: '📐 範例：判斷向量集合是否線性獨立',
+        body: `
+<div class="math-label">題目：判斷 v₁=(1,2,-1), v₂=(2,3,1), v₃=(4,7,1) 是否線性獨立</div>
+
+<div class="math-label">Step 1：設 c₁v₁ + c₂v₂ + c₃v₃ = 0</div>
+<div class="math-block">
+c₁(1,2,-1) + c₂(2,3,1) + c₃(4,7,1) = (0,0,0)
+</div>
+
+<div class="math-label">Step 2：寫成方程組</div>
+<div class="math-block">
+  c₁ + 2c₂ + 4c₃ = 0    (x分量)
+ 2c₁ + 3c₂ + 7c₃ = 0    (y分量)
+ -c₁ +  c₂ +  c₃ = 0    (z分量)
+</div>
+
+<div class="math-label">Step 3：寫成增廣矩陣並化簡</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,2,4],[2,3,7],[-1,1,1]],
+  [[0],[0],[0]]
+)}</div>
+
+<div class="math-label">高斯消去</div>
+<div class="step"><div class="step-num">R₂→R₂−2R₁</div><div class="step-text">${fmtMatrix([[1,2,4],[0,-1,-1],[-1,1,1]],[[0],[0],[0]])}</div></div>
+<div class="step"><div class="step-num">R₃→R₃+R₁</div><div class="step-text">${fmtMatrix([[1,2,4],[0,-1,-1],[0,3,5]],[[0],[0],[0]])}</div></div>
+<div class="step"><div class="step-num">R₃→R₃+3R₂</div><div class="step-text">${fmtMatrix([[1,2,4],[0,-1,-1],[0,0,2]],[[0],[0],[0]])}</div></div>
+
+<div class="math-label">分析 RREF</div>
+<div class="math-block center">| 1   0   0 | 0 |
+| 0   1   0 | 0 |  →  c₃ = 0, c₂ = 0, c₁ = 0
+| 0   0   1 | 0 |</div>
+<div class="step"><div class="step-num">結論</div><div class="step-text">只有零解 → 三個向量線性獨立</div></div>
+
+<div class="math-label">幾何意義</div>
+<div class="math-block">
+v₁, v₂, v₃ 線性獨立
+→ 它們張成 R³ 整個空間（3個維度）
+→ 沒有任何一個可以表示成其他兩個的線性組合
+</div>
+
+<div class="result">✅ v₁, v₂, v₃ 線性獨立（rank = 3）</div>
+        `
+      },
+      null_col_space: {
+        title: '📐 範例：求 ker(A) 和 im(A)',
+        body: `
+<div class="math-label">題目：A = | 1   2   1 |
+             | 2   4   2 |</div>
+
+<div class="math-label">Step 1：求 ker(A)（解 Ax = 0）</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,2,1],[2,4,2]],
+  [[0],[0]]
+)}</div>
+<div class="step"><div class="step-num">R₂→R₂−2R₁</div><div class="step-text">${fmtMatrix([[1,2,1],[0,0,0]],[[0],[0]])}</div></div>
+<div class="math-block center">
+RREF：| 1   2   1 | 0 |
+      | 0   0   0 | 0 |
+</div>
+<div class="math-block">
+x₁ + 2x₂ + x₃ = 0
+自由變數：x₂ = s, x₃ = t
+x₁ = −2s − t
+
+ker(A) = { s(−2,1,0) + t(−1,0,1) | s,t ∈ R }
+dim(ker(A)) = 2
+</div>
+
+<div class="math-label">Step 2：求 im(A)（行向量張成的空間）</div>
+<div class="math-block">
+A 的行向量：r₁=(1,2), r₂=(2,4), r₃=(1,2)
+
+r₂ = 2·r₁，r₃ = r₁
+
+所以 im(A) = Span{(1,2)}（只有一個獨立向量）
+dim(im(A)) = 1
+</div>
+
+<div class="math-label">驗證：維度定理</div>
+<div class="math-block">
+dim(ker(A)) + dim(im(A)) = 2 + 1 = 3 = n（列數）✅
+</div>
+
+<div class="math-label">幾何意義</div>
+<div class="math-block">
+ker(A)：R³ 中穿過原點的平面（2維子空間）
+im(A)：R² 中穿過原點的直線（1維子空間）
+
+A 把 R³ 映射到 R²，核心（ker）是「消失的維度」，像是「看到的維度」。
+</div>
+
+<div class="result">✅ ker(A) = Span{(−2,1,0),(−1,0,1)}，dim=2｜im(A) = Span{(1,2)}，dim=1｜rank=1</div>
+        `
+      },
+      change_of_basis: {
+        title: '📐 範例：R² 中的座標變換',
+        body: `
+<div class="math-label">題目：標準基底 S = {(1,0),(0,1)}，新基底 B = {(1,1),(1,-1)}</div>
+
+<div class="math-label">目標：求 v = (5,3) 在基底 B 中的座標 [v]ᵦ</div>
+
+<div class="math-label">Step 1：寫出新基底向量在 S 中的座標（作為 P 的行）</div>
+<div class="math-block">
+b₁ = (1,1) 在 S 中 = (1,1)
+b₂ = (1,-1) 在 S 中 = (1,-1)
+</div>
+<div class="math-block center">P = | 1   1 |
+     | 1  -1 |</div>
+
+<div class="math-label">Step 2：求 P 的反矩陣 P⁻¹</div>
+<div class="math-block">
+det(P) = 1×(−1) − 1×1 = −2
+
+P⁻¹ = (1/−2) · | -1  -1 |
+                   | -1   1 |
+
+     = | 1/2   1/2 |
+       | 1/2  -1/2 |
+</div>
+
+<div class="math-label">Step 3：計算 [v]ᵦ = P⁻¹ · [v]ₛ</div>
+<div class="math-block center">${fmtMatrix(
+  [[1,1],[1,-1]],
+  null
+)}
+   ×
+| 5 |
+| 3 |</div>
+<div class="math-block">
+P⁻¹ · v = | 1/2  1/2 | · | 5 | = | (5+3)/2 | = | 4 |
+           | 1/2 -1/2 |   | 3 |   | (5-3)/2 |   | 1 |
+</div>
+
+<div class="math-label">驗證</div>
+<div class="math-block">
+4·(1,1) + 1·(1,-1) = (4+1, 4-1) = (5,3) = v ✅
+</div>
+
+<div class="math-label">幾何意義</div>
+<div class="math-block">
+同一個向量 v = (5,3)：
+  在標準基底 S 中：座標 = (5,3)
+  在新基底 B 中：座標 = (4,1)
+
+「看到的數字不同，但還是同一個向量。」
+PCA = 找一個讓數據「看起來更簡單」的新基底。
+</div>
+
+<div class="result">✅ [v]ᵦ = (4, 1)｜v = 4·(1,1) + 1·(1,-1)</div>
         `
       }
     };
