@@ -1846,8 +1846,312 @@ dim(im(A)) = rank(A)
     </div>
 
     <div class="chapter-page" id="ch5">
-      <div class="ch-header"><h1><span class="en">Ch5 內積空間</span> <span class="zh">｜Inner Product Space</span></h1><p class="ch-desc">（待討論）這是你目前在課堂學習的部分。我們可以根據老師的進度隨時調整。</p></div>
-      <div class="content-block"><h3>🚧 此章節內容待討論後補充</h3><p>等你告訴我老師教到哪個小節，我們再一起把這個章節補足。</p></div>
+      <div class="ch-header"><h1><span class="en">Ch5 內積空間</span> <span class="zh">｜Inner Product Space</span></h1><p class="ch-desc">向量空間加上「長度」和「角度」的概念。這讓我們能量化「相似度」，並在最優化問題中扮演核心角色。</p></div>
+
+      <!-- §5.1 -->
+      <div class="ch-subsection-title">§5.1 內積與範數</div>
+
+      <div class="content-block">
+        <h3>內積（Inner Product）</h3>
+        <p>內積是給向量空間配備的「乘法」規則。標準內積定義於 Rⁿ：</p>
+        <div class="math-block">
+u · v = ⟨u, v⟩ = Σᵢ uᵢ vᵢ = u₁v₁ + u₂v₂ + … + uₙvₙ
+        </div>
+        <p>內積必須滿足四條公理：對稱性、正定性、線性性。</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">📌</span> R² / R³ 幾何內積</h4>
+            <p>u·v = |u||v|cosθ</p>
+            <p>可以用來求夾角、判斷正交（θ = 90° ⟺ u·v = 0）。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">📌</span> 函數空間內積</h4>
+            <p>⟨f, g⟩ = ∫₀¹ f(x)g(x)dx</p>
+            <p>這讓多項式、訊號也能談「夾角」和「長度」。</p>
+          </div>
+        </div>
+        <div class="analogy">
+          <strong>💡 內積的本質：相似度</strong><br>
+          內積大 → 兩向量方向接近（相似度高）。內積 = 0 → 完全無關（正交）。
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>範數（Norm）</h3>
+        <p>向量 v 的範數（長度）：‖v‖ = √⟨v, v⟩</p>
+        <p>在 Rⁿ 中：‖v‖ = √(v₁² + v₂² + … + vₙ²)</p>
+        <p>單位向量（unit vector）：‖v‖ = 1</p>
+        <p>標準化（normalize）：û = v / ‖v‖</p>
+        <div class="analogy">
+          <strong>💡 範數的意義：向量的「大小」</strong><br>
+          ‖v‖ = 0 ⟺ v = 0。‖cv‖ = |c|·‖v‖。
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>Cauchy-Schwarz 不等式</h3>
+        <div class="math-block">
+|⟨u, v⟩| ≤ ‖u‖ · ‖v‖
+        </div>
+        <p>等號成立 ⟺ u 和 v 線性相關（平行或反向）。</p>
+        <p>這個不等式超重要——它是向量空間裡所有「幾何直覺」的代数保證。</p>
+      </div>
+
+      <!-- §5.2 -->
+      <div class="ch-subsection-title">§5.2 正交性與投影</div>
+
+      <div class="content-block">
+        <h3>正交（Orthogonal）</h3>
+        <p>u 和 v 正交 ⟺ ⟨u, v⟩ = 0</p>
+        <p>幾何意義：兩向量夾角 90°。</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">🔌</span> 電網：功率向量正交</h4>
+            <p>有功功率 P 和無功功率 Q 在功率三角形中正交。</p>
+            <p>視在功率 S = P + jQ，|S|² = P² + Q²。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">📊</span> ML：特徵正交化</h4>
+            <p>PCA 找的主成分兩兩正交。</p>
+            <p>讓特徵之間不相關，模型更穩定。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>向量在子空間上的投影</h3>
+        <p>給定子空間 W（通常是直線或平面）和向量 v，求 v 在 W 上「最近的那個點」proj_W(v)。</p>
+        <div class="math-block">
+若 W = Span{u}（一維，子空間是一條直線）：
+
+proj_u(v) = (⟨v, u⟩ / ⟨u, u⟩) · u
+           = (v·u / u·u) · u
+        </div>
+        <p>分子：v 沿 u 方向的分量有多大。<br>分母：u 自己的「強度」。</p>
+        <p><button class="example-btn" onclick="showExample('projection')">📐 觀看</button> 範例：R² 中向量在直線上的投影</p>
+      </div>
+
+      <div class="content-block">
+        <h3>正交補餘（Orthogonal Complement）</h3>
+        <p>W⊥ = {v | v 和 W 中所有向量都正交}</p>
+        <p>性質：Rⁿ = W ⊕ W⊥（每個向量唯一分解成 W 分量 + W⊥ 分量）</p>
+        <div class="analogy">
+          <strong>💡 電網視角：</strong><br>
+          W = 可觀測狀態空間。W⊥ = 不可觀測的狀態（需要額外感測器才能估測）。
+        </div>
+      </div>
+
+      <!-- §5.3 -->
+      <div class="ch-subsection-title">§5.3 Gram-Schmidt 正交化</div>
+
+      <div class="content-block">
+        <h3>核心問題</h3>
+        <p>任意線性獨立向量集合 {v₁, v₂, ..., vₖ}，如何產生一組兩兩正交的向量集合 {u₁, u₂, ..., uₖ}？</p>
+        <p>答案：Gram-Schmidt 程序。</p>
+      </div>
+
+      <div class="content-block">
+        <h3>Gram-Schmidt 程序（R³ 示範）</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">Step 1</div>
+            <div class="step-content">設 u₁ = v₁</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">Step 2</div>
+            <div class="step-content">u₂ = v₂ − proj_{u₁}(v₂) = v₂ − (v₂·u₁/u₁·u₁)u₁</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">Step 3</div>
+            <div class="step-content">u₃ = v₃ − proj_{u₁}(v₃) − proj_{u₂}(v₃)</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">...</div>
+            <div class="step-content">每一步：減掉在所有已求出正交向量上的投影</div>
+          </div>
+        </div>
+        <p>最後正規化：qᵢ = uᵢ / ‖uᵢ‖（得到標準正交基 ONB）。</p>
+        <p><button class="example-btn" onclick="showExample('gram_schmidt')">📐 觀看</button> 範例：R³ 三向量 Gram-Schmidt 正交化</p>
+      </div>
+
+      <div class="content-block">
+        <h3>QR 分解</h3>
+        <p>Gram-Schmidt 的代數表達：A = QR</p>
+        <ul>
+          <li>Q：m×n 矩陣， columns 為標準正交向量（QᵀQ = I）</li>
+          <li>R：n×n 上三角矩陣（triangular because each new vector only depends on previous ones）</li>
+        </ul>
+        <p>幾何意義：Gram-Schmidt 一步一步把 A 的 columns 正交化，R 記錄了每個步驟的投影係數。</p>
+        <div class="analogy">
+          <strong>💡 為什麼重要：</strong><br>
+          QR 分解是數值線性代數的基石。用於求解最小平方法、計算特徵值（QR algorithm）、電腦繪圖。
+        </div>
+      </div>
+
+      <!-- §5.4 -->
+      <div class="ch-subsection-title">§5.4 最小平方法（Least Squares）</div>
+
+      <div class="content-block">
+        <h3>問題設定</h3>
+        <p>Ax = b 無解（b 不在 col(A) 中）。這是最常見的情況——現實數據都有雜訊。</p>
+        <p>目標：找 x̂ 使 ‖Ax̂ − b‖ 最小（即殘差 residual 最小的近似解）。</p>
+        <div class="math-block">
+最小平方法 = 在 col(A) 中找最接近 b 的向量
+            = proj_{col(A)}(b)
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>正規方程式（Normal Equations）</h3>
+        <p>最小平方法的解滿足：</p>
+        <div class="math-block">
+AᵀA x̂ = Aᵀ b
+        </div>
+        <p>推導：b 的投影在 col(A) 中，殘差 b − Ax̂ 與 col(A) 正交 → Aᵀ(b − Ax̂) = 0。</p>
+        <p>若 AᵀA 可逆（rank(A) = n），則：x̂ = (AᵀA)⁻¹ Aᵀ b</p>
+        <p><button class="example-btn" onclick="showExample('least_squares')">📐 觀看</button> 範例：最小平方法求近似解</p>
+      </div>
+
+      <div class="content-block">
+        <h3>幾何意義</h3>
+        <p>Ax = b 無解 ⟺ b 不在 col(A) 中。</p>
+        <p>最小平方法：在 col(A) 這個子空間中，找 b 的投影點 proj_{col(A)}(b)。</p>
+        <p>x̂ 不是「解」，而是「最佳近似」——讓你用 A 的 columns 線性組合出的向量，最接近 b。</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">🔌</span> 電網：狀態估計</h4>
+            <p>SCADA 測量值有雜訊（b），真實狀態 x 無法直接測量。</p>
+            <p>狀態估計 = 最小平方法：找 x̂ 使測量殘差最小。</p>
+            <p>目標函數：min Σ wᵢ(rᵢ)²（加權最小平方法 WLS）。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">📈</span> ML：線性迴歸</h4>
+            <p>y = βx + ε（目標：找 β 使預測誤差最小）。</p>
+            <p>Normal Equation: β̂ = (XᵀX)⁻¹Xᵀy</p>
+            <p>這就是最小平方法在統計學習的核心。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rⁿ 長度與點積（補充） -->
+      <div class="content-block">
+        <h3>Rⁿ 上的長度、距離與夾角</h3>
+        <p>內積空間讓 Rⁿ 不只是代數運算的舞台，更有了「幾何靈魂」。</p>
+
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">📏</span> 長度（Length / Norm）</h4>
+            <div class="math-block">
+‖v‖ = √(v₁² + v₂² + … + vₙ²)
+            </div>
+            <p>在 R²：‖(x,y)‖ = √(x²+y²)（畢氏定理）</p>
+            <p>在 R³：‖(x,y,z)‖ = √(x²+y²+z²)</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">📐</span> 距離（Distance）</h4>
+            <div class="math-block">
+d(u, v) = ‖u − v‖
+            </div>
+            <p>兩點間的直線距離。</p>
+            <p>在 R²：√((x₁−x₂)² + (y₁−y₂)²)</p>
+          </div>
+        </div>
+
+        <div class="card-grid" style="margin-top:1rem;">
+          <div class="card">
+            <h4><span class="icon">📐</span> 夾角（Angle）</h4>
+            <div class="math-block">
+cos θ = (u·v) / (‖u‖ · ‖v‖)
+            </div>
+            <p>由 Cauchy-Schwarz 保證 −1 ≤ cos θ ≤ 1。</p>
+            <p>θ = 0°：u 和 v 同向（正相關）</p>
+            <p>θ = 90°：u 和 v 正交</p>
+            <p>θ = 180°：u 和 v 反向（負相關）</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🔢</span> 點積的代數定義</h4>
+            <div class="math-block">
+u · v = Σᵢ uᵢ vᵢ = u₁v₁ + u₂v₂ + … + uₙvₙ
+            </div>
+            <p>這是內積在 Rⁿ 的標準形式。</p>
+            <p>為什麼要會兩個公式？</p>
+            <p>幾何版：用於理解角度和投影。</p>
+            <p>代數版：用於實際計算和推導。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 內積空間應用 -->
+      <div class="content-block">
+        <h3>內積空間的應用（Applications of Inner Product Spaces）</h3>
+        <p>「長度」和「角度」的概念一旦推廣到函數空間，威力就爆炸了。</p>
+
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">📡</span> 訊號處理：傅立葉級數</h4>
+            <p>在函數空間 C[0, 2π] 上定義內積：</p>
+            <div class="math-block">
+⟨f, g⟩ = ∫₀²π f(x)g(x) dx
+            </div>
+            <p>則 {1, cos(nx), sin(nx)} 兩兩正交（內積 = 0）。</p>
+            <p>傅立葉係數：aₙ = ⟨f, cos(nx)⟩ / π</p>
+            <p>意義：把複雜訊號分解成互相「無關」的正弦波。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🧬</span> 生物資訊：序列相似性</h4>
+            <p>DNA 序列可以表示成 R⁴ 中的向量（A,T,G,C 各一維）。</p>
+            <div class="math-block">
+v₁ = (1,0,0,0)，v₂ = (0,1,0,0)，...
+            </div>
+            <p>兩條序列的「相似度」= 內積 / (長度×長度) = cos θ。</p>
+            <p>這讓序列對齊（alignment）變成一個幾何問題。</p>
+          </div>
+        </div>
+
+        <div class="card-grid" style="margin-top:1rem;">
+          <div class="card">
+            <h4><span class="icon">🖼️</span> 影像處理：向量表示</h4>
+            <p>一張 100×100 灰階影像 = R¹⁰⁰⁰⁰ 中的一個向量。</p>
+            <p>兩張圖的「相似度」= 內積normalized（cosine similarity）。</p>
+            <div class="math-block">
+cos θ = (v₁·v₂) / (‖v₁‖·‖v₂‖)
+            </div>
+            <p>PCA/JPEG 壓縮：找主要方向（最大方差）= 找與所有資料點內積和最大的方向。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🔌</span> 電力系統：功率向量</h4>
+            <p>單相功率向量：S = P + jQ（復數功率）</p>
+            <div class="math-block">
+|S|² = P² + Q² （P 和 Q 正交！）
+            </div>
+            <p>三相不平衡電流：可以用內積檢測對稱性。</p>
+            <p>電壓閃爍（flicker）分析：電壓向量在頻域的內積投影。</p>
+          </div>
+        </div>
+
+        <div class="analogy">
+          <strong>💡 核心洞見：</strong><br>
+          內積空間把「相似度」量化了。一旦能量化相似度，就能：<br>
+          • 找最近鄰（KNN 分類）<br>
+          • 降維壓縮（PCA）<br>
+          • 信號去噪（投影到訊號子空間）<br>
+          • 系統識別（最小平方法擬合模型）
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>📖 詞彙（中英對照）</h3>
+        <div class="vocab-grid">
+          <div class="vocab-item"><div class="term">Inner Product</div><div class="chinese">內積</div><div class="definition">⟨u, v⟩ = 對應分量相乘後相加。測量兩個向量的「相似度」。</div></div>
+          <div class="vocab-item"><div class="term">Norm</div><div class="chinese">範數</div><div class="definition">‖v‖ = √⟨v, v⟩。向量的「長度」。</div></div>
+          <div class="vocab-item"><div class="term">Orthogonal</div><div class="chinese">正交</div><div class="definition">⟨u, v⟩ = 0。兩向量夾角 90°，彼此完全無關。</div></div>
+          <div class="vocab-item"><div class="term">Projection</div><div class="chinese">投影</div><div class="definition">proj_W(v) = v 在子空間 W 上的最近點（最小距離）。</div></div>
+          <div class="vocab-item"><div class="term">Gram-Schmidt</div><div class="chinese">Gram-Schmidt 正交化</div><div class="definition">把線性獨立向量轉換為正交向量的程序。是 QR 分解的基礎。</div></div>
+          <div class="vocab-item"><div class="term">Least Squares</div><div class="chinese">最小平方法</div><div class="definition">在無解系統 Ax=b 中，找使 ‖Ax−b‖ 最小的 x̂。AᵀA x̂ = Aᵀb。</div></div>
+          <div class="vocab-item"><div class="term">Normal Equations</div><div class="chinese">正規方程式</div><div class="definition">AᵀA x̂ = Aᵀb。最小平方法的标准解法。</div></div>
+          <div class="vocab-item"><div class="term">QR Decomposition</div><div class="chinese">QR 分解</div><div class="definition">A = QR，Q 的 columns 標準正交，R 為上三角。Gram-Schmidt 的代數形式。</div></div>
+        </div>
+      </div>
     </div>
 
     <div class="chapter-page" id="ch6">
@@ -2289,7 +2593,7 @@ P⁻¹ = (1/−2) · | -1  -1 |
   [[1,1],[1,-1]],
   null
 )}
-   ×
+ ×
 | 5 |
 | 3 |</div>
 <div class="math-block">
@@ -2313,6 +2617,170 @@ PCA = 找一個讓數據「看起來更簡單」的新基底。
 </div>
 
 <div class="result">✅ [v]ᵦ = (4, 1)｜v = 4·(1,1) + 1·(1,-1)</div>
+        `
+      },
+      projection: {
+        title: '📐 範例：R² 向量在直線上的投影',
+        body: `
+<div class="math-label">題目：v = (3, 2)，u = (2, 0)。求 proj_u(v)</div>
+
+<div class="math-label">Step 1：計算內積 v·u 和 u·u</div>
+<div class="math-block">
+v · u = 3×2 + 2×0 = 6
+u · u = 2² + 0² = 4
+</div>
+
+<div class="math-label">Step 2：寫成增廣矩陣 [A | b]</div>
+<div class="math-block">
+A（方向向量 u）：${fmtMatrix([[2],[0]], null)}
+b（目標向量 v）：${fmtMatrix([[3],[2]], null)}
+</div>
+
+<div class="math-label">Step 3：套用投影公式 proj_u(v) = (v·u / u·u) · u</div>
+<div class="math-block">
+proj_u(v) = (6 / 4) · (2, 0)
+          = (3/2) · (2, 0)
+          = (3, 0)
+</div>
+
+<div class="math-label">驗證</div>
+<div class="math-block">
+proj_u(v) = (3, 0) 確實在 Span{u}（x軸）上 ✅
+v − proj_u(v) = (3,2) − (3,0) = (0,2)，與 u 正交 ✅
+</div>
+
+<div class="math-label">幾何意義</div>
+<div class="math-block">
+proj_u(v) = (3, 0)
+  v 沿 x軸方向「落下」到直線上的最近點
+
+v − proj_u(v) = (0, 2)
+  垂直於直線的分量（殘差，最短距離）
+
+‖v − proj_u(v)‖ = 2
+  這是 v 到直線的垂直距離。
+</div>
+
+<div class="result">✅ proj_u(v) = (3, 0)｜幾何：v = (3,2) 垂直投影到 x軸上</div>
+        `
+      },
+      gram_schmidt: {
+        title: '📐 範例：Gram-Schmidt 正交化（R³）',
+        body: `
+<div class="math-label">題目：v₁=(1,1,0), v₂=(1,2,0), v₃=(0,1,1)，求正交基 {u₁, u₂, u₃}</div>
+
+<div class="math-label">Step 1：設 u₁ = v₁ = (1, 1, 0)</div>
+<div class="math-block">${fmtMatrix([[1],[1],[0]], null)}</div>
+
+<div class="math-label">Step 2：u₂ = v₂ − proj_{u₁}(v₂)</div>
+<div class="math-block">
+v₂ · u₁ = 1×1 + 2×1 + 0×0 = 3
+u₁ · u₁ = 1² + 1² + 0² = 2
+
+u₂ = (1,2,0) − (3/2)·(1,1,0)
+    = (1−3/2, 2−3/2, 0)
+    = (−1/2, 1/2, 0)
+    = (−1, 1, 0)（乘 −2 倍數不改變張成空間）
+</div>
+<div class="math-block">${fmtMatrix([[-1],[1],[0]], null)}
+  ← 正交化後（已去除 u₁ 方向的分量）</div>
+
+<div class="math-label">Step 3：u₃ = v₃ − proj_{u₁}(v₃) − proj_{u₂}(v₃)</div>
+<div class="math-block">
+v₃ · u₁ = 0×1 + 1×1 + 1×0 = 1
+v₃ · u₂ = 0×(−1) + 1×1 + 1×0 = 1
+u₁ · u₁ = 2
+u₂ · u₂ = (−1)² + 1² + 0² = 2
+
+u₃ = (0,1,1) − (1/2)·(1,1,0) − (1/2)·(−1,1,0)
+    = (0−1/2+1/2, 1−1/2−1/2, 1−0−0)
+    = (0, 0, 1)
+</div>
+<div class="math-block">${fmtMatrix([[0],[0],[1]], null)}
+  ← u₃ 已與 u₁、u₂ 都正交</div>
+
+<div class="math-label">驗證：兩兩正交</div>
+<div class="math-block">
+u₁·u₂ = 1×(−1) + 1×1 + 0×0 = 0 ✅
+u₁·u₃ = 1×0 + 1×0 + 0×1 = 0 ✅
+u₂·u₃ = (−1)×0 + 1×0 + 0×1 = 0 ✅
+</div>
+
+<div class="math-label">正規化（可選）：qᵢ = uᵢ / ‖uᵢ‖</div>
+<div class="math-block">
+‖u₁‖ = √2，‖u₂‖ = √2，‖u₃‖ = 1
+
+q₁ = (1/√2, 1/√2, 0)
+q₂ = (−1/√2, 1/√2, 0)
+q₃ = (0, 0, 1)
+</div>
+
+<div class="result">✅ 正交基：u₁=(1,1,0), u₂=(−1,1,0), u₃=(0,0,1)｜標準正交基：q₁, q₂, q₃ 如上</div>
+        `
+      },
+      least_squares: {
+        title: '📐 範例：最小平方法（資料擬合）',
+        body: `
+<div class="math-label">題目：找一條通過原點的直線 y = ax，使以下三點殘差最小：</div>
+<div class="math-block">
+(1, 1),  (2, 2),  (3, 2)
+</div>
+
+<div class="math-label">Step 1：寫成 Ax = b 形式</div>
+<div class="math-block">
+x = [a]，A = | 1 |    b = | 1 |
+             | 2 |        | 2 |
+             | 3 |        | 2 |
+</div>
+<div class="math-block">${fmtMatrix(
+  [[1],[2],[3]],
+  [[1],[2],[2]]
+)}
+  A（x 係數）  b（y 值）</div>
+
+<div class="math-label">Step 2：Normal Equation：AᵀA x̂ = Aᵀb（A 為 3×1，故 AᵀA 是 1×1 scalar）</div>
+<div class="math-block">
+AᵀA = [1  2  3] · | 1 |   = [1×1 + 2×2 + 3×3] = [14]
+                   | 2 |
+                   | 3 |
+
+Aᵀb = [1  2  3] · | 1 |   = [1×1 + 2×2 + 3×2] = [11]
+                   | 2 |
+                   | 2 |
+</div>
+
+<div class="math-label">Step 3：解 1×1 系統</div>
+<div class="math-block">
+14 · a = 11
+
+x̂ = [a] = [ 11/14 ] ≈ [ 0.786 ]
+</div>
+
+<div class="math-label">Step 4：驗證（殘差與 A 的 column 正交）</div>
+<div class="math-block">
+Ax̂ = | 1 | · 11/14 = | 11/14 |
+      | 2 |              | 22/14 |
+      | 3 |              | 33/14 |
+
+殘差 r = b − Ax̂
+       = | 14/14−11/14 | = |  3/14 |
+         | 28/14−22/14 |   |  6/14 |
+         | 28/14−33/14 |   | −5/14 |
+
+r 與 A 的 column (1,2,3) 正交：
+Aᵀr = 1×(3/14) + 2×(6/14) + 3×(−5/14)
+     = (3 + 12 − 15) / 14 = 0 ✅
+</div>
+
+<div class="math-label">結果</div>
+<div class="math-block">
+最佳擬合直線：y = (11/14)x ≈ 0.786x
+
+殘差向量：r = (3/14, 6/14, −5/14) ≈ (0.214, 0.429, −0.357)
+‖r‖² = (3/14)² + (6/14)² + (−5/14)² = 70/196 = 5/14 ≈ 0.357
+</div>
+
+<div class="result">✅ x̂ = [11/14] ≈ 0.786｜殘差 Aᵀ(b−Ax̂) = 0（與 A 正交）✅</div>
         `
       }
     };
