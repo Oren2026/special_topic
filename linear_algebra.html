@@ -51,18 +51,18 @@
     .tab-nav-inner::-webkit-scrollbar { display: none; }
     .tab-btn {
       flex-shrink: 0;
-      padding: 1rem 1.25rem;
+      padding: 1rem 1.1rem;
       background: none;
       border: none;
       border-bottom: 3px solid transparent;
       color: var(--text-muted);
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
       white-space: nowrap;
     }
     .tab-btn:hover { color: var(--text); }
@@ -97,11 +97,7 @@
       background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
     }
     .header-inner { max-width: 1000px; margin: 0 auto; }
-    header .bilingual-header {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-    }
+    header .bilingual-header { display: flex; flex-direction: column; gap: 0.2rem; }
     header .en { font-size: 1.25rem; font-weight: 700; color: var(--en); }
     header .zh { font-size: 0.9375rem; color: var(--zh); }
     .nav-links { display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap; }
@@ -120,10 +116,7 @@
 
     /* Section titles */
     .section { margin-bottom: 2.5rem; }
-    .section h2 {
-      font-size: 1rem; font-weight: 700; margin-bottom: 1rem;
-      color: var(--text); display: flex; align-items: center; gap: 0.5rem;
-    }
+    .section h2 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text); display: flex; align-items: center; gap: 0.5rem; }
     .section h2 .icon { font-size: 1.25rem; }
 
     /* Chapter Header */
@@ -147,51 +140,156 @@
     }
 
     /* Cards */
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1rem;
-    }
-    .card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem;
-    }
-    .card h4 {
-      font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.5rem;
-      display: flex; align-items: center; gap: 0.5rem;
-    }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; }
+    .card h4 { font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
     .card h4 .icon { font-size: 1rem; }
     .card .sub { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; }
     .card p { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.75rem; }
-    .card .formula {
-      background: var(--bg); border: 1px solid var(--border); border-radius: 0.375rem;
-      padding: 0.5rem 0.75rem; font-size: 0.8125rem;
-      font-family: 'Courier New', monospace; color: var(--accent); margin-bottom: 0.75rem;
-    }
-    .card .analogy {
-      font-size: 0.8125rem; background: var(--la-bg); border-radius: 0.375rem;
-      padding: 0.625rem 0.875rem; color: var(--la); line-height: 1.5;
-    }
-    .card .analogy strong { display: block; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
     .card .keywords { display: flex; flex-wrap: wrap; gap: 0.3rem; }
     .kw { font-size: 0.6875rem; padding: 0.15rem 0.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: 0.25rem; color: var(--text-muted); }
+    .card .analogy { font-size: 0.8125rem; background: var(--la-bg); border-radius: 0.375rem; padding: 0.625rem 0.875rem; color: var(--la); line-height: 1.5; margin-top: 0.75rem; }
+    .card .analogy strong { display: block; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
+
+    /* Modal for Examples */
+    .example-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      background: var(--la-bg);
+      border: 1px solid var(--la);
+      color: var(--la);
+      padding: 0.375rem 0.875rem;
+      border-radius: 0.5rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 0.5rem;
+    }
+    .example-trigger:hover { background: var(--la); color: white; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--card);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      max-width: 540px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--la);
+    }
+    .modal-close {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 2rem;
+      height: 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .modal-close:hover { background: var(--bg); color: var(--text); }
+
+    /* Math display (pre-formatted for matrices/equations) */
+    .math-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin: 0.75rem 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9375rem;
+      color: var(--accent);
+      line-height: 1.8;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .math-block.center { text-align: center; }
+    .math-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .modal .step {
+      display: flex;
+      gap: 0.75rem;
+      margin: 0.75rem 0;
+      align-items: flex-start;
+    }
+    .modal .step-num {
+      background: var(--la);
+      color: white;
+      border-radius: 50%;
+      width: 1.5rem;
+      height: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+    .modal .step-text {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .modal .step-text strong { color: var(--text); }
+    .modal .result {
+      background: #e8f5e8;
+      border: 1px solid var(--success);
+      border-radius: 0.375rem;
+      padding: 0.625rem 0.875rem;
+      font-size: 0.875rem;
+      color: var(--success);
+      font-weight: 700;
+      text-align: center;
+      margin-top: 0.75rem;
+    }
 
     /* Algorithm Cards */
-    .algo-card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem;
-    }
+    .algo-card { background: var(--card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem; }
     .algo-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text); }
     .algo-card h3 .zh { font-weight: 400; color: var(--text-muted); font-size: 0.875rem; }
     .algo-card .alias { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; }
     .algo-card > p { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1rem; }
-    .algo-steps {
-      background: var(--bg); border: 1px solid var(--border); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;
-    }
+    .algo-steps { background: var(--bg); border: 1px solid var(--border); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; }
     .algo-steps h4 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.75rem; }
     .algo-steps ol { padding-left: 1.25rem; font-size: 0.8125rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.4rem; }
-    .algo-card .example {
-      background: var(--la-bg); border-radius: 0.375rem; padding: 0.75rem; font-size: 0.8125rem; color: var(--la);
-    }
-    .algo-card .example strong { display: block; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
     .algo-card .keywords { display: flex; flex-wrap: wrap; gap: 0.3rem; }
     .algo-card .time { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
     .algo-card .time span { color: var(--success); font-weight: 700; }
@@ -205,16 +303,9 @@
     .vocab-item .chinese { font-size: 0.8125rem; color: var(--zh); margin-bottom: 0.375rem; }
     .vocab-item .definition { font-size: 0.75rem; color: var(--text-muted); }
 
-    /* Comparison */
-    .compare-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 0.75rem;
-    }
-    .compare-item {
-      background: var(--card); border: 1px solid var(--border); border-radius: 0.5rem;
-      padding: 0.875rem; font-size: 0.8125rem;
-    }
+    /* Comparison grid */
+    .compare-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; }
+    .compare-item { background: var(--card); border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.875rem; font-size: 0.8125rem; }
     .compare-item .label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.3rem; }
     .compare-item .value { color: var(--text); }
     .compare-item .cond { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; }
@@ -249,81 +340,107 @@
       background: rgba(255,255,255,0.15); border-radius: 0.75rem; padding: 1rem 1.5rem;
       font-size: 1.125rem; font-family: 'Courier New', monospace; display: inline-block; margin-bottom: 1.5rem;
     }
-    .overview-hero .chapters-preview {
-      display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;
-    }
-    .overview-hero .ch-pill {
-      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
-      padding: 0.375rem 0.875rem; border-radius: 2rem; font-size: 0.8125rem;
-    }
+    .overview-hero .chapters-preview { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+    .overview-hero .ch-pill { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 0.375rem 0.875rem; border-radius: 2rem; font-size: 0.8125rem; }
 
-    /* Chapter mini-nav */
-    .ch-mini-nav {
-      display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;
-    }
-    .ch-mini-btn {
-      padding: 0.375rem 0.875rem; background: var(--card); border: 1px solid var(--border);
-      border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;
-      cursor: pointer; transition: all 0.15s; color: var(--text-muted);
-    }
-    .ch-mini-btn:hover, .ch-mini-btn.active { background: var(--la); border-color: var(--la); color: white; }
-
-    /* Section content blocks */
+    /* Content blocks */
     .content-block { margin-bottom: 1.5rem; }
     .content-block h3 { font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text); }
     .content-block p { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.75rem; }
     .content-block ul { padding-left: 1.5rem; font-size: 0.875rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.75rem; }
-    .content-block .highlight-box {
+    .highlight-box {
       background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--la);
       border-radius: 0 0.5rem 0.5rem 0; padding: 0.875rem 1.125rem; margin: 1rem 0; font-size: 0.875rem; color: var(--text-muted);
     }
-    .content-block .highlight-box .en { color: var(--la); font-weight: 600; }
-    .content-block .highlight-box strong { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.3rem; }
+    .highlight-box strong { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--la); margin-bottom: 0.3rem; }
+    .highlight-box ul { margin-top: 0.5rem; padding-left: 1.25rem; }
+    .highlight-box li { margin: 0.3rem 0; }
 
-    /* Quote */
-    .quote-block { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--la); border-radius: 0 0.5rem 0.5rem 0; padding: 1rem 1.25rem; margin: 1.5rem 0; font-size: 0.875rem; color: var(--text-muted); }
-    .quote-block .en { color: var(--la); font-style: italic; }
-    .quote-block .attr { font-size: 0.75rem; margin-top: 0.5rem; }
+    .info-box {
+      background: #e8f4fc;
+      border: 1px solid #b0d0e8;
+      border-radius: 0.5rem;
+      padding: 0.875rem 1.125rem;
+      margin: 1rem 0;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+    .info-box strong { color: var(--ch2); }
+
+    .warning-box {
+      background: #fff8e8;
+      border: 1px solid #e8d080;
+      border-radius: 0.5rem;
+      padding: 0.875rem 1.125rem;
+      margin: 1rem 0;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+    .warning-box strong { color: var(--accent); }
+
+    /* Matrix display specific */
+    .matrix-equation {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9375rem;
+      margin: 0.75rem 0;
+    }
+    .matrix-equation .mat {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      text-align: center;
+      line-height: 1.6;
+      white-space: pre;
+      color: var(--accent);
+    }
+    .matrix-equation .op { color: var(--text-muted); font-size: 1.25rem; }
+    .matrix-equation .equals { color: var(--text-muted); font-size: 1.25rem; }
+
+    /* Quick Reference Table */
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      margin: 0.75rem 0;
+    }
+    .ref-table th { background: var(--la); color: white; padding: 0.5rem 0.75rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .ref-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    .ref-table tr:nth-child(even) td { background: var(--bg); }
+    .ref-table code { font-family: 'Courier New', monospace; color: var(--accent); font-size: 0.875rem; }
 
     footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem; }
-    @media (max-width: 640px) { .tab-btn { padding: 0.75rem 0.875rem; font-size: 0.8125rem; } .card-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .tab-btn { padding: 0.75rem 0.875rem; font-size: 0.75rem; } .card-grid { grid-template-columns: 1fr; } .matrix-equation { font-size: 0.8125rem; } }
   </style>
 </head>
 <body>
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-title">範例</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
   <!-- Tab Navigation -->
   <nav class="tab-nav">
     <div class="tab-nav-inner">
-      <button class="tab-btn active" data-tab="overview">
-        <span>🗺️ 總覽</span>
-      </button>
-      <button class="tab-btn" data-tab="ch1">
-        <span>Ch1</span>
-        <span>線性方程式系統</span>
-      </button>
-      <button class="tab-btn" data-tab="ch2">
-        <span>Ch2</span>
-        <span>矩陣</span>
-      </button>
-      <button class="tab-btn" data-tab="ch3">
-        <span>Ch3</span>
-        <span>行列式</span>
-      </button>
-      <button class="tab-btn" data-tab="ch4">
-        <span>Ch4</span>
-        <span>向量空間</span>
-      </button>
-      <button class="tab-btn" data-tab="ch5">
-        <span>Ch5</span>
-        <span>內積空間</span>
-      </button>
-      <button class="tab-btn" data-tab="ch6">
-        <span>Ch6</span>
-        <span>線性轉換</span>
-      </button>
-      <button class="tab-btn" data-tab="ch7">
-        <span>Ch7</span>
-        <span>特徵值與特徵向量</span>
-      </button>
+      <button class="tab-btn active" data-tab="overview">🗺️ 總覽</button>
+      <button class="tab-btn" data-tab="ch1">Ch1 <span style="font-size:0.7rem;">線性方程式</span></button>
+      <button class="tab-btn" data-tab="ch2">Ch2 <span style="font-size:0.7rem;">矩陣</span></button>
+      <button class="tab-btn" data-tab="ch3">Ch3 <span style="font-size:0.7rem;">行列式</span></button>
+      <button class="tab-btn" data-tab="ch4">Ch4 <span style="font-size:0.7rem;">向量空間</span></button>
+      <button class="tab-btn" data-tab="ch5">Ch5 <span style="font-size:0.7rem;">內積空間</span></button>
+      <button class="tab-btn" data-tab="ch6">Ch6 <span style="font-size:0.7rem;">線性轉換</span></button>
+      <button class="tab-btn" data-tab="ch7">Ch7 <span style="font-size:0.7rem;">特徵值</span></button>
       <div class="theme-switcher">
         <button class="theme-btn" data-theme="warm">暖</button>
         <button class="theme-btn" data-theme="ocean">海</button>
@@ -357,38 +474,30 @@
           <span class="ch-pill">Ch1 解方程式 →</span>
           <span class="ch-pill">Ch2 矩陣語言 →</span>
           <span class="ch-pill">Ch3 行列式 →</span>
-          <span class="ch-pill">Ch4-6 結構理論 →</span>
+          <span class="ch-pill">Ch4-6 結構 →</span>
           <span class="ch-pill">Ch7 應用核心</span>
         </div>
       </div>
 
       <div class="section">
         <h2><span class="icon">🗺️</span> 為什麼要先學 Ch1 和 Ch2</h2>
-        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1rem;">
-          這兩章是線性代數的「工具章」——學完之後，你才有辦法用精確的語言描述更抽象的概念（向量空間、特徵值）。很多學生跳過基礎猛攻後面的章節，最後還是要回來補。踏實走，不走冤枉路。
-        </p>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1rem;">這兩章是線性代數的「工具章」——學完之後，你才有辦法用精確的語言描述更抽象的概念（向量空間、特徵值）。很多學生跳過基礎猛攻後面的章節，最後還是要回來補。踏實走，不走冤枉路。</p>
         <div class="card-grid">
           <div class="card" style="border-left:3px solid var(--ch1);">
             <h4><span class="icon">1️⃣</span> Ch1 解決的問題</h4>
             <p>面對 m 條方程式、n 個未知數，如何系統化地求出所有解？</p>
-            <div class="formula" style="font-size:0.75rem;">
-              2x + 3y - z = 5<br>
-              x - 4y + 2z = -1<br>
-              3x + y + 5z = 12
-            </div>
-            <div class="keywords">
-              <span class="kw">高斯消去</span><span class="kw">解的存在性</span><span class="kw">方程組建模</span>
-            </div>
+            <div class="math-block" style="font-size:0.8rem;margin:0.5rem 0;">
+2x + 3y - z = 5
+x - 4y + 2z = -1
+3x + y + 5z = 12</div>
+            <div class="keywords"><span class="kw">高斯消去</span><span class="kw">解的存在性</span><span class="kw">方程組建模</span></div>
           </div>
           <div class="card" style="border-left:3px solid var(--ch2);">
             <h4><span class="icon">2️⃣</span> Ch2 解決的問題</h4>
             <p>如何用一個「方塊」（矩陣）封裝整個方程組的結構，並對它進行有效運算？</p>
-            <div class="formula" style="font-size:0.75rem;">
-              A(m×n) · x(n×1) = b(m×1)
-            </div>
-            <div class="keywords">
-              <span class="kw">矩陣代數</span><span class="kw">逆矩陣</span><span class="kw">馬可夫鏈</span>
-            </div>
+            <div class="math-block" style="font-size:0.8rem;margin:0.5rem 0; text-align:center;">
+A(m×n) · x(n×1) = b(m×1)</div>
+            <div class="keywords"><span class="kw">矩陣代數</span><span class="kw">逆矩陣</span><span class="kw">馬可夫鏈</span></div>
           </div>
         </div>
       </div>
@@ -397,16 +506,16 @@
         <h2><span class="icon">🔗</span> 實用性比喻 — 為什麼電網研究需要這個</h2>
         <div class="card-grid">
           <div class="card">
-            <h4><span class="icon">⚡</span> 電網功率流向（Power Flow）</h4>
+            <h4><span class="icon">⚡</span> 電網功率流向</h4>
             <p class="sub">現實的電網問題</p>
-            <p>電從發電廠流到用戶，要滿足「每條線路的功率」和「每個節點的電壓」這些約束。加起來是几十條非線性方程式。線性代數是求解這類問題的底層工具。</p>
+            <p>電從發電廠流到用戶，要滿足「每條線路的功率」和「每個節點的電壓」這些約束。加起來是几十條非線性方程式，線性代數是求解這類問題的底層工具。</p>
             <div class="analogy">
               <strong>💬 比喻</strong>
               就像城市自來水管網——水壓（電壓）和水流（功率）必須同時滿足所有管道的物理約束。
             </div>
           </div>
           <div class="card">
-            <h4><span class="icon">📡</span> 感測器數據異常偵測</h4>
+            <h4><span class="icon">📡</span> 感測器異常偵測</h4>
             <p class="sub">你的研究核心</p>
             <p>N個時間點 × M個感測器 = 一個 N×M 的數據矩陣。PCA/SVD 找這個矩陣的主要結構，偏離正常模式的數據就是異常。</p>
             <div class="analogy">
@@ -432,39 +541,19 @@
           <div class="roadmap-list">
             <div class="roadmap-item" onclick="switchTab('ch1')">
               <span class="ch-icon">📐</span>
-              <div class="ch-title"><span class="en">Ch1 線性方程式系統</span><span class="zh">｜高斯消去 · 高斯喬登消去 · 應用問題</span></div>
+              <div class="ch-title"><span class="en">Ch1 線性方程式系統</span><span class="zh">｜高斯消去 · 高斯喬登 · 應用</span></div>
               <span class="status">起點</span>
             </div>
             <div class="roadmap-item" onclick="switchTab('ch2')">
               <span class="ch-icon">🔢</span>
-              <div class="ch-title"><span class="en">Ch2 矩陣</span><span class="zh">｜矩陣運算 · 反矩陣 · 基本矩陣 · 馬可夫鏈</span></div>
+              <div class="ch-title"><span class="en">Ch2 矩陣</span><span class="zh">｜矩陣運算 · 反矩陣 · 馬可夫鏈</span></div>
               <span class="status">語言</span>
             </div>
-            <div class="roadmap-item">
-              <span class="ch-icon">📊</span>
-              <div class="ch-title"><span class="en">Ch3 行列式</span><span class="zh">｜det(A) · 克拉瑪公式 · 幾何意義</span></div>
-              <span class="status">工具</span>
-            </div>
-            <div class="roadmap-item">
-              <span class="ch-icon">🧭</span>
-              <div class="ch-title"><span class="en">Ch4 向量空間</span><span class="zh">｜子空間 · 維度 · 基底 · 線性映射</span></div>
-              <span class="status">結構</span>
-            </div>
-            <div class="roadmap-item">
-              <span class="ch-icon">📍</span>
-              <div class="ch-title"><span class="en">Ch5 內積空間</span><span class="zh">｜長度 · 角度 · 正交 · 投影</span></div>
-              <span class="status">幾何</span>
-            </div>
-            <div class="roadmap-item">
-              <span class="ch-icon">🔄</span>
-              <div class="ch-title"><span class="en">Ch6 線性轉換</span><span class="zh">｜矩陣作為轉換 · 核與像 · 合成轉換</span></div>
-              <span class="status">動態</span>
-            </div>
-            <div class="roadmap-item">
-              <span class="ch-icon">🎯</span>
-              <div class="ch-title"><span class="en">Ch7 特徵值與特徵向量</span><span class="zh">｜Ax=λx · 對角化 · PCA · 穩定性分析</span></div>
-              <span class="status">核心</span>
-            </div>
+            <div class="roadmap-item"><span class="ch-icon">📊</span><div class="ch-title"><span class="en">Ch3 行列式</span><span class="zh">｜det(A) · 克拉瑪公式</span></div><span class="status">工具</span></div>
+            <div class="roadmap-item"><span class="ch-icon">🧭</span><div class="ch-title"><span class="en">Ch4 向量空間</span><span class="zh">｜子空間 · 維度 · 基底</span></div><span class="status">結構</span></div>
+            <div class="roadmap-item"><span class="ch-icon">📍</span><div class="ch-title"><span class="en">Ch5 內積空間</span><span class="zh">｜長度 · 角度 · 正交</span></div><span class="status">幾何</span></div>
+            <div class="roadmap-item"><span class="ch-icon">🔄</span><div class="ch-title"><span class="en">Ch6 線性轉換</span><span class="zh">｜矩陣作為轉換 · 核與像</span></div><span class="status">動態</span></div>
+            <div class="roadmap-item"><span class="ch-icon">🎯</span><div class="ch-title"><span class="en">Ch7 特徵值與特徵向量</span><span class="zh">｜Ax=λx · PCA · 穩定性</span></div><span class="status">核心</span></div>
           </div>
         </div>
       </div>
@@ -482,7 +571,7 @@
         </div>
       </div>
 
-      <!-- 1.1 線性方程式系統簡介 -->
+      <!-- 1.1 -->
       <div class="ch-subsection-title">§1.1 線性方程式系統簡介</div>
 
       <div class="content-block">
@@ -491,24 +580,22 @@
         <div class="highlight-box">
           <strong>Linear（線性）的定義</strong>
           每個方程式都是未知數的「線性組合 = 常數」的形式。
-          <div class="formula" style="margin-top:0.5rem;">
-            a₁x₁ + a₂x₂ + ... + aₙxₙ = b
-          </div>
+          <div class="math-block" style="margin-top:0.5rem;">
+a₁x₁ + a₂x₂ + ... + aₙxₙ = b</div>
           其中 aᵢ 和 b 是已知常數，xᵢ 是未知數。
         </div>
         <p>這看起來很限制，但它其實是大部分科學與工程問題的第一步近似——先搞清楚「線性的部分」，非線性的部分再慢慢處理。</p>
       </div>
 
       <div class="content-block">
-        <h3>方程式的標準形式</h3>
+        <h3>方程組的標準形式</h3>
         <p>把 m 條方程式、n 個未知數寫在一起：</p>
-        <div class="formula">
-          a₁₁x₁ + a₁₂x₂ + ... + a₁ₙxₙ = b₁<br>
-          a₂₁x₁ + a₂₂x₂ + ... + a₂ₙxₙ = b₂<br>
-          &nbsp;⋮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⋮<br>
-          aₘ₁x₁ + aₘ₂x₂ + ... + aₘₙxₙ = bₘ
-        </div>
-        <p>這就是「線性方程式系統」。有 m 條線性方程式，n 個未知數。我們的目標：找到所有滿足這些方程式的 (x₁, x₂, ..., xₙ)。</p>
+        <div class="math-block">
+a₁₁x₁ + a₁₂x₂ + ... + a₁ₙxₙ = b₁
+a₂₁x₁ + a₂₂x₂ + ... + a₂ₙxₙ = b₂
+  ⋮                        ⋮
+aₘ₁x₁ + aₘ₂x₂ + ... + aₘₙxₙ = bₘ</div>
+        <p>這就是「線性方程式系統」。有 m 條方程式，n 個未知數。我們的目標：找到所有滿足這些方程式的 (x₁, x₂, ..., xₙ)。</p>
       </div>
 
       <div class="content-block">
@@ -532,7 +619,17 @@
         </div>
       </div>
 
-      <!-- 1.2 高斯消去法 -->
+      <div class="content-block">
+        <h3>如何快速判斷解的情況</h3>
+        <p>把增廣矩陣做高斯消去（只化到階梯形），觀察：</p>
+        <ul>
+          <li>化簡後，出現形如 <code>[0 0 ... 0 | c]</code>（c ≠ 0）的行 → <strong>無解</strong></li>
+          <li>沒有矛盾行，且自由變數（free variable）個數 > 0 → <strong>無限多解</strong></li>
+          <li>沒有矛盾行，且每個變數都是主元變數（pivot variable）→ <strong>唯一解</strong></li>
+        </ul>
+      </div>
+
+      <!-- 1.2 -->
       <div class="ch-subsection-title">§1.2 高斯消去法與高斯-喬登消去法</div>
 
       <div class="algo-card">
@@ -545,35 +642,21 @@
             <li>寫出增廣矩陣 [A|b] — 把係數和常數寫在同一個矩陣</li>
             <li>選第一列第一個非零元素為主元（pivot）</li>
             <li>用列交換或列運算，把 pivot 下面的元素變成 0（前向消去）</li>
-            <li>對第二列、第三列... 重複，直到矩陣變成上三角形（台積階梯形）</li>
+            <li>對第二列、第三列... 重複，直到矩陣變成上三角形</li>
             <li>從最後一行開始回代（Back Substitution），逐一求出每個未知數</li>
           </ol>
         </div>
-        <div class="example">
-          <strong>📐 範例</strong>
-          x + y + z = 6<br>
-          2x + 3y + z = 12<br>
-          x + y + 2z = 7<br><br>
-          增廣矩陣：<br>
-          [1 1 1 | 6]<br>
-          [2 3 1 | 12]<br>
-          [1 1 2 | 7]<br><br>
-          R₂→R₂-2R₁, R₃→R₃-R₁：<br>
-          [1 1 1 | 6]<br>
-          [0 1 -1 | 0]<br>
-          [0 0 1 | 1]<br><br>
-          回代：z=1, y=1, x=4 ✅
-        </div>
+        <button class="example-trigger" onclick="openExample('gauss')">📐 觀看範例（3×3 方程組）</button>
         <div class="keywords">
-          <span class="kw">pivot 主元</span><span class="kw">列交換</span><span class="kw">列運算</span><span class="kw">前向消去</span><span class="kw">回代</span><span class="kw">Row Echelon Form</span>
+          <span class="kw">pivot</span><span class="kw">列交換</span><span class="kw">列運算</span><span class="kw">前向消去</span><span class="kw">回代</span><span class="kw">REF</span>
         </div>
-        <div class="time">💡 複雜度：<span>O(n³)</span> — 這是所有矩陣運算的基礎複雜度</div>
+        <div class="time">💡 複雜度：<span>O(n³)</span> — 所有矩陣運算的基礎複雜度</div>
       </div>
 
       <div class="algo-card">
         <h3>高斯-喬登消去法 <span class="zh">｜Gauss-Jordan Elimination</span></h3>
         <div class="alias">完全化簡 → 直接讀出解</div>
-        <p>在高斯消去之後，繼續把每列的主元上方也消成 0，直到矩陣變成「簡化列階梯形」（Reduced Row Echelon Form）。這時可以直接讀出解——不需要回代。</p>
+        <p>在高斯消去之後，繼續把每列的主元上方也消成 0，直到矩陣變成「簡化列階梯形」（RREF）。這時可以直接讀出解——不需要回代。</p>
         <div class="algo-steps">
           <h4>⚙️ 與高斯消去的差異</h4>
           <ol>
@@ -583,80 +666,100 @@
             <li>好處：直接讀出 x 的值，不需要回代</li>
           </ol>
         </div>
-        <div class="example">
-          <strong>📐 同一範例的 RREF</strong>
-          [1 0 0 | 4]  → x = 4<br>
-          [0 1 0 | 1]  → y = 1<br>
-          [0 0 1 | 1]  → z = 1<br><br>
-          對照：高斯消去（只做到上三角形）需要 3 步回代，RREF 直接就是答案。
-        </div>
+        <button class="example-trigger" onclick="openExample('gauss-jordan')">📐 觀看範例（RREF 直接讀解）</button>
         <div class="keywords">
-          <span class="kw">RREF</span><span class="kw">Reduced Row Echelon Form</span><span class="kw">簡化列階梯形</span><span class="kw">pivot = 1</span>
+          <span class="kw">RREF</span><span class="kw">pivot = 1</span><span class="kw">簡化列階梯形</span><span class="kw">不需要回代</span>
         </div>
         <div class="time">💡 適合：用於求逆矩陣、解方程組、確認向量是否為解</div>
       </div>
 
       <div class="content-block">
         <h3>高斯 vs 高斯-喬登 — 什麼時候用哪個？</h3>
-        <div class="compare-grid" style="grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));">
-          <div class="compare-item">
-            <div class="label">高斯消去</div>
-            <div class="value">只做到上三角形</div>
-            <div class="cond">計算量較少（比 RREF 快）· 適合只求方程組解</div>
-          </div>
-          <div class="compare-item">
-            <div class="label">高斯-喬登</div>
-            <div class="value">完全化簡到 RREF</div>
-            <div class="cond">計算量較大 · 適合求逆矩陣、確認向量是否為解、解多個同 A 的方程組</div>
-          </div>
-        </div>
+        <table class="ref-table">
+          <thead>
+            <tr><th>方法</th><th>做到什麼程度</th><th>計算量</th><th>適用場景</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>高斯消去</td>
+              <td>上三角形（REF）</td>
+              <td>較少</td>
+              <td>只求方程組的解</td>
+            </tr>
+            <tr>
+              <td>高斯-喬登</td>
+              <td>簡化列階梯形（RREF）</td>
+              <td>較多（多約50%）</td>
+              <td>求逆矩陣、確認解的狀態、多個右邊常數</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="content-block">
-        <h3>基本列運算（允許的操作）</h3>
-        <p>在高斯/高斯-喬登消去中，你只能做三種「合法」操作：</p>
-        <ul>
-          <li><strong>交換（Swap）：</strong> Ri ↔ Rj — 交換兩列。當 pivot 位置是 0 時使用。</li>
-          <li><strong>倍加（Scale）：</strong> Ri → c·Ri (c ≠ 0) — 把一列所有元素乘以非零常數。</li>
-          <li><strong>替換（Replace）：</strong> Ri → Ri + c·Rj — 把第 j 列的 c 倍加到第 i 列。這是最核心的操作。</li>
-        </ul>
+        <h3>基本列運算（允許的三種操作）</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">↔️</span> 交換（Swap）</h4>
+            <p><code>Ri ↔ Rj</code></p>
+            <p>當 pivot 位置是 0 時使用。對應置換矩陣 P。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">×</span> 倍加（Scale）</h4>
+            <p><code>Ri → c·Ri</code>（c ≠ 0）</p>
+            <p>把一列所有元素乘以非零常數。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">+</span> 替換（Replace）</h4>
+            <p><code>Ri → Ri + c·Rj</code></p>
+            <p>最核心的操作。用於把元素消成 0。</p>
+          </div>
+        </div>
         <div class="highlight-box">
           <strong>💡 核心洞察</strong>
           這三種操作不改變方程組的解集合。它們只是把方程組「換個樣子表示」，本質不變。
         </div>
       </div>
 
-      <!-- 1.3 應用問題 -->
+      <!-- 1.3 -->
       <div class="ch-subsection-title">§1.3 線性方程式系統的應用</div>
 
       <div class="card-grid">
         <div class="card">
           <h4><span class="icon">⚡</span> 電網節點分析（Node Analysis）</h4>
-          <p class="sub">電路中的應用</p>
-          <p>利用克希荷夫電流定律（KCL）：流入節點的電流總和 = 流出節點的電流總和。N 個節點 → N-1 條線性方程式。</p>
-          <div class="formula">I₁ + I₂ + ... + Iₙ = 0  (at each node)</div>
+          <p class="sub">KCL：克希荷夫電流定律</p>
+          <p>流入節點的電流總和 = 流出節點的電流總和。N 個節點 → N-1 條線性方程式。</p>
+          <div class="math-block" style="font-size:0.8rem;">Σ Iᵢ = 0  (at each node)</div>
           <div class="analogy">
             <strong>💬 比喻</strong>
-            就像自來水管網的節點——進入的水量必須等於離開的水量。所有節點的約束加起來，就是整個管網的流量分配。
+            就像自來水管網的節點——進入的水量必須等於離開的水量。
           </div>
         </div>
         <div class="card">
           <h4><span class="icon">📊</span> 化學反應平衡</h4>
           <p class="sub">質量守恆定律</p>
           <p>化學反應的反應物和生成物必須滿足原子守恆。配平化學方程式 = 解線性方程組。</p>
-          <div class="formula">CₓHᵧ + O₂ → CO₂ + H₂O</div>
           <div class="analogy">
             <strong>💬 比喻</strong>
-            就像在餐廳算帳——所有食材進來，必須等於所有菜品出去的質量。Carbon（碳）和Hydrogen（氫）必須balance。
+            就像在餐廳算帳——所有食材進來，必須等於所有菜品出去的質量。
           </div>
         </div>
         <div class="card">
           <h4><span class="icon">🌐</span> 網路流量規劃</h4>
           <p class="sub">流量守恆</p>
-          <p>交通網絡、電網、互聯網路由器——每個節點的流入流量等於流出流量。大型網絡 = 大型線性方程組。</p>
+          <p>交通網絡、電網、互聯網路由器——每個節點的流入流量等於流出流量。</p>
           <div class="analogy">
             <strong>💬 比喻</strong>
-            就像城市交通：進入每個路口的車流量，必須等於離開的車流量（假設沒有停車場）。整個城市交通的流量分配 = 解一個大方程組。
+            就像城市交通：進入每個路口的車流量，必須等於離開的車流量。
+          </div>
+        </div>
+        <div class="card">
+          <h4><span class="icon">📈</span> 供需均衡模型</h4>
+          <p class="sub">經濟學中的線性系統</p>
+          <p>N 種商品的市場供需均衡：每種商品的供給 = 需求，形成 N 條方程式。</p>
+          <div class="analogy">
+            <strong>💬 比喻</strong>
+            就像拍賣市場——當買家願付的價格等於賣家願收的價格時，市場成交。
           </div>
         </div>
       </div>
@@ -665,46 +768,13 @@
         <h2><span class="icon">📖</span> 詞彙（中英對照）</h2>
         <div class="vocab-section">
           <div class="vocab-grid">
-            <div class="vocab-item">
-              <div class="term">Linear System of Equations</div>
-              <div class="chinese">線性方程式系統</div>
-              <div class="definition">m條方程式、n個未知數，每個方程式都是未知數的線性組合等於常數。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Augmented Matrix</div>
-              <div class="chinese">增廣矩陣</div>
-              <div class="definition">[A|b] 把係數矩陣A和常數向量b合併成一個矩陣，方便高斯消去操作。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Pivot</div>
-              <div class="chinese">主元</div>
-              <div class="definition">每列第一個非零元素。用來消去該列以下的所有元素。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Row Echelon Form (REF)</div>
-              <div class="chinese">列階梯形式</div>
-              <div class="definition">每列第一個非零元素往右下方移動，對角線以下全為零。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Reduced Row Echelon Form (RREF)</div>
-              <div class="chinese">簡化列階梯形式</div>
-              <div class="definition">REF + 每個 pivot 為 1 + pivot 所在行其他元素皆為零。可直接讀出解。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Gaussian Elimination</div>
-              <div class="chinese">高斯消去法</div>
-              <div class="definition">前向消去（上三角形）+ 回代。標準的方程組求解算法。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Gauss-Jordan Elimination</div>
-              <div class="chinese">高斯-喬登消去法</div>
-              <div class="definition">繼續往上消直到 RREF。不需要回代，但計算量稍大。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Free Variable</div>
-              <div class="chinese">自由變數</div>
-              <div class="definition">非 pivot 列對應的未知數。可以設為參數 t，表示無限多解。</div>
-            </div>
+            <div class="vocab-item"><div class="term">Linear System</div><div class="chinese">線性方程式系統</div><div class="definition">m條方程式、n個未知數，每個方程式都是未知數的線性組合等於常數。</div></div>
+            <div class="vocab-item"><div class="term">Augmented Matrix</div><div class="chinese">增廣矩陣</div><div class="definition">[A|b] 把係數矩陣A和常數向量b合併，方便高斯消去操作。</div></div>
+            <div class="vocab-item"><div class="term">Pivot</div><div class="chinese">主元</div><div class="definition">每列第一個非零元素。用來消去該列以下的所有元素。</div></div>
+            <div class="vocab-item"><div class="term">Row Echelon Form (REF)</div><div class="chinese">列階梯形式</div><div class="definition">每列第一個非零元素往右下方移動，對角線以下全為零。</div></div>
+            <div class="vocab-item"><div class="term">RREF</div><div class="chinese">簡化列階梯形式</div><div class="definition">每個 pivot 為 1，且為其所在列唯一的非零元素。可直接讀出解。</div></div>
+            <div class="vocab-item"><div class="term">Free Variable</div><div class="chinese">自由變數</div><div class="definition">非 pivot 列對應的未知數。設為參數 t，表示無限多解。</div></div>
+            <div class="vocab-item"><div class="term">Back Substitution</div><div class="chinese">回代</div><div class="definition">從階梯形矩陣的最後一行開始，逐步往上求出每個未知數。</div></div>
           </div>
         </div>
       </div>
@@ -718,20 +788,30 @@
         <div class="ch-tags">
           <span class="ch-tag intro">矩陣運算</span>
           <span class="ch-tag method">矩陣運算的性質 · 反矩陣 · 基本矩陣</span>
-          <span class="ch-tag app">馬可夫鏈 · 矩陣運算的更多應用</span>
+          <span class="ch-tag app">馬可夫鏈 · 更多應用</span>
         </div>
       </div>
 
-      <!-- 2.1 矩陣運算 -->
+      <!-- 2.1 -->
       <div class="ch-subsection-title">§2.1 矩陣運算</div>
 
       <div class="content-block">
         <h3>矩陣是什麼</h3>
-        <p>一個 m×n 的矩陣是一個 m 列、n 行的數字長方形陣列。把線性方程組寫成矩陣形式：</p>
-        <div class="formula">
-          A(m×n) · x(n×1) = b(m×1)
+        <p>一個 m×n 的矩陣是一個 m 列、n 行的數字長方形陣列。寫成 A(m×n) 表示 m 列、n 行。</p>
+        <div class="math-block" style="text-align:center; font-size:0.9rem;">
+A = | a₁₁  a₁₂  ...  a₁ₙ |
+    | a₂₁  a₂₂  ...  a₂ₙ |
+    |  ⋮      ⋮   ⋱   ⋮  |
+    | aₘ₁  aₘ₂  ...  aₘₙ |</div>
+        <p>把線性方程組寫成矩陣形式：</p>
+        <div class="matrix-equation">
+          <span class="mat" style="font-size:0.8rem;">A(m×n)</span>
+          <span class="op">·</span>
+          <span class="mat" style="font-size:0.8rem;">x(n×1)</span>
+          <span class="equals">=</span>
+          <span class="mat" style="font-size:0.8rem;">b(m×1)</span>
         </div>
-        <p>A 是 m×n 的係數矩陣，x 是 n×1 的未知數向量，b 是 m×1 的常數向量。</p>
+        <p>A 是係數矩陣，x 是未知數向量，b 是常數向量。</p>
         <div class="highlight-box">
           <strong>💡 幾何意涵</strong>
           A(m×n) 是一個從 Rⁿ 空間到 Rᵐ 空間的「線性變換」。它把 n 維輸入向量 transform 成 m 維輸出向量。
@@ -739,53 +819,77 @@
       </div>
 
       <div class="content-block">
-        <h3>矩陣的基本運算</h3>
+        <h3>矩陣的四種基本運算</h3>
         <div class="card-grid">
           <div class="card">
             <h4><span class="icon">➕</span> 矩陣加法</h4>
             <p>同維度的兩個矩陣，每個位置各自相加。</p>
-            <div class="formula">[1 2] + [5 6] = [6 8]<br>[3 4]   [7 8]   [10 12]</div>
+            <div class="math-block" style="font-size:0.8rem;margin:0.5rem 0;">
+| 1  2 |   | 5  6 |   | 6   8  |
+| 3  4 | + | 7  8 | = | 10  12 |</div>
             <p class="kw">條件：A 和 B 必須同維度</p>
           </div>
           <div class="card">
             <h4><span class="icon">✖️</span> 純量乘法</h4>
             <p>每個元素都乘以該純量 c。</p>
-            <div class="formula">3 · [1 2] = [3 6]<br>&nbsp;&nbsp;&nbsp;&nbsp;   [3 4]   [9 12]</div>
+            <div class="math-block" style="font-size:0.8rem;margin:0.5rem 0;">
+3 × | 1  2 | = | 3   6  |
+    | 3  4 |   | 9  12 |</div>
           </div>
           <div class="card">
             <h4><span class="icon">✖️</span> 矩陣乘法</h4>
-            <p>A(m×n) · B(n×p) = C(m×p)。第 i 行第 j 列 = A第 i 行點乘 B第 j 列。</p>
-            <div class="formula">[1 2]·[5 7] = [1·5+2·9  1·7+2·10]<br>[3 4]  [9 10]   [3·5+4·9  3·7+4·10]</div>
-            <div class="formula">= [23 27]<br>&nbsp;&nbsp;[51 61]</div>
-            <p class="kw">維度規則：中間維度必須相同，結果維度 = 外側維度</p>
+            <p>A(m×n) · B(n×p) = C(m×p)</p>
+            <p>C 的第 (i,j) 元素 = A 的第 i 行點乘 B 的第 j 列</p>
+            <button class="example-trigger" onclick="openExample('matmul')">📐 觀看 2×2 乘法範例</button>
           </div>
           <div class="card">
             <h4><span class="icon">ᵀ</span> 轉置（Transpose）</h4>
             <p>行列交換。第 (i,j) 元素變成第 (j,i) 元素。</p>
-            <div class="formula">[1 2 3]ᵀ = [1 4]<br>[4 5 6]    [2 5]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[3 6]</div>
+            <div class="math-block" style="font-size:0.75rem;margin:0.5rem 0;">
+| 1  2  3 |ᵀ   | 1  4 |
+| 4  5  6 |  =  | 2  5 |
+                  | 3  6 |</div>
           </div>
         </div>
       </div>
 
       <div class="content-block">
         <h3>矩陣乘法的關鍵性質</h3>
-        <div class="highlight-box">
+        <div class="warning-box">
           <strong>⚠️ 矩陣乘法 ≠ 普通數字乘法</strong>
-          <ul style="margin-top:0.5rem;padding-left:1.25rem;">
-            <li><strong>交換律一般不成立：</strong> AB ≠ BA（通常不相等）</li>
+          <ul>
+            <li><strong>交換律一般不成立：</strong> AB ≠ BA（通常不相等，甚至維度都不允許比較）</li>
             <li><strong>零因子問題：</strong> AB = 0 不意味著 A=0 或 B=0</li>
             <li><strong>消去律不成立：</strong> AB = AC 不意味著 B = C</li>
           </ul>
         </div>
-        <p>但是結合律和分配律是成立的：</p>
-        <div class="formula">
-          (AB)C = A(BC) &nbsp;✓ 結合律<br>
-          A(B+C) = AB + AC &nbsp;✓ 分配律<br>
-          (A+B)C = AC + BC &nbsp;✓ 分配律
+        <div class="info-box">
+          <strong>✅ 成立的性質</strong>
+          <ul>
+            <li>結合律：(AB)C = A(BC)</li>
+            <li>左分配律：A(B+C) = AB + AC</li>
+            <li>右分配律：(A+B)C = AC + BC</li>
+          </ul>
         </div>
       </div>
 
-      <!-- 2.2 矩陣運算的性質 -->
+      <div class="content-block">
+        <h3>矩陣乘法的維度規則</h3>
+        <div class="matrix-equation">
+          <span class="mat" style="font-size:0.8rem;">A (m×n)</span>
+          <span class="op">·</span>
+          <span class="mat" style="font-size:0.8rem;">B (n×p)</span>
+          <span class="equals">=</span>
+          <span class="mat" style="font-size:0.8rem;">C (m×p)</span>
+        </div>
+        <p style="margin-top:0.5rem;">記住：中間維度（n）必須匹配，結果維度是「外側」的 m×p。</p>
+        <div class="highlight-box">
+          <strong>💡 記憶技巧</strong>
+          把維度豎著寫：A(m×**n**) · B(**n**×p) = C(m×p)。「吃進去的中間，吐出來的外側」。
+        </div>
+      </div>
+
+      <!-- 2.2 -->
       <div class="ch-subsection-title">§2.2 矩陣運算的性質</div>
 
       <div class="content-block">
@@ -794,61 +898,71 @@
           <div class="card">
             <h4><span class="icon">I</span> 單位矩陣 I</h4>
             <p>對角線為1，其他位置為0。n×n。</p>
-            <div class="formula">I₃ = [1 0 0]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0 1 0]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0 0 1]</div>
-            <p>A·I = I·A = A（矩陣中的「1」）</p>
+            <div class="math-block" style="font-size:0.8rem;margin:0.5rem 0;">
+I₃ = | 1  0  0 |
+     | 0  1  0 |
+     | 0  0  1 |</div>
+            <p><strong>A·I = I·A = A</strong>（矩陣中的「1」）</p>
           </div>
           <div class="card">
             <h4><span class="icon">D</span> 對角矩陣</h4>
             <p>只在對角線有元素，其他為0。</p>
-            <div class="formula">D = diag(d₁, d₂, ..., dₙ)</div>
-            <p>對角矩陣的乘法很快：D·x = [d₁x₁, d₂x₂, ..., dₙxₙ]</p>
+            <div class="math-block" style="font-size:0.8rem;margin:0.5rem 0;">
+D = diag(d₁, d₂, ..., dₙ)</div>
+            <p><strong>D·x = [d₁x₁, d₂x₂, ..., dₙxₙ]</strong> — 乘法很快</p>
           </div>
           <div class="card">
-            <h4><span class="icon">T</span> 上/下三角矩陣</h4>
+            <h4><span class="icon">↗️</span> 上/下三角矩陣</h4>
             <p>上三角：對角線以下全是0。<br>下三角：對角線以上全是0。</p>
-            <div class="formula">上三角 = [★ ★ ★]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0 ★ ★]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0 0 ★]</div>
-            <p>三角矩陣的行列式 = 對角線元素乘積</p>
+            <div class="math-block" style="font-size:0.8rem;margin:0.5rem 0;">
+上三角 = | ★  ★  ★ |
+          | 0  ★  ★ |
+          | 0  0  ★ |</div>
+            <p><strong>det(三角矩陣) = 對角線元素乘積</strong></p>
           </div>
           <div class="card">
             <h4><span class="icon">S</span> 對稱矩陣</h4>
             <p>A = Aᵀ。關於主對角線對稱。</p>
-            <div class="formula">[1 4 5]<br>[4 2 6]<br>[5 6 3]</div>
+            <div class="math-block" style="font-size:0.8rem;margin:0.5rem 0;">
+| 1  4  5 |
+| 4  2  6 |
+| 5  6  3 |</div>
             <p>真實世界的很多矩陣是對稱的（距離矩陣、共變異數矩陣）</p>
-          </div>
-          <div class="card">
-            <h4><span class="icon">O</span> 零矩陣</h4>
-            <p>所有元素為0。O + A = A。O·A = O。</p>
           </div>
           <div class="card">
             <h4><span class="icon">P</span> 置換矩陣</h4>
             <p>每行、每列恰好只有一個1，其餘為0。</p>
-            <p>用於「記錄列交換」：PA = LU 中的 P 就是置換矩陣。</p>
+            <div class="math-block" style="font-size:0.8rem;margin:0.5rem 0;">
+| 0  1  0 |
+| 1  0  0 |
+| 0  0  1 |</div>
+            <p>用於「記錄列交換」：PA = LU 中的 P</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">O</span> 零矩陣</h4>
+            <p>所有元素為0。</p>
+            <p>O + A = A · O·A = O · 但要注意：O·A = O 不意味著 O = 0 或 A = 0！</p>
           </div>
         </div>
       </div>
 
       <div class="content-block">
         <h3>矩陣的冪次</h3>
-        <p>A² = A·A，A³ = A·A·A。當 A 是方陣（n×n）時有意義。</p>
+        <p>A² = A·A，A³ = A·A·A。當 A 是方陣（n×n）時才有意義。</p>
         <div class="highlight-box">
           <strong>💡 實際應用</strong>
           在馬可夫鏈中，Aᵏ 告訴你從狀態 i 經過 k 步轉移到狀態 j 的機率。
         </div>
       </div>
 
-      <!-- 2.3 反矩陣 -->
+      <!-- 2.3 -->
       <div class="ch-subsection-title">§2.3 反矩陣（Inverse Matrix）</div>
 
       <div class="content-block">
         <h3>什麼是反矩陣</h3>
         <p>對於方陣 A(n×n)，如果存在矩陣 B 使得 AB = BA = Iₙ，則 B 稱為 A 的反矩陣，記為 A⁻¹。</p>
-        <div class="formula">
-          A·A⁻¹ = I &nbsp;&nbsp;且&nbsp;&nbsp; A⁻¹·A = I
-        </div>
-        <div class="highlight-box">
-          <strong>類比</strong>
-          就像普通數字的倒數：5⁻¹ = 1/5，因為 5·(1/5) = 1。但矩陣的乘法沒有交換律，所以要滿足兩邊都是 I。
-        </div>
+        <div class="math-block" style="text-align:center;">
+A · A⁻¹ = I  且  A⁻¹ · A = I</div>
         <div class="compare-grid" style="margin-top:1rem;">
           <div class="compare-item" style="border-top:3px solid var(--success);">
             <div class="label">可逆（Invertible）</div>
@@ -858,7 +972,7 @@
           <div class="compare-item" style="border-top:3px solid #dc2626;">
             <div class="label">不可逆（Singular）</div>
             <div class="value">det(A) = 0</div>
-            <div class="cond">又稱：noninvertible · degenerate · singular</div>
+            <div class="cond">又稱：noninvertible · degenerate</div>
           </div>
         </div>
       </div>
@@ -876,127 +990,131 @@
             <li>如果左邊出現零列（rank不足）→ A 不可逆</li>
           </ol>
         </div>
-        <div class="example">
-          <strong>📐 範例：求 [2 1] 的反矩陣</strong>
-          [1 1]<br><br>
-          [A | I] = [2 1 | 1 0]<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[1 1 | 0 1]<br><br>
-          R₁→R₁-R₂：[1 0 | 1 -1]<br>
-          R₂→R₂-R₁：[0 1 | -1 2]<br><br>
-          左邊 = I → A⁻¹ = [1 -1]<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[-1 2]<br><br>
-          驗證：A·A⁻¹ = [2 1]·[1 -1] = [1 0] = I ✅
+        <button class="example-trigger" onclick="openExample('inverse')">📐 觀看求反矩陣範例</button>
+        <div class="keywords">
+          <span class="kw">RREF</span><span class="kw">[A|I]</span><span class="kw">nonsingular</span><span class="kw">det(A) ≠ 0</span>
         </div>
       </div>
 
       <div class="content-block">
         <h3>反矩陣的重要性質</h3>
-        <div class="formula">
-          (A⁻¹)⁻¹ = A<br>
-          (AB)⁻¹ = B⁻¹A⁻¹ &nbsp;&nbsp;（順序反過來！）<br>
-          (cA)⁻¹ = (1/c)·A⁻¹ &nbsp;(c ≠ 0)<br>
-          (Aᵀ)⁻¹ = (A⁻¹)ᵀ
-        </div>
+        <table class="ref-table">
+          <thead><tr><th>性質</th><th>公式</th></tr></thead>
+          <tbody>
+            <tr><td>反矩陣的反矩陣</td><td><code>(A⁻¹)⁻¹ = A</code></td></tr>
+            <tr><td>乘積的反矩陣</td><td><code>(AB)⁻¹ = B⁻¹A⁻¹</code>（順序反過來！）</td></tr>
+            <tr><td>純量乘法</td><td><code>(cA)⁻¹ = (1/c)·A⁻¹</code> (c ≠ 0)</td></tr>
+            <tr><td>轉置的反矩陣</td><td><code>(Aᵀ)⁻¹ = (A⁻¹)ᵀ</code></td></tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="content-block">
         <h3>反矩陣的應用：解線性方程組</h3>
         <p>當 A 可逆時，Ax = b 的唯一解可以直接寫成：</p>
-        <div class="formula">x = A⁻¹ · b</div>
-        <div class="highlight-box">
+        <div class="math-block" style="text-align:center;margin:0.75rem 0;">
+x = A⁻¹ · b</div>
+        <div class="warning-box">
           <strong>⚠️ 實際計算注意</strong>
-          雖然公式很漂亮，但直接算 A⁻¹ 需要 O(n³)。用高斯消去解 Ax = b 也需要 O(n³)，但常數更小。除非你要解很多個同樣的 A 但不同的 b，否則一般不推薦先算反矩陣再乘。
+          直接算 A⁻¹ 需要 O(n³)，用高斯消去解 Ax = b 也需要 O(n³)，但常數更小。除非你要解很多個同樣的 A 但不同的 b，否則一般不推薦先算反矩陣再乘。
         </div>
       </div>
 
-      <!-- 2.4 基本矩陣 -->
+      <!-- 2.4 -->
       <div class="ch-subsection-title">§2.4 基本矩陣（Elementary Matrices）</div>
 
       <div class="content-block">
         <h3>什麼是基本矩陣</h3>
-        <p>單位矩陣 I 做一次「基本列運算」之後得到的矩陣。每一種基本列運算（交換、倍加、替換）都對應一個基本矩陣 E。</p>
-        <div class="formula">
-          E·A = result of applying that row operation to A
-        </div>
-        <p>也就是說：對 A 做一次列運算 = 在左邊乘上一個基本矩陣。</p>
-        <div class="analogy">
-          <strong>💬 比喻</strong>
-          基本矩陣就像「編輯指令」：I 是乾淨的空白文件，在上面做一次「刪除第二列」操作，就變成了「刪除矩陣」。把這個矩陣左乘到 A，等於對 A 執行同樣的「刪除第二列」操作。
-        </div>
+        <p>單位矩陣 I 做一次「基本列運算」（交換、倍加、替換）之後得到的矩陣。</p>
+        <div class="math-block" style="text-align:center;">
+E · A = 對 A 進行對應列運算後的結果</div>
+        <p>也就是說：對 A 做一次列運算 = 在左邊乘上一個基本矩陣 E。</p>
         <div class="card-grid" style="margin-top:1rem;">
           <div class="card">
             <h4><span class="icon">↔️</span> 列交換型</h4>
-            <p>I 的第 i 列和第 j 列交換後的結果。</p>
+            <p>I 的第 i 列和第 j 列交換後的結果。反矩陣 = 自身（交換兩次回到原樣）。</p>
           </div>
           <div class="card">
             <h4><span class="icon">×</span> 列倍加型</h4>
-            <p>I 的第 i 列乘以純量 c (c ≠ 0)。</p>
+            <p>I 的第 i 列乘以純量 c (c ≠ 0)。反矩陣：第 i 列乘以 1/c。</p>
           </div>
           <div class="card">
             <h4><span class="icon">+</span> 列替換型</h4>
-            <p>I 的第 j 列加上第 i 列的 c 倍。</p>
+            <p>I 的第 j 列加上第 i 列的 c 倍。反矩陣：第 j 列減去第 i 列的 c 倍。</p>
           </div>
         </div>
       </div>
 
       <div class="content-block">
-        <h3>為什麼基本矩陣重要</h3>
+        <h3>為什麼基本矩陣重要 — LU 分解的原理</h3>
         <p>高斯消去把 A 變成 U（上三角）的過程，相當於一系列基本矩陣的乘法：</p>
-        <div class="formula">
-          Eₖ · ... · E₂ · E₁ · A = U
-        </div>
+        <div class="math-block" style="text-align:center;">
+Eₖ · ... · E₂ · E₁ · A = U</div>
         <p>因此：</p>
-        <div class="formula">
-          A = E₁⁻¹ · E₂⁻¹ · ... · Eₖ⁻¹ · U = L · U
-        </div>
-        <p>其中 L = E₁⁻¹ · ... · Eₖ⁻¹ 是下三角矩陣（因為基本矩陣的反矩陣也是同類型的基本矩陣）。這就是 LU 分解的原理。</p>
+        <div class="math-block" style="text-align:center;">
+A = E₁⁻¹ · E₂⁻¹ · ... · Eₖ⁻¹ · U = L · U</div>
+        <p>L 是下三角矩陣（因為基本矩陣的反矩陣也是同類型的基本矩陣）。</p>
         <div class="highlight-box">
           <strong>💡 洞察</strong>
-          高斯消去法的每一個步驟，都對應一個基本矩陣。LU 分解 = 把這些步驟「封裝」成 L 和 U 兩個矩陣。
+          高斯消去法的每一個步驟，都對應一個基本矩陣。LU 分解 = 把這些步驟「封裝」成 L 和 U 兩個矩陣。以後要解多次 Ax = b（不同 b），只要做一次 LU 分解，之後每次只要 O(n²)。
         </div>
       </div>
 
-      <!-- 2.5 馬可夫鏈 -->
+      <!-- 2.5 -->
       <div class="ch-subsection-title">§2.5 馬可夫鏈（Markov Chains）</div>
 
       <div class="content-block">
         <h3>什麼是馬可夫鏈</h3>
-        <p>一種描述「系統狀態隨機轉移」的數學模型。每個狀態有固定機率轉移到其他狀態，未來只與現在有關（與過去無關）——這叫「馬可夫性質」。</p>
-        <div class="formula">
-          x_{(k+1)} = P · x_{(k)}
-        </div>
-        <p>x₍ₖ₎ 是第 k 步時系統處於各狀態的機率向量，P 是轉移矩陣（每個元素是機率）。</p>
+        <p>一種描述「系統狀態隨機轉移」的數學模型。未來只與現在有關，與過去無關——這叫「馬可夫性質」。</p>
+        <div class="math-block" style="text-align:center;">
+x₍ₖ₊₁₎ = P · x₍ₖ₎</div>
+        <p>x₍ₖ₎ 是第 k 步時系統處於各狀態的機率向量，P 是轉移矩陣。</p>
       </div>
 
       <div class="card-grid">
         <div class="card">
           <h4><span class="icon">📊</span> 轉移矩陣 P</h4>
           <p class="sub">n×n 隨機矩陣</p>
-          <p>每個元素 Pᵢⱼ ≥ 0（機率非負）<br>每列總和 = 1（機率守恆）</p>
-          <div class="formula">P = [0.7 0.2 0.1]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0.1 0.8 0.1]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0.0 0.3 0.7]</div>
+          <ul>
+            <li>每個元素 Pᵢⱼ ≥ 0（機率非負）</li>
+            <li>每列總和 = 1（機率守恆）</li>
+          </ul>
+          <div class="math-block" style="font-size:0.75rem;margin-top:0.5rem;">
+| 0.7  0.2  0.1 |
+| 0.1  0.8  0.1 |
+| 0.0  0.3  0.7 |</div>
         </div>
         <div class="card">
-          <h4><span class="icon">🔮</span> 長期預測</h4>
-          <p class="sub">Pᵏ 的意義</p>
-          <p>從狀態 i 經過 k 步轉移到狀態 j 的機率 = Pᵏ 的第 (i,j) 元素。</p>
-          <p>當 k → ∞，如果系統收斂 → 得到「穩定態」</p>
+          <h4><span class="icon">🔮</span> 長期預測：Pᵏ</h4>
+          <p class="sub">k步轉移機率</p>
+          <p>Pᵏ 的第 (i,j) 元素 = 從狀態 i 經過 k 步轉移到狀態 j 的機率。</p>
+          <p>當 k → ∞，系統收斂 → 得到「穩定態」（steady state）</p>
         </div>
         <div class="card">
           <h4><span class="icon">⚡</span> 電網應用</h4>
-          <p class="sub">發電廠狀態模擬</p>
+          <p class="sub">機組狀態模擬</p>
           <p>機組狀態（運轉/待機/維修）之間的轉移可以用馬可夫鏈建模。用來預測長期可用發電容量。</p>
         </div>
       </div>
 
-      <!-- 2.6 更多應用 -->
+      <div class="content-block">
+        <h3>馬可夫鏈的長期行為</h3>
+        <p>如果 P 是「正」的轉移矩陣（所有元素 > 0），則馬可夫鏈有唯一的穩定態：</p>
+        <div class="math-block" style="text-align:center;">
+x* = P · x*</div>
+        <p>即 x* 是 P 的特徵向量（特徵值 = 1）。這連接到 Ch7 的特徵值概念。</p>
+      </div>
+
+      <!-- 2.6 -->
       <div class="ch-subsection-title">§2.6 矩陣運算的更多應用</div>
 
       <div class="card-grid">
         <div class="card">
           <h4><span class="icon">🔗</span> 圖與網絡的矩陣表示</h4>
           <p class="sub">鄰接矩陣（Adjacency Matrix）</p>
-          <p>N個節點的圖 → N×N 鄰接矩陣 A<br>Aᵢⱼ = 1 表示節點 i 和 j 有連接，否則為 0。</p>
-          <div class="formula">A² 的第 (i,j) 元素 = 從 i 到 j 的「長度為2」的路徑數量</div>
+          <p>N個節點的圖 → N×N 鄰接矩陣 A<br>Aᵢⱼ = 1 表示節點 i 和 j 有連接。</p>
+          <div class="math-block" style="font-size:0.75rem;margin:0.5rem 0;">
+A² 的第 (i,j) 元素 = 從 i 到 j 的「長度為2」路徑數量</div>
           <div class="analogy">
             <strong>💬 電網應用</strong>
             電網拓撲 = 圖。節點是 bus，邊是輸電線。鄰接矩陣告訴你哪些 bus 直接相連。
@@ -1011,8 +1129,11 @@
         <div class="card">
           <h4><span class="icon">📈</span> 線性遞推關係</h4>
           <p class="sub">費波那契數列</p>
-          <div class="formula">[Fₖ₊₁] = [1 1] · [Fₖ]<br>[Fₖ&nbsp;&nbsp;&nbsp;]   [1 0]   [Fₖ₋₁]</div>
-          <p>所以 [Fₙ₊₁, Fₙ]ᵀ = Aⁿ · [F₁, F₀]ᵀ。<br>用矩陣冪次可以在 O(log n) 時間內算出第 n 個費波那契數。</p>
+          <div class="math-block" style="font-size:0.75rem;margin:0.5rem 0;">
+| Fₖ₊₁ |   | 1  1 | · | Fₖ   |
+| Fₖ   | = | 1  0 |   | Fₖ₋₁ |</div>
+          <p>所以 <code>[Fₙ₊₁, Fₙ]ᵀ = Aⁿ · [F₁, F₀]ᵀ</code></p>
+          <p>用矩陣冪次可以在 <strong>O(log n)</strong> 時間內算出第 n 個費波那契數！</p>
         </div>
       </div>
 
@@ -1020,66 +1141,28 @@
         <h2><span class="icon">📖</span> 詞彙（中英對照）</h2>
         <div class="vocab-section">
           <div class="vocab-grid">
-            <div class="vocab-item">
-              <div class="term">Matrix</div>
-              <div class="chinese">矩陣</div>
-              <div class="definition">m×n 的數字長方形陣列。寫成 A(m×n) 表示 m 列 n 行。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Matrix Multiplication</div>
-              <div class="chinese">矩陣乘法</div>
-              <div class="definition">A(m×n)·B(n×p) = C(m×p)。Cᵢⱼ = A的第i行 · B的第j列（點積）。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Identity Matrix</div>
-              <div class="chinese">單位矩陣</div>
-              <div class="definition">Iₙ = diag(1,1,...,1)。A·I = I·A = A。矩陣中的「1」。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Inverse Matrix</div>
-              <div class="chinese">反矩陣</div>
-              <div class="definition">A⁻¹ 滿足 A·A⁻¹ = A⁻¹·A = I。只有當 det(A) ≠ 0 時存在。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Elementary Matrix</div>
-              <div class="chinese">基本矩陣</div>
-              <div class="definition">I 經過一次基本列運算後的矩陣。E·A = 對 A 做對應的列運算。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Transpose</div>
-              <div class="chinese">轉置矩陣</div>
-              <div class="definition">Aᵀ：行列交換。(Aᵀ)ᵢⱼ = Aⱼᵢ。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Symmetric Matrix</div>
-              <div class="chinese">對稱矩陣</div>
-              <div class="definition">A = Aᵀ。即 Aᵢⱼ = Aⱼᵢ。</div>
-            </div>
-            <div class="vocab-item">
-              <div class="term">Markov Chain</div>
-              <div class="chinese">馬可夫鏈</div>
-              <div class="definition">隨機過程，未來只依賴現在狀態。x₍ₖ₊₁₎ = P·x₍ₖ₎，P 是轉移矩陣（隨機矩陣）。</div>
-            </div>
+            <div class="vocab-item"><div class="term">Matrix</div><div class="chinese">矩陣</div><div class="definition">m×n 的數字長方形陣列。寫成 A(m×n) 表示 m 列 n 行。</div></div>
+            <div class="vocab-item"><div class="term">Matrix Multiplication</div><div class="chinese">矩陣乘法</div><div class="definition">A(m×n)·B(n×p) = C(m×p)。Cᵢⱼ = A的第i行點乘B的第j列。</div></div>
+            <div class="vocab-item"><div class="term">Identity Matrix</div><div class="chinese">單位矩陣</div><div class="definition">Iₙ = diag(1,1,...,1)。A·I = I·A = A。矩陣中的「1」。</div></div>
+            <div class="vocab-item"><div class="term">Inverse Matrix</div><div class="chinese">反矩陣</div><div class="definition">A⁻¹ 滿足 A·A⁻¹ = A⁻¹·A = I。只有當 det(A) ≠ 0 時存在。</div></div>
+            <div class="vocab-item"><div class="term">Elementary Matrix</div><div class="chinese">基本矩陣</div><div class="definition">I 經過一次基本列運算後的矩陣。E·A = 對 A 做對應的列運算。</div></div>
+            <div class="vocab-item"><div class="term">Transpose</div><div class="chinese">轉置矩陣</div><div class="definition">Aᵀ：行列交換。(Aᵀ)ᵢⱼ = Aⱼᵢ。</div></div>
+            <div class="vocab-item"><div class="term">Symmetric Matrix</div><div class="chinese">對稱矩陣</div><div class="definition">A = Aᵀ。即 Aᵢⱼ = Aⱼᵢ。</div></div>
+            <div class="vocab-item"><div class="term">Markov Chain</div><div class="chinese">馬可夫鏈</div><div class="definition">隨機過程，未來只依賴現在狀態。x₍ₖ₊₁₎ = P·x₍ₖ₎，P 是轉移矩陣。</div></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ===== CH3-Ch7: Placeholder (尚未討論) ===== -->
+    <!-- ===== CH3-Ch7 Placeholders ===== -->
     <div class="chapter-page" id="ch3">
       <div class="ch-header">
         <h1><span class="en">Ch3 行列式</span> <span class="zh">｜Determinants</span></h1>
         <p class="ch-desc">（待討論）行列式的定義、性質與應用。</p>
-        <div class="ch-tags">
-          <span class="ch-tag intro">det(A) 的定義與計算</span>
-          <span class="ch-tag method">行列式的性質 · 伴隨矩陣</span>
-          <span class="ch-tag app">Cramer's Rule · 應用</span>
-        </div>
       </div>
       <div class="content-block">
         <h3>🚧 此章節內容待討論後補充</h3>
-        <p>Ch3 的詳細內容需要等我們討論完 Ch1 和 Ch2 以後再處理。</p>
-        <p>行列式章節的核心問題：</p>
+        <p>Ch3 的詳細內容需要等討論完 Ch1 和 Ch2 以後再處理。預計內容：</p>
         <ul>
           <li>行列式的定義（代數餘因子展開）</li>
           <li>det(AB) = det(A)·det(B) 的意義</li>
@@ -1090,55 +1173,23 @@
     </div>
 
     <div class="chapter-page" id="ch4">
-      <div class="ch-header">
-        <h1><span class="en">Ch4 向量空間</span> <span class="zh">｜Vector Space</span></h1>
-        <p class="ch-desc">（待討論）向量空間的結構理論。</p>
-        <div class="ch-tags">
-          <span class="ch-tag intro">向量空間的定義</span>
-          <span class="ch-tag method">子空間 · 維度 · 基底</span>
-          <span class="ch-tag app">座標系與線性映射</span>
-        </div>
-      </div>
-      <div class="content-block">
-        <h3>🚧 此章節內容待討論後補充</h3>
-        <p>向量空間是 Ch1-Ch2 概念的抽象化。把「解方程組」的直覺推廣到任意維度的空間。</p>
-      </div>
+      <div class="ch-header"><h1><span class="en">Ch4 向量空間</span> <span class="zh">｜Vector Space</span></h1><p class="ch-desc">（待討論）向量空間的結構理論。</p></div>
+      <div class="content-block"><h3>🚧 此章節內容待討論後補充</h3></div>
     </div>
 
     <div class="chapter-page" id="ch5">
-      <div class="ch-header">
-        <h1><span class="en">Ch5 內積空間</span> <span class="zh">｜Inner Product Space</span></h1>
-        <p class="ch-desc">（待討論）這是你目前在課堂學習的部分。我們可以根據老師的進度隨時調整。</p>
-        <div class="ch-tags">
-          <span class="ch-tag intro">內積定義</span>
-          <span class="ch-tag method">長度、角度、距離 · Cauchy-Schwarz</span>
-          <span class="ch-tag app">正交基底</span>
-        </div>
-      </div>
-      <div class="content-block">
-        <h3>🚧 此章節內容待討論後補充</h3>
-        <p>等你告訴我老師教到哪個小節，我們再一起把這個章節的內容補足。</p>
-      </div>
+      <div class="ch-header"><h1><span class="en">Ch5 內積空間</span> <span class="zh">｜Inner Product Space</span></h1><p class="ch-desc">（待討論）這是你目前在課堂學習的部分。我們可以根據老師的進度隨時調整。</p></div>
+      <div class="content-block"><h3>🚧 此章節內容待討論後補充</h3><p>等你告訴我老師教到哪個小節，我們再一起把這個章節補足。</p></div>
     </div>
 
     <div class="chapter-page" id="ch6">
-      <div class="ch-header">
-        <h1><span class="en">Ch6 線性轉換</span> <span class="zh">｜Linear Transformation</span></h1>
-        <p class="ch-desc">（待討論）矩陣作為線性變換。核、像、合成。</p>
-      </div>
-      <div class="content-block">
-        <h3>🚧 此章節內容待討論後補充</h3>
-      </div>
+      <div class="ch-header"><h1><span class="en">Ch6 線性轉換</span> <span class="zh">｜Linear Transformation</span></h1><p class="ch-desc">（待討論）矩陣作為線性變換。核、像、合成。</p></div>
+      <div class="content-block"><h3>🚧 此章節內容待討論後補充</h3></div>
     </div>
 
     <div class="chapter-page" id="ch7">
-      <div class="ch-header">
-        <h1><span class="en">Ch7 特徵值與特徵向量</span> <span class="zh">｜Eigenvalues & Eigenvectors</span></h1>
-        <p class="ch-desc">（待討論）這是整個線性代數應用最廣的一章。PCA、電網穩定性、PageRank — 全在這。</p>
-      </div>
-      <div class="content-block">
-        <h3>🚧 此章節內容待討論後補充</h3>
-      </div>
+      <div class="ch-header"><h1><span class="en">Ch7 特徵值與特徵向量</span> <span class="zh">｜Eigenvalues & Eigenvectors</span></h1><p class="ch-desc">（待討論）這是整個線性代數應用最廣的一章。PCA、電網穩定性、PageRank — 全在這。</p></div>
+      <div class="content-block"><h3>🚧 此章節內容待討論後補充</h3></div>
     </div>
   </main>
 
@@ -1149,6 +1200,173 @@
   </footer>
 
   <script>
+    // Examples data
+    const examples = {
+      gauss: {
+        title: '📐 範例：高斯消去法（3×3 方程組）',
+        body: `
+<div class="math-label">題目</div>
+<div class="math-block">
+x + y + z = 6
+2x + 3y + z = 12
+x + y + 2z = 7</div>
+
+<div class="math-label">Step 1：寫出增廣矩陣</div>
+<div class="math-block center">
+| 1   1   1 | 6 |
+| 2   3   1 | 12 |
+| 1   1   2 | 7 |</div>
+
+<div class="math-label">Step 2：前向消去（Forward Elimination）</div>
+<div class="step"><div class="step-num">1</div><div class="step-text">Pivot 在 (1,1) = 1。目標：把 (2,1) 和 (3,1) 變成 0。</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text">R₂ → R₂ − 2·R₁：把第二列第一個元素變成 0</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text">R₃ → R₃ − R₁：把第三列第一個元素變成 0</div></div>
+<div class="math-block center">
+| 1   1   1 | 6  |
+| 0   1  -1 | 0  |  ← R₂ − 2·R₁
+| 0   0   1 | 1  |  ← R₃ − R₁</div>
+
+<div class="math-label">Step 3：回代（Back Substitution）</div>
+<div class="step"><div class="step-num">1</div><div class="step-text">最後一行：z = 1</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text">倒數第二行：y − z = 0 → y − 1 = 0 → y = 1</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text">第一行：x + y + z = 6 → x + 1 + 1 = 6 → x = 4</div></div>
+
+<div class="result">✅ 解：x = 4, y = 1, z = 1</div>
+        `
+      },
+      'gauss-jordan': {
+        title: '📐 範例：高斯-喬登消去法（RREF 直接讀解）',
+        body: `
+<div class="math-label">題目（同上題）</div>
+<div class="math-block">
+x + y + z = 6
+2x + 3y + z = 12
+x + y + 2z = 7</div>
+
+<div class="math-label">Step 1：做完高斯消去（上三角形）</div>
+<div class="math-block center">
+| 1   1   1 | 6  |
+| 0   1  -1 | 0  |
+| 0   0   1 | 1  |</div>
+
+<div class="math-label">Step 2：繼續往上消（RREF）</div>
+<div class="step"><div class="step-num">1</div><div class="step-text">第三行 pivot 在 (3,3) = 1。上方沒有元素要消。</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text">第二行 pivot 在 (2,2) = 1。消去第一行第二個元素：R₁ → R₁ − R₂</div></div>
+<div class="math-block center">
+| 1   0   2 | 6  |  ← R₁ − R₂
+| 0   1  -1 | 0  |
+| 0   0   1 | 1  |</div>
+<div class="step"><div class="step-num">3</div><div class="step-text">第一行 pivot 在 (1,1) = 1。消去第一行第三個元素：R₁ → R₁ − 2·R₃</div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text">第二行：消去 (2,3)：R₂ → R₂ + R₃</div></div>
+
+<div class="math-label">最終 RREF</div>
+<div class="math-block center">
+| 1   0   0 | 4  |  ← x = 4
+| 0   1   0 | 1  |  ← y = 1
+| 0   0   1 | 1  |  ← z = 1</div>
+
+<div class="result">✅ 解：x = 4, y = 1, z = 1｜直接讀出，不需要回代！</div>
+        `
+      },
+      matmul: {
+        title: '📐 範例：2×2 矩陣乘法',
+        body: `
+<div class="math-label">題目</div>
+<div class="math-block">
+| 1  2 |       | 5  7 |
+|     |   ×   |      |   =  ?
+| 3  4 |       | 9  10 |</div>
+
+<div class="math-label">Step 1：確認維度</div>
+<div class="step"><div class="step-num">A</div><div class="step-text">A 是 2×2，B 也是 2×2<br>結果 C 也是 2×2</div></div>
+
+<div class="math-label">Step 2：C 的每個元素 = A 的row × B的column</div>
+<div class="math-block">
+C[1,1] = row1(A) · col1(B)
+       = [1, 2] · [5, 9]
+       = 1×5 + 2×9 = 5 + 18 = 23
+
+C[1,2] = row1(A) · col2(B)
+       = [1, 2] · [7, 10]
+       = 1×7 + 2×10 = 7 + 20 = 27
+
+C[2,1] = row2(A) · col1(B)
+       = [3, 4] · [5, 9]
+       = 3×5 + 4×9 = 15 + 36 = 51
+
+C[2,2] = row2(A) · col2(B)
+       = [3, 4] · [7, 10]
+       = 3×7 + 4×10 = 21 + 40 = 61</div>
+
+<div class="math-label">結果</div>
+<div class="math-block center">
+| 23  27 |
+| 51  61 |</div>
+
+<div class="result">✅ 驗證：手算每一個 row·col 點積，就是這四個數字</div>
+        `
+      },
+      inverse: {
+        title: '📐 範例：求反矩陣（高斯-喬登法）',
+        body: `
+<div class="math-label">題目：求 A = | 2  1 | 的反矩陣</div>
+<div class="math-block center">
+| 1  1 |</div>
+
+<div class="math-label">Step 1：寫出增廣矩陣 [A | I]</div>
+<div class="math-block center">
+| 2   1 | 1   0 |
+| 1   1 | 0   1 |</div>
+
+<div class="math-label">Step 2：高斯-喬登消去</div>
+<div class="step"><div class="step-num">1</div><div class="step-text">Swap R1 and R2（把 pivot 變成 1）</div></div>
+<div class="math-block center">
+| 1   1 | 0   1 |
+| 2   1 | 1   0 |</div>
+<div class="step"><div class="step-num">2</div><div class="step-text">R₂ → R₂ − 2·R₁（消去 (2,1)）</div></div>
+<div class="math-block center">
+| 1   1 |  0   1 |
+| 0  -1 |  1  -2 |</div>
+<div class="step"><div class="step-num">3</div><div class="step-text">R₂ → −1·R₂（讓 pivot = 1）</div></div>
+<div class="math-block center">
+| 1   1 |  0   1 |
+| 0   1 | -1   2 |</div>
+<div class="step"><div class="step-num">4</div><div class="step-text">R₁ → R₁ − R₂（消去 (1,2)）</div></div>
+<div class="math-block center">
+| 1   0 |  1  -1 |
+| 0   1 | -1   2 |</div>
+
+<div class="math-label">結果</div>
+<div class="math-block center">
+左邊 = I  →  右邊就是 A⁻¹
+
+A⁻¹ = | 1  -1 |
+      | -1   2 |</div>
+
+<div class="math-label">驗證</div>
+<div class="math-block center">
+A · A⁻¹ = | 2  1 | · | 1  -1 | = | 1   0 | = I ✅
+            | 1  1 |   | -1  2 |   | 0   1 |</div>
+
+<div class="result">✅ A⁻¹ = | 1  -1 |<br>| -1   2 |</div>
+        `
+      }
+    };
+
+    function openExample(key) {
+      const ex = examples[key];
+      document.getElementById('modal-title').textContent = ex.title;
+      document.getElementById('modal-body').innerHTML = ex.body;
+      document.getElementById('modal-overlay').classList.add('active');
+    }
+
+    function closeModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('modal-overlay').classList.remove('active');
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
     // Theme
     const themes = {
       warm: { bg: '#faf6f0', card: '#ffffff', cardHover: '#fff9f0', border: '#e8ddd0', text: '#3d3028', textMuted: '#7a6a58', accent: '#c0682a', la: '#5a4a8a', laBg: '#5a4a8a15', en: '#8a6820', zh: '#c0682a', success: '#2d7a35' },
