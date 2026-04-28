@@ -1277,7 +1277,7 @@ x + y + 2z = 7</div>
 
 <div class="math-label">Step 1：做完高斯消去（上三角形）</div>
 <div class="math-block center">${fmtMatrix(
-  [[1,0,0],[1,1,0],[1,2,1]],
+  [[1,0,0],[1,1,0],[1,-1,1]],
   [[6,0,1]]
 )}</div>
 
@@ -1285,7 +1285,7 @@ x + y + 2z = 7</div>
 <div class="step"><div class="step-num">1</div><div class="step-text">第三行 pivot 在 (3,3) = 1。上方沒有元素要消。</div></div>
 <div class="step"><div class="step-num">2</div><div class="step-text">第二行 pivot 在 (2,2) = 1。消去第一行第二個元素：R₁ → R₁ − R₂</div></div>
 <div class="math-block center">${fmtMatrix(
-  [[1,0,0],[0,1,0],[1,2,1]],
+  [[1,0,0],[0,1,0],[2,-1,1]],
   [[6,0,1]]
 )}
   ← R₁ − R₂</div>
