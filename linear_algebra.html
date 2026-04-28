@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📐 Linear Algebra | 線性代數速通 — 黑皮學習框架</title>
+  <title>📐 Linear Algebra | 線性代數 — 黑皮學習系統</title>
   <style>
     :root {
       --bg: #faf6f0;
@@ -14,15 +14,11 @@
       --text-muted: #7a6a58;
       --accent: #c0682a;
       --accent-hover: #a05820;
-      --accent-glow: #c0682a20;
-      --tag-bg: #c0682a15;
-      --tag-text: #c0682a;
-      --en: #8a6820;
-      --zh: #c0682a;
       --la: #5a4a8a;
       --la-bg: #5a4a8a15;
+      --en: #8a6820;
+      --zh: #c0682a;
       --success: #2d7a35;
-      --warn: #ca8a04;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -32,169 +28,160 @@
       line-height: 1.7;
       min-height: 100vh;
     }
-    .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
-    .bilingual { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: baseline; }
-    .en { color: var(--en); font-weight: 600; }
-    .zh { color: var(--zh); }
-    .bilingual-header { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 1rem; }
-    .bilingual-header .en { font-size: 1.125rem; font-weight: 600; color: var(--en); }
-    .bilingual-header .zh { font-size: 1rem; color: var(--zh); }
-    .theme-switcher {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-    .theme-btn {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 0.375rem 0.875rem;
-      border-radius: 2rem;
-      font-size: 0.8125rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .theme-btn:hover { border-color: var(--accent); color: var(--text); }
-    .theme-btn.active { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
-    header {
-      border-bottom: 1px solid var(--border);
-      padding: 2rem;
-      background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
-    }
-    header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
-    header .subtitle { color: var(--text-muted); font-size: 0.875rem; }
-    header .stats { display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap; }
-    header .stat { display: flex; flex-direction: column; }
-    header .stat-value { font-size: 1.25rem; font-weight: 600; color: var(--la); }
-    header .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-    main { max-width: 1000px; margin: 0 auto; padding: 2rem; }
-    .section { margin-bottom: 3rem; }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-    .section-header h2 { font-size: 1.125rem; font-weight: 600; }
 
-    /* Learning Path */
-    .learning-path {
-      position: relative;
-      padding-left: 2rem;
-    }
-    .learning-path::before {
-      content: '';
-      position: absolute;
-      left: 0.5rem;
-      top: 0;
-      bottom: 0;
-      width: 3px;
-      background: linear-gradient(180deg, var(--la) 0%, var(--accent) 100%);
-      border-radius: 2px;
-    }
-    .phase {
-      position: relative;
-      margin-bottom: 2rem;
-    }
-    .phase::before {
-      content: '';
-      position: absolute;
-      left: -1.75rem;
-      top: 0.35rem;
-      width: 0.875rem;
-      height: 0.875rem;
-      border-radius: 50%;
+    /* Tab Navigation */
+    .tab-nav {
       background: var(--card);
-      border: 3px solid var(--la);
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    .phase.done::before { background: var(--success); border-color: var(--success); }
-    .phase.current::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
-    .phase-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
-    .phase-title { font-size: 1rem; font-weight: 700; }
-    .phase-title .en { color: var(--text); }
-    .phase-badge {
-      font-size: 0.625rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 0.2rem 0.5rem;
-      border-radius: 1rem;
-      background: var(--la-bg);
-      color: var(--la);
-    }
-    .phase-badge.active { background: var(--accent); color: white; }
-    .phase-badge.done { background: var(--success); color: white; }
-    .phase-subtitle { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.75rem; }
-    .phase-topics { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 0.75rem; }
-    .topic-tag {
-      font-size: 0.75rem;
-      padding: 0.25rem 0.625rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 0.375rem;
-      color: var(--text-muted);
-    }
-    .phase-desc { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.5rem; }
-    .phase-resource {
-      font-size: 0.8125rem;
-      color: var(--accent);
+    .tab-nav-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 2rem;
       display: flex;
       align-items: center;
-      gap: 0.375rem;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
-
-    /* Core Chapters */
-    .chapter-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1rem;
+    .tab-nav-inner::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 1rem 1.25rem;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
     }
-    .chapter-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 0.75rem;
-      padding: 1.25rem;
-      transition: border-color 0.15s;
+    .tab-btn:hover { color: var(--text); background: var(--bg); }
+    .tab-btn.active {
+      color: var(--la);
+      border-bottom-color: var(--la);
     }
-    .chapter-card:hover { border-color: var(--la); }
-    .chapter-num {
+    .tab-btn .ch-num {
       font-size: 0.625rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem;
+      padding: 0.15rem 0.4rem;
       background: var(--la-bg);
       color: var(--la);
-      display: inline-block;
-      margin-bottom: 0.75rem;
-    }
-    .chapter-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
-    .chapter-subtitle { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.75rem; }
-    .chapter-keywords { display: flex; gap: 0.375rem; flex-wrap: wrap; }
-    .kw { font-size: 0.6875rem; padding: 0.2rem 0.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: 0.25rem; color: var(--text-muted); }
-    .chapter-desc { font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
-
-    /* Quick Start Card */
-    .start-card {
-      background: linear-gradient(135deg, var(--la) 0%, var(--accent) 100%);
-      color: white;
-      border-radius: 1rem;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-    .start-card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; color: white; }
-    .start-card p { font-size: 0.9375rem; opacity: 0.9; margin-bottom: 1.25rem; }
-    .start-card .btn {
-      display: inline-block;
-      background: white;
-      color: var(--la);
-      padding: 0.625rem 1.5rem;
-      border-radius: 2rem;
+      border-radius: 0.25rem;
       font-weight: 700;
-      font-size: 0.875rem;
-      text-decoration: none;
-      transition: transform 0.15s;
     }
-    .start-card .btn:hover { transform: scale(1.05); }
+    .tab-btn.active .ch-num { background: var(--la); color: white; }
+
+    /* Theme */
+    .theme-switcher {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: auto;
+      padding: 0.75rem 2rem;
+      flex-shrink: 0;
+    }
+    .theme-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.25rem 0.6rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .theme-btn:hover { border-color: var(--accent); color: var(--text); }
+    .theme-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* Header */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+    }
+    header .bilingual-header {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    header .en { font-size: 1.25rem; font-weight: 700; color: var(--en); }
+    header .zh { font-size: 0.9375rem; color: var(--zh); }
+    .nav-links {
+      max-width: 1000px;
+      margin: 1rem auto 0;
+      display: flex;
+      gap: 0.75rem;
+    }
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 0.375rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      background: var(--card);
+      transition: all 0.15s;
+    }
+    .nav-link:hover { border-color: var(--accent); }
+
+    /* Main */
+    main { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+
+    /* Chapter Pages */
+    .chapter-page { display: none; }
+    .chapter-page.active { display: block; }
+
+    .chapter-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .chapter-header h1 {
+      font-size: 1.375rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .chapter-header h1 .en { color: var(--la); }
+    .chapter-header h1 .zh { color: var(--text-muted); font-weight: 400; font-size: 1rem; }
+    .chapter-header .desc { color: var(--text-muted); font-size: 0.875rem; }
+    .chapter-meta {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .chapter-meta-item {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.75rem;
+    }
+    .chapter-meta-item .label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .chapter-meta-item .value { color: var(--la); font-weight: 700; font-size: 0.875rem; }
+
+    /* Section */
+    .section { margin-bottom: 2.5rem; }
+    .section h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section h2 .icon { font-size: 1.25rem; }
 
     /* Concept Cards */
     .concept-grid {
@@ -211,20 +198,21 @@
     .concept-card h4 {
       font-size: 0.9375rem;
       font-weight: 700;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.5rem;
       color: var(--la);
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
-    .concept-card h4 .icon { font-size: 1.25rem; }
+    .concept-card h4 .icon { font-size: 1.125rem; }
+    .concept-card .sub { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; }
     .concept-card p { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.75rem; }
     .concept-card .formula {
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 0.375rem;
-      padding: 0.625rem 0.875rem;
-      font-size: 0.875rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8125rem;
       font-family: 'Courier New', monospace;
       color: var(--accent);
       margin-bottom: 0.75rem;
@@ -235,598 +223,1077 @@
       border-radius: 0.375rem;
       padding: 0.625rem 0.875rem;
       color: var(--la);
+      line-height: 1.5;
     }
-    .concept-card .analogy strong { display: block; margin-bottom: 0.25rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .concept-card .analogy strong { display: block; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
+    .concept-card .keywords { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.75rem; }
+    .kw { font-size: 0.6875rem; padding: 0.15rem 0.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: 0.25rem; color: var(--text-muted); }
 
-    /* Application Cards */
-    .app-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-    .app-card {
+    /* Algorithm Cards */
+    .algo-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 0.75rem;
-      padding: 1.25rem;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
     }
-    .app-card h4 { font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.5rem; }
-    .app-card p { font-size: 0.8125rem; color: var(--text-muted); }
-    .app-card .la-bridge { font-size: 0.75rem; color: var(--la); margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
-    .app-tags { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    .algo-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: var(--la);
+    }
+    .algo-card h3 .en { color: var(--text); }
+    .algo-card .alias { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; margin-bottom: 0.75rem; }
+    .algo-card p { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .algo-steps {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .algo-steps h4 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--la); margin-bottom: 0.75rem; }
+    .algo-steps ol { padding-left: 1.25rem; font-size: 0.8125rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.4rem; }
+    .algo-card .example {
+      background: var(--la-bg);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--la);
+    }
+    .algo-card .example strong { display: block; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+    .algo-card .keywords { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .algo-card .time { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+    .algo-card .time span { color: var(--success); font-weight: 700; }
 
     /* Vocab */
     .vocab-section { background: var(--card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; }
-    .vocab-section h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; color: var(--la); }
+    .vocab-section h3 { font-size: 0.875rem; font-weight: 700; margin-bottom: 1rem; color: var(--la); }
     .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
     .vocab-item { background: var(--bg); border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.75rem; }
-    .vocab-item .term { font-weight: 600; color: var(--en); margin-bottom: 0.25rem; }
+    .vocab-item .term { font-weight: 700; color: var(--en); margin-bottom: 0.2rem; }
     .vocab-item .chinese { font-size: 0.8125rem; color: var(--zh); margin-bottom: 0.375rem; }
     .vocab-item .definition { font-size: 0.75rem; color: var(--text-muted); }
 
-    /* Resource Section */
-    .resource-section { background: var(--card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; }
-    .resource-section h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; color: var(--accent); }
-    .resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
-    .resource-card { display: flex; gap: 0.75rem; padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 0.5rem; text-decoration: none; color: var(--text); transition: all 0.15s; }
-    .resource-card:hover { border-color: var(--accent); }
-    .resource-icon { font-size: 1.5rem; flex-shrink: 0; }
-    .resource-title { font-size: 0.875rem; font-weight: 600; }
-    .resource-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
-    .resource-lang { font-size: 0.625rem; padding: 0.1rem 0.4rem; border-radius: 0.2rem; background: var(--la-bg); color: var(--la); }
-
     /* Progress Tracker */
-    .progress-card {
+    .progress-card { background: var(--card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 2rem; }
+    .progress-card h3 { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--la); }
+    .progress-bar { height: 0.5rem; background: var(--border); border-radius: 1rem; overflow: hidden; margin-bottom: 0.5rem; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--la) 0%, var(--accent) 100%); border-radius: 1rem; transition: width 0.3s; }
+    .progress-label { font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+
+    /* Roadmap */
+    .roadmap {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 0.75rem;
       padding: 1.5rem;
       margin-bottom: 2rem;
     }
-    .progress-card h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; color: var(--la); }
-    .progress-bar {
-      height: 0.5rem;
-      background: var(--border);
-      border-radius: 1rem;
-      overflow: hidden;
-      margin-bottom: 0.75rem;
+    .roadmap h3 { font-size: 0.875rem; font-weight: 700; margin-bottom: 1rem; color: var(--la); }
+    .roadmap-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .roadmap-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.625rem 0.875rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
     }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--la) 0%, var(--accent) 100%);
+    .roadmap-item:hover { border-color: var(--la); }
+    .roadmap-item.done { opacity: 0.6; }
+    .roadmap-item.current { border-color: var(--accent); background: var(--card-hover); }
+    .roadmap-item .ch-icon { font-size: 1rem; flex-shrink: 0; }
+    .roadmap-item .ch-title { flex: 1; }
+    .roadmap-item .ch-title .en { font-weight: 600; color: var(--text); }
+    .roadmap-item .ch-title .zh { color: var(--text-muted); font-size: 0.75rem; }
+    .roadmap-item .status {
+      font-size: 0.625rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
       border-radius: 1rem;
-      transition: width 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
-    .progress-label { font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; }
-
-    /* Checklist */
-    .checklist { display: flex; flex-direction: column; gap: 0.5rem; }
-    .check-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.875rem; background: var(--card); border: 1px solid var(--border); border-radius: 0.5rem; font-size: 0.875rem; cursor: pointer; transition: all 0.15s; user-select: none; }
-    .check-item:hover { background: var(--card-hover); border-color: var(--la); }
-    .check-item.checked { opacity: 0.6; text-decoration: line-through; }
-    .check-item.checked .checkbox { background: var(--success); border-color: var(--success); }
-    .check-item.checked .checkbox::after { content: '✓'; color: white; font-size: 0.625rem; font-weight: 700; }
-    .checkbox { width: 1.125rem; height: 1.125rem; border: 2px solid var(--border); border-radius: 0.25rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .roadmap-item.done .status { background: var(--success); color: white; }
+    .roadmap-item.current .status { background: var(--accent); color: white; }
+    .roadmap-item:not(.done):not(.current) .status { background: var(--border); color: var(--text-muted); }
 
     /* Quote */
-    .quote-block { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--la); border-radius: 0 0.5rem 0.5rem 0; padding: 1rem 1.25rem; margin: 1.5rem 0; font-size: 0.9375rem; color: var(--text-muted); }
+    .quote-block { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--la); border-radius: 0 0.5rem 0.5rem 0; padding: 1rem 1.25rem; margin: 1.5rem 0; font-size: 0.875rem; color: var(--text-muted); }
     .quote-block .en { color: var(--la); font-style: italic; }
     .quote-block .attr { font-size: 0.75rem; margin-top: 0.5rem; }
 
     footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem; }
-    .nav-links { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-    .nav-link { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.8125rem; color: var(--accent); text-decoration: none; padding: 0.375rem 0.75rem; border: 1px solid var(--border); border-radius: 0.375rem; background: var(--card); transition: all 0.15s; }
-    .nav-link:hover { border-color: var(--accent); background: var(--card-hover); }
-    @media (max-width: 640px) { header .stats { gap: 1rem; } }
+    @media (max-width: 640px) {
+      .tab-btn { padding: 0.75rem 0.875rem; font-size: 0.8125rem; }
+      .theme-switcher { padding: 0.5rem 1rem; }
+      .concept-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
+  <!-- Tab Navigation -->
+  <nav class="tab-nav">
+    <div class="tab-nav-inner">
+      <button class="tab-btn active" data-tab="ch0">
+        <span class="ch-num">總覽</span>
+        <span>總覽</span>
+      </button>
+      <button class="tab-btn" data-tab="ch1">
+        <span class="ch-num">Ch1</span>
+        <span>向量與矩陣</span>
+      </button>
+      <button class="tab-btn" data-tab="ch2">
+        <span class="ch-num">Ch2</span>
+        <span>高斯消去</span>
+      </button>
+      <button class="tab-btn" data-tab="ch3">
+        <span class="ch-num">Ch3</span>
+        <span>LU 分解</span>
+      </button>
+      <button class="tab-btn" data-tab="ch4">
+        <span class="ch-num">Ch4</span>
+        <span>內積空間</span>
+      </button>
+      <button class="tab-btn" data-tab="ch5">
+        <span class="ch-num">Ch5</span>
+        <span>正交性</span>
+      </button>
+      <button class="tab-btn" data-tab="ch6">
+        <span class="ch-num">Ch6</span>
+        <span>特徵值</span>
+      </button>
+      <button class="tab-btn" data-tab="ch7">
+        <span class="ch-num">Ch7</span>
+        <span>SVD / PCA</span>
+      </button>
+      <div class="theme-switcher">
+        <button class="theme-btn" data-theme="warm">暖</button>
+        <button class="theme-btn" data-theme="ocean">海</button>
+        <button class="theme-btn" data-theme="forest">森</button>
+        <button class="theme-btn" data-theme="sand">漠</button>
+      </div>
+    </div>
+  </nav>
+
   <header>
-    <div class="theme-switcher">
-      <button class="theme-btn active" data-theme="warm" onclick="switchTheme('warm')">🔥 暖</button>
-      <button class="theme-btn" data-theme="ocean" onclick="switchTheme('ocean')">🌊 海</button>
-      <button class="theme-btn" data-theme="forest" onclick="switchTheme('forest')">🌿 森</button>
-      <button class="theme-btn" data-theme="sand" onclick="switchTheme('sand')">🏜️ 漠</button>
+    <div class="bilingual-header">
+      <span class="en">📐 Linear Algebra Learning System</span>
+      <span class="zh">線性代數學習系統 — 智慧電網研究基礎</span>
     </div>
     <div class="nav-links">
       <a href="index.html" class="nav-link">📚 研究首頁</a>
       <a href="blueprint.html" class="nav-link">🎯 藍圖</a>
     </div>
-    <div class="bilingual-header">
-      <span class="en">📐 Linear Algebra — Zero to ML Foundation</span>
-      <span class="zh">線性代數速通 — 從零到 ML 基礎</span>
-    </div>
-    <p class="subtitle">
-      <span class="en">A structured learning path designed for Smart Grid AI research</span>
-      <span class="zh">｜為智能電網 AI 研究設計的結構化學習路徑</span>
-    </p>
-    <div class="stats">
-      <div class="stat"><span class="stat-value">5</span><span class="stat-label">Learning Phases</span></div>
-      <div class="stat"><span class="stat-value">8</span><span class="stat-label">Core Chapters</span></div>
-      <div class="stat"><span class="stat-value">ML · Grid · CV</span><span class="stat-label">Applications</span></div>
-    </div>
   </header>
 
   <main>
-    <!-- Progress Tracker -->
-    <div class="progress-card">
-      <h3>📊 Your Progress | 你的進度</h3>
-      <div class="progress-bar"><div class="progress-fill" id="progress-bar" style="width: 0%"></div></div>
-      <div class="progress-label">
-        <span id="progress-text">Start your journey — Phase 1: Foundation</span>
-        <span id="progress-pct">0%</span>
+    <!-- ===== CH0: 總覽 ===== -->
+    <div class="chapter-page active" id="ch0">
+      <div class="chapter-header">
+        <h1><span class="en">Course Overview</span> <span class="zh">｜課程總覽</span></h1>
+        <p class="desc">為智能電網 AI 研究設計的線性代數學習地圖。跟著章節順序，搭配課堂進度，用討論調整每章內容。</p>
+        <div class="chapter-meta">
+          <div class="chapter-meta-item">
+            <span class="label">授課進度</span>
+            <span class="value">Ch1 → Ch4</span>
+          </div>
+          <div class="chapter-meta-item">
+            <span class="label">當前章節</span>
+            <span class="value">Ch4: 內積空間</span>
+          </div>
+          <div class="chapter-meta-item">
+            <span class="label">章節數量</span>
+            <span class="value">8 章</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="roadmap">
+        <h3>🗺️ 章節地圖 — 點擊切換章節</h3>
+        <div class="roadmap-list">
+          <div class="roadmap-item" onclick="switchTab('ch1')">
+            <span class="ch-icon">1️⃣</span>
+            <div class="ch-title"><span class="en">向量與矩陣基礎</span><span class="zh">｜Vector & Matrix Foundation</span></div>
+            <span class="status">當前進度</span>
+          </div>
+          <div class="roadmap-item" onclick="switchTab('ch2')">
+            <span class="ch-icon">2️⃣</span>
+            <div class="ch-title"><span class="en">高斯消去法</span><span class="zh">｜Gaussian Elimination</span></div>
+            <span class="status">下一個</span>
+          </div>
+          <div class="roadmap-item" onclick="switchTab('ch3')">
+            <span class="ch-icon">3️⃣</span>
+            <div class="ch-title"><span class="en">LU 分解</span><span class="zh">｜LU Decomposition</span></div>
+            <span class="status">預習</span>
+          </div>
+          <div class="roadmap-item" onclick="switchTab('ch4')">
+            <span class="ch-icon">4️⃣</span>
+            <div class="ch-title"><span class="en">內積空間</span><span class="zh">｜Inner Product Space</span></div>
+            <span class="status">課堂進行中</span>
+          </div>
+          <div class="roadmap-item" onclick="switchTab('ch5')">
+            <span class="ch-icon">5️⃣</span>
+            <div class="ch-title"><span class="en">正交性與投影</span><span class="zh">｜Orthogonality & Projection</span></div>
+            <span class="status">預習</span>
+          </div>
+          <div class="roadmap-item" onclick="switchTab('ch6')">
+            <span class="ch-icon">6️⃣</span>
+            <div class="ch-title"><span class="en">特徵值與特徵向量</span><span class="zh">｜Eigenvalues & Eigenvectors</span></div>
+            <span class="status">預習</span>
+          </div>
+          <div class="roadmap-item" onclick="switchTab('ch7')">
+            <span class="ch-icon">7️⃣</span>
+            <div class="ch-title"><span class="en">SVD / PCA 分解</span><span class="zh">｜Matrix Decompositions</span></div>
+            <span class="status">預習</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="quote-block">
+        <div class="en">"Linear algebra is the language of data science. Learn it, and the rest of ML becomes translation."</div>
+        <div class="attr">— Gilbert Strang, MIT</div>
       </div>
     </div>
 
-    <!-- Quick Start -->
-    <div class="start-card">
-      <h3>🚀 Start Here — Day 1</h3>
-      <p>Watch 3Blue1Brown "Essence of Linear Algebra" (15 videos, ~1hr total). Build geometric intuition BEFORE touching equations.</p>
-      <a href="https://www.youtube.com/playlist?list=PL_ZF_2_gBujXc0OqRy3Ccp6tJ3E2MJyqS" class="btn" target="_blank">▶ Start 3Blue1Brown</a>
+    <!-- ===== CH1: 向量與矩陣 ===== -->
+    <div class="chapter-page" id="ch1">
+      <div class="chapter-header">
+        <h1><span class="en">Ch1. Vector & Matrix Foundation</span> <span class="zh">｜向量與矩陣基礎</span></h1>
+        <p class="desc">線性代數的基石。所有資料、神經網路、電網感測器數據 — 都是向量。矩陣是變換和約束的語言。</p>
+        <div class="chapter-meta">
+          <div class="chapter-meta-item"><span class="label">章節狀態</span><span class="value">當前進度</span></div>
+          <div class="chapter-meta-item"><span class="label">核心關鍵字</span><span class="value">vector · matrix · rank · linear independence</span></div>
+        </div>
+      </div>
+
+      <!-- Concept Cards -->
+      <div class="section">
+        <h2><span class="icon">📍</span> 核心概念</h2>
+        <div class="concept-grid">
+          <div class="concept-card">
+            <h4><span class="icon">📍</span> Vector | 向量</h4>
+            <p class="sub">n維空間中的一個點或方向</p>
+            <p>有序的數字列表。每個數字是一個座標軸上的位置。電網中：一個bus的 [電壓, 相位, 頻率] 就是一個3維向量。</p>
+            <div class="formula">v = [3, 4] ∈ R²  → 長度 ||v|| = √(3²+4²) = 5</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              像GPS座標：[經度, 緯度, 海拔]。三個數字，但你已經精確知道位置了。向量就是「帶方向的數量」。
+            </div>
+            <div class="keywords">
+              <span class="kw">Rⁿ</span><span class="kw">向量的加法</span><span class="kw">純量乘法</span><span class="kw">單位向量</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">🔢</span> Linear Combination | 線性組合</h4>
+            <p class="sub">用係數乘以向量後相加</p>
+            <p>v = a₁u₁ + a₂u₂ + ... + aₙuₙ，其中 aᵢ 是純量（係數）。所有向量的線性組合構成一個集合，稱為 span(u₁, u₂, ...)。</p>
+            <div class="formula">v = 2·[1,0] + 3·[0,1] = [2, 3]</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像用食材做菜：不同的基本向量是「原料」，純量係數是「用量」，線性組合就是「配方」。
+            </div>
+            <div class="keywords">
+              <span class="kw">span</span><span class="kw">純量</span><span class="kw">係數</span><span class="kw">線性組合</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">🔄</span> Matrix | 矩陣</h4>
+            <p class="sub">m列 × n行 的數字網格</p>
+            <p>矩陣 A(m×n) 把 n維向量 transform 成 m維向量。每一個線性變換都對應一個矩陣。神經網路一層：output = activation(W·input + b)。</p>
+            <div class="formula">A(m×n) · x(n×1) = b(m×1)</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              像一個「配方」：吃進食材向量，按照矩陣規則攪拌烹飪，輸出成新的一道菜（新的向量）。
+            </div>
+            <div class="keywords">
+              <span class="kw">矩陣乘法</span><span class="kw">單位矩陣 I</span><span class="kw">轉置 Aᵀ</span><span class="kw">逆矩陣 A⁻¹</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">📏</span> Linear Independence | 線性獨立</h4>
+            <p class="sub">沒有一個向量能由其他向量表示</p>
+            <p>a₁v₁ + ... + aₙvₙ = 0 只有在所有 aᵢ = 0 時才成立。n個 n維線性獨立向量 → 可以張成整個 Rⁿ（就像建立了座標軸）。</p>
+            <div class="formula">[1,0], [0,1] 線性獨立｜[1,0], [0,1], [1,1] 不獨立（第三個 = 前兩個相加）</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像「獨立的情報維度」。北和東是獨立的——往北走永遠不會讓你往東。但「北」和「北偏西30度」就不獨立了。
+            </div>
+            <div class="keywords">
+              <span class="kw">線性相關</span><span class="kw">線性獨立</span><span class="kw">極大線性無關組</span><span class="kw">維度</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">🎯</span> Basis & Dimension | 基底與維度</h4>
+            <p class="sub">向量空間的「最小生成器」</p>
+            <p>基底 = 一組線性獨立的向量，線性組合可以產生空間中所有向量。維度 = 基底中向量的個數。R³的標準基底：e₁=[1,0,0], e₂=[0,1,0], e₃=[0,0,1]。</p>
+            <div class="formula">任何 R³ 向量 [x,y,z] = x·e₁ + y·e₂ + z·e₃</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              像建立座標系：你選了3個「測量方向」（不一定垂直），這3個方向加起來可以測量宇宙中任何位置。
+            </div>
+            <div class="keywords">
+              <span class="kw">標準基底</span><span class="kw">維度</span><span class="kw">生成空間</span><span class="kw">座標表示</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">🔍</span> Rank | 秩</h4>
+            <p class="sub">矩陣「真正獨立」的方向數</p>
+            <p>rank(A) = column space 的維度 = row space 的維度。告訴你這個矩陣「有多少真正不同的資訊方向」。full rank = 沒有冗餘資訊。</p>
+            <div class="formula">A(3×4), rank(A) ≤ min(3,4) = 3｜rank=3 → full row rank</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像報告的「實質內容」vs「總頁數」。300頁如果只有3頁有意義的內容，rank = 3，不是300。
+            </div>
+            <div class="keywords">
+              <span class="kw">column rank</span><span class="kw">row rank</span><span class="kw">full rank</span><span class="kw">rank deficiency</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vocabulary -->
+      <div class="section">
+        <h2><span class="icon">📖</span> 詞彙（中英對照）</h2>
+        <div class="vocab-section">
+          <div class="vocab-grid">
+            <div class="vocab-item">
+              <div class="term">Vector Space</div>
+              <div class="chinese">向量空間</div>
+              <div class="definition">向量可相加、可用純量乘法且結果仍在空間內的集合。Rⁿ是最常見的例子。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Linear Combination</div>
+              <div class="chinese">線性組合</div>
+              <div class="definition">向量乘以純量後相加的結果。v = Σcᵢvᵢ。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Span</div>
+              <div class="chinese">生成空間</div>
+              <div class="definition">一組向量所有線性組合形成的集合。span{v₁,v₂} = {a₁v₁ + a₂v₂}。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Linear Independence</div>
+              <div class="chinese">線性獨立</div>
+              <div class="definition">a₁v₁+...+aₙvₙ=0 只有所有係數=0才成立。否則為線性相關。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Basis</div>
+              <div class="chinese">基底</div>
+              <div class="definition">能張成（span）整個空間的線性獨立向量集。個數 = 維度。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Rank</div>
+              <div class="chinese">秩</div>
+              <div class="definition">矩陣 column space（或 row space）的維度。rank(A) = rank(Aᵀ)。</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Learning Path -->
-    <section class="section">
-      <div class="section-header">
-        <h2>🗺️ Learning Path | 學習路徑</h2>
+    <!-- ===== CH2: 高斯消去法 ===== -->
+    <div class="chapter-page" id="ch2">
+      <div class="chapter-header">
+        <h1><span class="en">Ch2. Gaussian Elimination</span> <span class="zh">｜高斯消去法</span></h1>
+        <p class="desc">解線性方程組的系統化方法。電網的牛頓-拉夫森法（Newton-Raphson）每一次迭代，本質上都是在做高斯消去。</p>
+        <div class="chapter-meta">
+          <div class="chapter-meta-item"><span class="label">核心技能</span><span class="value">解 Ax = b · 求 rank · 求逆矩陣</span></div>
+        </div>
       </div>
-      <div class="learning-path">
-        <!-- Phase 0 -->
-        <div class="phase" id="phase0">
-          <div class="phase-header">
-            <span class="phase-title"><span class="en">Phase 0: Geometric Intuition</span><span class="zh">｜直覺建立</span></span>
-            <span class="phase-badge">Start Here</span>
-          </div>
-          <div class="phase-subtitle">What are vectors, matrices, and transformations — visually?</div>
-          <div class="phase-topics">
-            <span class="topic-tag">vectors as arrows</span>
-            <span class="topic-tag">linear transformations as space stretching</span>
-            <span class="topic-tag">matrix multiplication as composition</span>
-            <span class="topic-tag">determinant as area/volume scaling</span>
-            <span class="topic-tag">eigenvectors as "axes that don't rotate"</span>
-          </div>
-          <div class="phase-desc">🎯 Goal: Be able to VISUALIZE what Ax=b means geometrically. Not compute — imagine.</div>
-          <div class="phase-resource">📺 3Blue1Brown "Essence of Linear Algebra" playlist (15 videos) + Khan Academy Linear Algebra intro</div>
-          <div style="margin-top:0.75rem;">
-            <div class="checklist" id="check-phase0"></div>
-          </div>
-        </div>
 
-        <!-- Phase 1 -->
-        <div class="phase" id="phase1">
-          <div class="phase-header">
-            <span class="phase-title"><span class="en">Phase 1: Vectors & Vector Spaces</span><span class="zh">｜向量與向量空間</span></span>
-            <span class="phase-badge">Foundation</span>
-          </div>
-          <div class="phase-subtitle">The arena where all data lives</div>
-          <div class="phase-topics">
-            <span class="topic-tag">Rⁿ: n-dimensional real space</span>
-            <span class="topic-tag">vector addition & scalar multiplication</span>
-            <span class="topic-tag">dot product & norm (length)</span>
-            <span class="topic-tag">linear combination</span>
-            <span class="topic-tag">span: what vectors can reach</span>
-            <span class="topic-tag">linear independence</span>
-            <span class="topic-tag">basis & dimension</span>
-          </div>
-          <div class="phase-desc">
-            💡 為什麼重要：電網感測器數據 = 多維向量。一個bus的電壓、功率、相位角度 = 3維向量。整個電網狀態 = N×3維向量。
-          </div>
-          <div class="phase-resource">📺 MIT 18.06 Lec 1-4 · Khan Academy · NCKU Linear Algebra Ch1</div>
-          <div style="margin-top:0.75rem;">
-            <div class="checklist" id="check-phase1"></div>
-          </div>
+      <div class="algo-card">
+        <h3><span class="en">Gaussian Elimination</span> <span class="zh">｜高斯消去法</span></h3>
+        <div class="alias">也稱：Row Reduction · 前向消去（Forward Elimination）</div>
+        <p>將增廣矩陣 [A|b] 通過列操作化為階梯形式（Row Echelon Form），然後用回代（Back Substitution）求出解。</p>
+        <div class="algo-steps">
+          <h4>⚙️ 步驟</h4>
+          <ol>
+            <li>写出增广矩阵 [A | b] — 把方程組右邊的常數放進矩陣最後一行</li>
+            <li>選第一列第一個非零元素為主元（pivot）</li>
+            <li>用列操作把 pivot 下面的元素變成 0（消去）</li>
+            <li>對第二列、第三列...重複以上步驟，直到矩陣變成上三角形</li>
+            <li>從最後一行開始回代，求出每個未知數</li>
+          </ol>
         </div>
-
-        <!-- Phase 2 -->
-        <div class="phase" id="phase2">
-          <div class="phase-header">
-            <span class="phase-title"><span class="en">Phase 2: Matrices & Linear Transformations</span><span class="zh">｜矩陣與線性變換</span></span>
-            <span class="phase-badge">Core</span>
-          </div>
-          <div class="phase-subtitle">How matrices transform space — and how neural networks use this</div>
-          <div class="phase-topics">
-            <span class="topic-tag">matrix as linear transformation</span>
-            <span class="topic-tag">matrix multiplication = composition</span>
-            <span class="topic-tag">identity, inverse, transpose</span>
-            <span class="topic-tag">rank: "true dimensionality"</span>
-            <span class="topic-tag">null space (kernel): what collapses to zero</span>
-            <span class="topic-tag">elementary matrices & row operations</span>
-          </div>
-          <div class="phase-desc">
-            💡 為什麼重要：CNN = 一連串矩陣運算（linear transform + activation）。一層網路：output = activation(W·input + b)。W 是矩陣。
-          </div>
-          <div class="phase-resource">📺 MIT 18.06 Lec 2-3 (Matrices) · Lec 8-9 (Independence/Rank) · Deep Learning Book Ch2</div>
-          <div style="margin-top:0.75rem;">
-            <div class="checklist" id="check-phase2"></div>
-          </div>
+        <div class="example">
+          <strong>📐 範例：解方程組</strong>
+          x + y = 5<br>
+          2x + 3y = 14<br><br>
+          增廣矩陣：[1 1 | 5]<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [2 3 | 14]<br><br>
+          R₂ → R₂ - 2·R₁：<br>
+          [1 1 | 5]<br>
+          [0 1 | 4]<br><br>
+          回代：y = 4, x = 1 ✔️
         </div>
-
-        <!-- Phase 3 -->
-        <div class="phase" id="phase3">
-          <div class="phase-header">
-            <span class="phase-title"><span class="en">Phase 3: Linear Equations & Systems</span><span class="zh">｜線性方程組</span></span>
-            <span class="phase-badge">Core</span>
-          </div>
-          <div class="phase-subtitle">Solving Ax = b — the central problem of applied linear algebra</div>
-          <div class="phase-topics">
-            <span class="topic-tag">Gaussian elimination</span>
-            <span class="topic-tag">row echelon form & reduced row echelon form</span>
-            <span class="topic-tag">pivot positions & rank</span>
-            <span class="topic-tag">overdetermined (more equations than unknowns)</span>
-            <span class="topic-tag">underdetermined (more unknowns than equations)</span>
-            <span class="topic-tag">LU decomposition</span>
-          </div>
-          <div class="phase-desc">
-            💡 為什麼重要：Power flow = 一堆非線性方程。牛頓-拉夫森法（Newton-Raphson）每一步都在解線性化後的 Ax = b。電網狀態估計也是解線性方程組。
-          </div>
-          <div class="phase-resource">📺 MIT 18.06 Lec 2-3, Lec 11-12 (LU) · Strang textbook Ch2</div>
-          <div style="margin-top:0.75rem;">
-            <div class="checklist" id="check-phase3"></div>
-          </div>
+        <div class="keywords" style="margin-top:0.75rem;">
+          <span class="kw">pivot 主元</span><span class="kw">row echelon form 階梯形式</span><span class="kw">回代 back substitution</span><span class="kw">列操作 row operations</span>
         </div>
+        <div class="time">💡 時間複雜度：<span>O(n³)</span> — n 是矩陣維度</div>
+      </div>
 
-        <!-- Phase 4 -->
-        <div class="phase" id="phase4">
-          <div class="phase-header">
-            <span class="phase-title"><span class="en">Phase 4: Orthogonality & Least Squares</span><span class="zh">｜正交性與最小平方法</span></span>
-            <span class="phase-badge">High Value</span>
+      <div class="section">
+        <h2><span class="icon">🔑</span> 三種情況判定</h2>
+        <div class="concept-grid">
+          <div class="concept-card" style="border-left: 3px solid var(--success);">
+            <h4><span class="icon">✅</span> 唯一解</h4>
+            <p class="sub">滿足：rank(A) = rank([A|b]) = n（未知數個數）</p>
+            <p>增廣矩陣化簡後沒有自由列（free row）。每個未知數都能直接求出。</p>
+            <div class="formula">x + y = 5, x - y = 1 → x=3, y=2</div>
           </div>
-          <div class="phase-subtitle">Projections, angles, and the geometry of approximation</div>
-          <div class="phase-topics">
-            <span class="topic-tag">inner product & angle between vectors</span>
-            <span class="topic-tag">orthogonal & orthonormal vectors</span>
-            <span class="topic-tag">projection onto a subspace</span>
-            <span class="topic-tag">Gram-Schmidt orthogonalization</span>
-            <span class="topic-tag">least squares approximation</span>
-            <span class="topic-tag">QR decomposition</span>
+          <div class="concept-card" style="border-left: 3px solid var(--accent);">
+            <h4><span class="icon">♾️</span> 無限多解</h4>
+            <p class="sub">滿足：rank(A) = rank([A|b]) &lt; n</p>
+            <p>有自由變數（free variables）。解的個數 = 無窮多個，用參數表示。</p>
+            <div class="formula">x + y = 5 → x = 5 - t, y = t (t ∈ R)</div>
           </div>
-          <div class="phase-desc">
-            💡 為什麼重要：Least squares = 所有 regression/fitting 的基礎。資料擬合曲線 = 找最佳投影。PCA = 在正交子空間投影。
-          </div>
-          <div class="phase-resource">📺 MIT 18.06 Lec 7, 10, 12-13 · Strang Ch4 (Orthogonality)</div>
-          <div style="margin-top:0.75rem;">
-            <div class="checklist" id="check-phase4"></div>
-          </div>
-        </div>
-
-        <!-- Phase 5 -->
-        <div class="phase" id="phase5">
-          <div class="phase-header">
-            <span class="phase-title"><span class="en">Phase 5: Eigenvalues & Eigenvectors</span><span class="zh">｜特徵值與特徵向量</span></span>
-            <span class="phase-badge">Critical</span>
-          </div>
-          <div class="phase-subtitle">What a matrix REALLY does — the essence of a transformation</div>
-          <div class="phase-topics">
-            <span class="topic-tag">Ax = λx: the eigenvalue equation</span>
-            <span class="topic-tag">characteristic polynomial & trace</span>
-            <span class="topic-tag">diagonalization: A = SΛS⁻¹</span>
-            <span class="topic-tag">complex eigenvalues & rotation</span>
-            <span class="topic-tag">symmetric matrices: real eigenvalues</span>
-            <span class="topic-tag">Cayley-Hamilton theorem</span>
-          </div>
-          <div class="phase-desc">
-            💡 為什麼重要：PCA = covariance matrix 的 eigenvalues。電網小信號穩定性（small-signal stability）= Jacobian 矩陣的 eigenvalues 決定振盪會衰減還是放大。PageRank (Google) = eigenvector of the web graph。
-          </div>
-          <div class="phase-resource">📺 MIT 18.06 Lec 20-24 · 3Blue1Brown Lec 14-15 · Strang Ch6</div>
-          <div style="margin-top:0.75rem;">
-            <div class="checklist" id="check-phase5"></div>
-          </div>
-        </div>
-
-        <!-- Phase 6 -->
-        <div class="phase" id="phase6">
-          <div class="phase-header">
-            <span class="phase-title"><span class="en">Phase 6: Matrix Decompositions</span><span class="zh">｜矩陣分解</span></span>
-            <span class="phase-badge">ML Power Tool</span>
-          </div>
-          <div class="phase-subtitle">Breaking complex matrices into interpretable parts</div>
-          <div class="phase-topics">
-            <span class="topic-tag">SVD: A = UΣVᵀ — the master decomposition</span>
-            <span class="topic-tag">singular values & singular vectors</span>
-            <span class="topic-tag">PCA = SVD on centered data</span>
-            <span class="topic-tag">Eigendecomposition: A = QΛQ⁻¹</span>
-            <span class="topic-tag">Cholesky decomposition</span>
-            <span class="topic-tag">pseudoinverse (Moore-Penrose)</span>
-          </div>
-          <div class="phase-desc">
-            💡 為什麼重要：這是現代 ML 的心臟。推薦系統（Netflix, Amazon）底層是 SVD。NLP 的 word embeddings 用 SVD。降維、去噪、壓縮——全部靠 SVD。
-          </div>
-          <div class="phase-resource">📺 MIT 18.06 Lec 25-29 · Deep Learning Book Ch2.4-2.5 · Gilbert Strang's "Linear Algebra and Learning from Data"</div>
-          <div style="margin-top:0.75rem;">
-            <div class="checklist" id="check-phase6"></div>
+          <div class="concept-card" style="border-left: 3px solid #dc2626;">
+            <h4><span class="icon">✗</span> 無解</h4>
+            <p class="sub">滿足：rank(A) &lt; rank([A|b])</p>
+            <p>出現矛盾的行（如 [0 0 | 5]）。方程組不相容。</p>
+            <div class="formula">x + y = 5, x + y = 6 → 矛盾！</div>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- Core Concepts Explained -->
-    <section class="section">
-      <div class="section-header">
-        <h2>💡 Core Concepts — Plain English | 核心概念直解</h2>
+      <div class="section">
+        <h2><span class="icon">📖</span> 詞彙</h2>
+        <div class="vocab-section">
+          <div class="vocab-grid">
+            <div class="vocab-item">
+              <div class="term">Augmented Matrix</div>
+              <div class="chinese">增廣矩陣</div>
+              <div class="definition">[A|b] 把係數矩陣 A 和常數向量 b 合併成一個矩陣。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Pivot</div>
+              <div class="chinese">主元</div>
+              <div class="definition">每列第一個非零元素。用來消去該列以下的所有元素。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Row Echelon Form (REF)</div>
+              <div class="chinese">列階梯形式</div>
+              <div class="definition">每列第一個非零元素所在的行位置越往右下方。每列第一個非零元素右側全是零。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Reduced Row Echelon Form (RREF)</div>
+              <div class="chinese">簡化列階梯形式</div>
+              <div class="definition">REF + 主元所在行其他元素皆為零。最簡形式，可直接讀出解。</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="concept-grid">
+    </div>
+
+    <!-- ===== CH3: LU 分解 ===== -->
+    <div class="chapter-page" id="ch3">
+      <div class="chapter-header">
+        <h1><span class="en">Ch3. LU Decomposition</span> <span class="zh">｜LU 分解</span></h1>
+        <p class="desc">將矩陣 A 分解成 L（下三角矩陣）和 U（上三角矩陣）。高斯消去的矩陣視角封裝。LU 分解是實務上解線性方程組最快的工具之一。</p>
+        <div class="chapter-meta">
+          <div class="chapter-meta-item"><span class="label">核心技能</span><span class="value">A = L·U · A = L·D·U · PA = LU</span></div>
+          <div class="chapter-meta-item"><span class="label">應用</span><span class="value">解多次 Ax=b · 計算行列式 · 矩陣反矩陣</span></div>
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <h3><span class="en">LU Decomposition</span> <span class="zh">｜LU 分解</span></h3>
+        <div class="alias">A = L·U（Lower · Upper）</div>
+        <p>把一個方陣 A 分解成一個下三角矩陣 L（Lower）和一個上三角矩陣 U（Upper）的乘積。如果存在，這種分解可以讓我們快速求解線性方程組。</p>
+        <div class="formula">A = L · U</div>
+        <div class="algo-steps">
+          <h4>⚙️ 核心概念</h4>
+          <ol>
+            <li>U（Upper）= 高斯消去後得到的階梯形矩陣</li>
+            <li>L（Lower）= 記錄你做了哪些列操作的「歷史」矩陣（對角線為1）</li>
+            <li>求 A⁻¹：解 n 次 Ly = eᵢ 再解 Ux = yᵢ（共 2n 次回代）</li>
+            <li>求 det(A)：det(A) = det(U) = 對角線元素乘積（避開 O(n³) 重新計算）</li>
+          </ol>
+        </div>
+        <div class="example">
+          <strong>📐 範例</strong>
+          A = [2 1]<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[8 5]<br><br>
+          高斯消去：R₂ → R₂ - 4·R₁<br>
+          U = [2 1]<br>
+          &nbsp;&nbsp;&nbsp; [0 1]<br><br>
+          L = [1 0]<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[4 1]<br><br>
+          驗證：L·U = [1 0]·[2 1] = [2 1]<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[4 1] [0 1] [8 5] ✔️
+        </div>
+        <div class="keywords" style="margin-top:0.75rem;">
+          <span class="kw">L 下三角矩陣</span><span class="kw">U 上三角矩陣</span><span class="kw">pivot elements 主元</span><span class="kw">Doolittle's algorithm</span>
+        </div>
+        <div class="time">💡 為什麼重要：<span>求一次 LU，之後每次解 Ax=b 只要 O(n²)</span>。適合要解很多次同一個 A 但不同 b 的情況。</div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">🔗</span> 延伸：PA = LU（有行交換的情況）</h2>
         <div class="concept-card">
-          <h4><span class="icon">📍</span> Vector | 向量</h4>
-          <p>A list of numbers. Each number represents a coordinate along an axis. In the power grid: [voltage, phase_angle, frequency] at one instant.</p>
-          <div class="formula">v = [3, 4] → a point in 2D, or an arrow from origin to (3,4)</div>
+          <h4><span class="icon">⚠️</span> 為什麼需要 PA = LU？</h4>
+          <p class="sub">當 pivot 位置是 0 時，需要交換列（row exchange）</p>
+          <p>如果某個 pivot 是 0（或接近 0，數值不穩定），就要交換列。這時用置換矩陣 P 記錄交換：A = Pᵀ·L·U 或 PA = LU。</p>
+          <div class="formula">PA = LU  →  L 和 U 仍然是三角矩陣</div>
           <div class="analogy">
-            <strong>💬 直覺聯想</strong>
-            就像GPS座標：[經度, 緯度, 海拔]。只有3個數字，但你已經知道你在哪裡了。
-          </div>
-        </div>
-
-        <div class="concept-card">
-          <h4><span class="icon">🔄</span> Matrix | 矩陣</h4>
-          <p>A rectangular grid of numbers. A matrix with m rows and n columns transforms n-dimensional vectors into m-dimensional vectors.</p>
-          <div class="formula">A(m×n) · x(n×1) = b(m×1)</div>
-          <div class="analogy">
-            <strong>💬 直覺聯想</strong>
-            像一個「配方」：吃進去食材（vector），按照矩陣的規則攪拌、烹飪，輸出成一道菜（新的vector）。
-          </div>
-        </div>
-
-        <div class="concept-card">
-          <h4><span class="icon">🎯</span> Eigenvalue & Eigenvector | 特徵值與特徵向量</h4>
-          <p>Ax = λx — when you multiply eigenvector x by A, it only stretches/squishes (by λ), but direction doesn't change.</p>
-          <div class="formula">A·v = 3·v → v is eigenvector, λ=3 is eigenvalue</div>
-          <div class="analogy">
-            <strong>💬 直覺聯想</strong>
-            就像轉動一個物體時，旋轉軸本身的方向不變——軸就是eigenvector，轉動幅度就是eigenvalue。
-          </div>
-        </div>
-
-        <div class="concept-card">
-          <h4><span class="icon">🔍</span> Rank | 秩</h4>
-          <p>How many independent directions (dimensions) a matrix actually has. A "full rank" matrix uses all its dimensions — no information is redundant.</p>
-          <div class="formula">rank(A) = number of pivot columns = dim(column space)</div>
-          <div class="analogy">
-            <strong>💬 直覺聯想</strong>
-            就像報告的「實質內容」vs 「總頁數」。300頁報告濃縮成3頁有意義的內容，rank = 3，不是300。
-          </div>
-        </div>
-
-        <div class="concept-card">
-          <h4><span class="icon">📐</span> SVD | 奇異值分解</h4>
-          <p>A = UΣVᵀ — breaks any matrix into rotation (U), scaling (Σ), and rotation (Vᵀ). The singular values in Σ tell you how "important" each dimension is.</p>
-          <div class="formula">A = U · Σ · Vᵀ</div>
-          <div class="analogy">
-            <strong>💬 直覺聯想</strong>
-            像把一首交響樂拆成：樂器組成(U) → 各樂器音量(Σ) → 樂器排列(Vᵀ)。聽到音量就知道哪個樂器最重要。
-          </div>
-        </div>
-
-        <div class="concept-card">
-          <h4><span class="icon">📏</span> Orthogonal | 正交</h4>
-          <p>Two vectors are orthogonal (perpendicular) when their dot product = 0. Orthogonal vectors are independent — they measure different things.</p>
-          <div class="formula">v · w = 0 → v ⟂ w</div>
-          <div class="analogy">
-            <strong>💬 直覺聯想</strong>
-            就像北和東——完全不重疊，往北走不會幫你往東走。兩個正交的資訊通道，不會重複。
+            <strong>💬 直覺</strong>
+            就像排障礙物：如果第一個障礙物太高（=0），就先跳過，用下一個。P矩陣記錄了你「跳過了幾次」。
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- Why This Matters for Your Research -->
-    <section class="section">
-      <div class="section-header">
-        <h2>🎯 Why This Matters for Your Research | 為什麼這對你的研究重要</h2>
-      </div>
-      <div class="app-grid">
-        <div class="app-card" style="border-left: 3px solid var(--la);">
-          <h4>📡 Anomaly Detection in Smart Grid</h4>
-          <p>Collect N time steps of sensor readings → form a data matrix → apply PCA (which is just SVD on covariance). Anomalies = points far from the main data manifold.</p>
-          <div class="la-bridge">🔗 Key LA: SVD · Eigenvalues · Covariance matrix · Dimensionality reduction</div>
-        </div>
-        <div class="app-card" style="border-left: 3px solid var(--la);">
-          <h4>⚡ Power Flow & State Estimation</h4>
-          <p>Power flow equations (nonlinear) → Newton-Raphson iteration → each step solves a linear system J·Δx = Δp. J = Jacobian matrix.</p>
-          <div class="la-bridge">🔗 Key LA: Linear systems · LU decomposition · Jacobian · Eigenvalues (stability)</div>
-        </div>
-        <div class="app-card" style="border-left: 3px solid var(--la);">
-          <h4>🧠 Neural Networks / Deep Learning</h4>
-          <p>Forward pass = W·x + b repeated. Backpropagation = computing gradients of W via chain rule (partial derivatives of matrix operations). Loss landscape shaped by eigenvalues of Hessian.</p>
-          <div class="la-bridge">🔗 Key LA: Matrix multiplication · Jacobian · Chain rule · Gradient descent</div>
-        </div>
-        <div class="app-card" style="border-left: 3px solid var(--la);">
-          <h4>🔗 Graph Neural Networks (Grid Topology)</h4>
-          <p>Power grid topology = graph. Adjacency matrix A encodes connections. Laplacian L = D - A. Eigenvalues of L reveal grid clusters and critical nodes.</p>
-          <div class="la-bridge">🔗 Key LA: Adjacency matrix · Laplacian · Eigenvalues · Graph theory</div>
+      <div class="section">
+        <h2><span class="icon">🔑</span> LU vs 其他分解</h2>
+        <div class="concept-grid">
+          <div class="concept-card">
+            <h4><span class="icon">📊</span> A = L·D·U</h4>
+            <p class="sub">L：單位下三角 · D：對角 · U：單位上三角</p>
+            <p>把 U 的對角元素抽出來放到 D，變成 L·D·U 形式。有時教學上更直觀。</p>
+          </div>
+          <div class="concept-card">
+            <h4><span class="icon">📐</span> Cholesky 分解</h4>
+            <p class="sub">A = Rᵀ·R（R 為上三角）</p>
+            <p>專門給對稱正定矩陣（symmetric positive definite matrix）。比 LU 快2倍。電網潮流計算常用。</p>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Core Vocabulary -->
-    <section class="section">
-      <div class="section-header">
-        <h2>📖 Core Vocabulary | 核心詞彙（中英對照）</h2>
-      </div>
-      <div class="vocab-section">
-        <div class="vocab-grid">
-          <div class="vocab-item">
-            <div class="term">Vector Space</div>
-            <div class="chinese">向量空間</div>
-            <div class="definition">向量可以相加、可以被純量乘法後仍在空間內的集合。Rⁿ是最常見的例子。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Linear Independence</div>
-            <div class="chinese">線性獨立</div>
-            <div class="definition">沒有一個向量可以表示成其他向量的線性組合。n個n維線性獨立向量可以張成整個Rⁿ空間。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Basis</div>
-            <div class="chinese">基底</div>
-            <div class="definition">一組線性獨立的向量，線性組合可以產生空間中所有向量。R³的標準基底是[1,0,0], [0,1,0], [0,0,1]。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Linear Transformation</div>
-            <div class="chinese">線性變換</div>
-            <div class="definition">保持向量加法和純量乘法的映射。每一個線性變換都對應一個矩陣。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Rank</div>
-            <div class="chinese">秩</div>
-            <div class="definition">矩陣 column space 的維度。告訴你這個矩陣「真正有多少獨立方向」。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Null Space / Kernel</div>
-            <div class="chinese">零空間 / 核</div>
-            <div class="definition">經過矩陣變換後變成零向量的所有向量。Null space告訴你哪些資訊在變換中消失了。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Determinant</div>
-            <div class="chinese">行列式</div>
-            <div class="definition">det(A) = 變換的體積縮放因子。det=0表示奇異（不可逆）→ 資訊丟失。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Eigenvalue / Eigenvector</div>
-            <div class="chinese">特徵值 / 特徵向量</div>
-            <div class="definition">Ax = λx。矩陣作用在特徵向量上，只會縮放不會改變方向。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Singular Value Decomposition (SVD)</div>
-            <div class="chinese">奇異值分解</div>
-            <div class="definition">A = UΣVᵀ。適用於所有矩陣。Σ中的奇異值由大到小排列，前k個最大奇異值 captures 大部分資訊。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Orthogonal</div>
-            <div class="chinese">正交</div>
-            <div class="definition">兩個向量的內積為零。它們代表「完全獨立的方向」。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Least Squares</div>
-            <div class="chinese">最小平方法</div>
-            <div class="definition">找一個近似解讓誤差平方和最小。等價於在column space上做投影。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Projection</div>
-            <div class="chinese">投影</div>
-            <div class="definition">將向量映射到子空間。回歸分析就是在找「最佳投影」。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Condition Number</div>
-            <div class="chinese">條件數</div>
-            <div class="definition">最大與最小奇異值的比值。高的條件數 → 數值不穩定 → 解方程時誤差不斷放大。</div>
-          </div>
-          <div class="vocab-item">
-            <div class="term">Covariance Matrix</div>
-            <div class="chinese">共變異數矩陣</div>
-            <div class="definition">資料在各維度上的相關性。PCA = 共變異數矩陣的特徵值分解。</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Learning Resources -->
-    <section class="section">
-      <div class="section-header">
-        <h2>📚 Learning Resources | 學習資源</h2>
-      </div>
-      <div class="resource-section">
-        <h3>🎬 Video Courses | 影片課程</h3>
-        <div class="resource-grid">
-          <a href="https://www.youtube.com/playlist?list=PL_ZF_2_gBujXc0OqRy3Ccp6tJ3E2MJyqS" class="resource-card" target="_blank">
-            <span class="resource-icon">📺</span>
-            <div>
-              <div class="resource-title">3Blue1Brown — Essence of Linear Algebra <span class="resource-lang">Free · English</span></div>
-              <div class="resource-desc">15部短片（約1小時），用動畫建立幾何直覺。強烈建議每天看3部，5天完成。</div>
+      <div class="section">
+        <h2><span class="icon">📖</span> 詞彙</h2>
+        <div class="vocab-section">
+          <div class="vocab-grid">
+            <div class="vocab-item">
+              <div class="term">Lower Triangular Matrix</div>
+              <div class="chinese">下三角矩陣</div>
+              <div class="definition">對角線以上元素皆為0的矩陣。L 的對角線通常設為1。</div>
             </div>
-          </a>
-          <a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2005/" class="resource-card" target="_blank">
-            <span class="resource-icon">📺</span>
-            <div>
-              <div class="resource-title">MIT 18.06 — Gilbert Strang <span class="resource-lang">Free · English</span></div>
-              <div class="resource-desc">線性代數的黃金標準。34堂課。看完3Blue1Brown後再看這個補嚴謹性。</div>
+            <div class="vocab-item">
+              <div class="term">Upper Triangular Matrix</div>
+              <div class="chinese">上三角矩陣</div>
+              <div class="definition">對角線以下元素皆為0的矩陣。高斯消去後的 U 就是這種形式。</div>
             </div>
-          </a>
-          <a href="https://www.coursera.org/specializations/mathematics-machine-learning" class="resource-card" target="_blank">
-            <span class="resource-icon">📺</span>
-            <div>
-              <div class="resource-title">Mathematics for ML — Imperial College <span class="resource-lang">Free · English</span></div>
-              <div class="resource-desc">專為ML設計的數學課程，包含LA、PCA、SVD。直接對接你的研究需求。</div>
+            <div class="vocab-item">
+              <div class="term">Permutation Matrix</div>
+              <div class="chinese">置換矩陣</div>
+              <div class="definition">每行/每列只有一個1，其他都是0。PA = LU 中的 P 用來記錄列交換。</div>
             </div>
-          </a>
-          <a href="https://www.khanacademy.org/math/linear-algebra" class="resource-card" target="_blank">
-            <span class="resource-icon">📺</span>
-            <div>
-              <div class="resource-title">Khan Academy — Linear Algebra <span class="resource-lang">Free · English</span></div>
-              <div class="resource-desc">互動式練習，即時回饋。適合建立計算能力。免費。</div>
+            <div class="vocab-item">
+              <div class="term">Cholesky Decomposition</div>
+              <div class="chinese">Cholesky 分解</div>
+              <div class="definition">A = Rᵀ·R，專用於對稱正定矩陣。計算量是 LU 的一半。</div>
             </div>
-          </a>
-        </div>
-      </div>
-      <div class="resource-section">
-        <h3>📖 Textbooks & Reading | 教科書</h3>
-        <div class="resource-grid">
-          <a href="https://math.mit.edu/~gs/linearalgebra/" class="resource-card" target="_blank">
-            <span class="resource-icon">📖</span>
-            <div>
-              <div class="resource-title">Gilbert Strang — Linear Algebra <span class="resource-lang">MIT Standard</span></div>
-              <div class="resource-desc">MIT 18.06指定教科書。Strang的教法從四大子空間（column, row, null, left-null）切入，非常直觀。</div>
-            </div>
-          </a>
-          <a href="https://github.com/荧光/LinearAlgebraOK" class="resource-card" target="_blank">
-            <span class="resource-icon">📖</span>
-            <div>
-              <div class="resource-title">線性代數習題集 — 中文 GitHub <span class="resource-lang">中文</span></div>
-              <div class="resource-desc">中文習題含詳解。建議搭配MIT課程做練習。</div>
-            </div>
-          </a>
-          <a href="https://www.deeplearningbook.org/" class="resource-card" target="_blank">
-            <span class="resource-icon">📖</span>
-            <div>
-              <div class="resource-title">Deep Learning Book — Part I <span class="resource-lang">Free Online</span></div>
-              <div class="resource-desc">Ian Goodfellow. Part 1是線性代數在ML中的應用。看完基礎再看這個。</div>
-            </div>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Practice Problems -->
-    <section class="section">
-      <div class="section-header">
-        <h2>💪 Practice & Self-Test | 練習與自測</h2>
-      </div>
-      <div class="app-grid">
-        <div class="app-card">
-          <h4>🎯 每個Phase後問自己這些問題</h4>
-          <p>如果能回答，代表你真的懂了：</p>
-          <div class="app-tags" style="flex-direction:column;gap:0.5rem;margin-top:0.75rem;">
-            <span class="kw" style="background:var(--la-bg);color:var(--la);">Phase 1: 為什麼 [1,0,0], [0,1,0], [0,0,1] 是 R³ 的基底？換成 [1,0,0], [1,1,0], [1,1,1] 還是不是？</span>
-            <span class="kw" style="background:var(--la-bg);color:var(--la);">Phase 2: 一個 3×4 矩陣（3列4行）的 rank 最大是多少？為什麼？</span>
-            <span class="kw" style="background:var(--la-bg);color:var(--la);">Phase 3: 超定方程組（m > n）一定無解嗎？最小平方解是什麼？</span>
-            <span class="kw" style="background:var(--la-bg);color:var(--la);">Phase 4: 為什麼Gram-Schmidt生出來的向量兩兩正交？驗證一下。</span>
-            <span class="kw" style="background:var(--la-bg);color:var(--la);">Phase 5: 如果A是對稱矩陣，A = QΛQᵀ 的Q有什麼特殊性質？</span>
-            <span class="kw" style="background:var(--la-bg);color:var(--la);">Phase 6: SVD中U、Σ、Vᵀ分別代表什麼？用一句話解釋。</span>
-          </div>
-        </div>
-        <div class="app-card">
-          <h4>🧮 計算能力建立</h4>
-          <p>看影片之餘，一定要動手算：</p>
-          <div class="app-tags" style="flex-direction:column;gap:0.5rem;margin-top:0.75rem;">
-            <span class="kw">用手算出 2×2 和 3×3 矩陣的 eigenvalues</span>
-            <span class="kw">用 Gaussian elimination 解 Ax = b</span>
-            <span class="kw">用 Gram-Schmidt orthogonalize {[1,1,1], [1,2,1], [0,1,1]}</span>
-            <span class="kw">驗證 A·(AᵀA)⁻¹·Aᵀ 是 projection matrix</span>
-            <span class="kw">Python: np.linalg.svd 跑在自己的隨機矩陣上</span>
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Quote -->
-    <div class="quote-block">
-      <div class="en">"Do not worry about your difficulties in Linear Algebra. I can assure you mine are still greater."</div>
-      <div class="attr">— Albert Einstein</div>
+    <!-- ===== CH4: 內積空間 ===== -->
+    <div class="chapter-page" id="ch4">
+      <div class="chapter-header">
+        <h1><span class="en">Ch4. Inner Product Space</span> <span class="zh">｜內積空間</span></h1>
+        <p class="desc">在向量空間的基礎上，加上「長度、角度、距離」的概念。內積空間讓向量不只是一串數字，而是有了幾何意義。是你目前在課堂學習的部分。</p>
+        <div class="chapter-meta">
+          <div class="chapter-meta-item"><span class="label">章節狀態</span><span class="value">🎯 課堂進行中</span></div>
+          <div class="chapter-meta-item"><span class="label">核心技能</span><span class="value">內積 · 範數 · Cauchy-Schwarz · 夾角</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">💡</span> 核心概念</h2>
+        <div class="concept-grid">
+          <div class="concept-card">
+            <h4><span class="icon">·</span> Inner Product | 內積</h4>
+            <p class="sub">兩個向量之間的「乘法」</p>
+            <p>在 Rⁿ 中：u·v = u₁v₁ + u₂v₂ + ... + uₙvₙ。內積是衡量兩個向量「有多相似」的工具。</p>
+            <div class="formula">u = [1,2,3], v = [4,5,6] → u·v = 1·4 + 2·5 + 3·6 = 32</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像「方向相近的兩個向量，內積越大」。完全相同方向 → 內積為正值。完全相反 → 負值。垂直 → 內積為0。
+            </div>
+            <div class="keywords">
+              <span class="kw">dot product</span><span class="kw">u·v = Σuᵢvᵢ</span><span class="kw">內積運算</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">📏</span> Norm | 範數（長度）</h4>
+            <p class="sub">向量的「長度」</p>
+            <p>L² 範數（最常見）：||v|| = √(v·v) = √(v₁² + v₂² + ... + vₙ²)。這就是歐氏距離。</p>
+            <div class="formula">||[3,4]|| = √(3²+4²) = √25 = 5</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就是國中學的畢氏定理推廣到 n 維。從原點到點 (3,4) 的直線距離是5。
+            </div>
+            <div class="keywords">
+              <span class="kw">L² norm</span><span class="kw">歐氏距離</span><span class="kw">||v||</span><span class="kw">unit vector</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">📐</span> Angle | 夾角</h4>
+            <p class="sub">兩個向量之間的「方向差」</p>
+            <p>由內積導出：cos θ = (u·v) / (||u||·||v||)。範圍：-1 ≤ cos θ ≤ 1。</p>
+            <div class="formula">u=[1,0], v=[1,1] → cos θ = 1/√2 → θ = 45°</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              夾角為0° = 完全同向 → cos=1。夾角90° = 垂直 → cos=0。夾角180° = 完全反向 → cos=-1。
+            </div>
+            <div class="keywords">
+              <span class="kw">cosine similarity</span><span class="kw">cos θ</span><span class="kw">夾角公式</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">📍</span> Distance | 距離</h4>
+            <p class="sub">兩個向量的「差」的範數</p>
+            <p>d(u,v) = ||u - v|| = √((u₁-v₁)² + ... + (uₙ-vₙ)²)。這是歐氏距離。</p>
+            <div class="formula">u=[1,2], v=[4,6] → d = √((1-4)² + (2-6)²) = √(9+16) = 5</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像地圖上兩點的直線距離。只問「有多遠」，不問「往哪裡」。
+            </div>
+            <div class="keywords">
+              <span class="kw">歐氏距離</span><span class="kw">||u-v||</span><span class="kw">L² distance</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">🔑</span> Cauchy-Schwarz Inequality</h4>
+            <p class="sub">內積與範數之間的基本不等式</p>
+            <p>|u·v| ≤ ||u|| · ||v||。當且僅當 u 和 v 線性相關時取等號。這是一個「不可能超越的上限」。</p>
+            <div class="formula">|u·v| ≤ ||u||·||v|| → |cos θ| ≤ 1</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像「不管怎麼選兩個向量，它們的夾角餘弦值永遠在 -1 到 1 之間」。這個看起來顯而易見的結論，數學上需要證明。
+            </div>
+            <div class="keywords">
+              <span class="kw">|u·v| ≤ ||u||·||v||</span><span class="kw">基本不等式</span><span class="kw">三角不等式</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">➕</span> Inner Product Properties</h4>
+            <p class="sub">內積的四個基本性質</p>
+            <p>1. 對稱性：u·v = v·u<br>
+            2. 正定性：v·v ≥ 0，且 v·v = 0 ⟺ v = 0<br>
+            3. 線性性：(u+v)·w = u·w + v·w<br>
+            4. 齊性：(cu)·v = c(u·v)</p>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              這些性質保證了內積運算的「合理性和一致性」，就像加法和乘法滿足交換律、分配律一樣自然。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">📖</span> 詞彙</h2>
+        <div class="vocab-section">
+          <div class="vocab-grid">
+            <div class="vocab-item">
+              <div class="term">Inner Product</div>
+              <div class="chinese">內積</div>
+              <div class="definition">兩個向量之間的運算，結果是純量。Rⁿ中即 dot product：u·v = Σuᵢvᵢ。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Norm (Length)</div>
+              <div class="chinese">範數（長度）</div>
+              <div class="definition">||v|| = √(v·v)。向量的「大小」。滿足：||v||≥0，||cv||=|c|·||v||。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Unit Vector</div>
+              <div class="chinese">單位向量</div>
+              <div class="definition">||v|| = 1 的向量。任何非零向量除以它的範數就是單位向量：v/||v||。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Cauchy-Schwarz Inequality</div>
+              <div class="chinese">柯西-施瓦茲不等式</div>
+              <div class="definition">|u·v| ≤ ||u||·||v||。推論：|cos θ| ≤ 1。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CH5: 正交性 ===== -->
+    <div class="chapter-page" id="ch5">
+      <div class="chapter-header">
+        <h1><span class="en">Ch5. Orthogonality & Projection</span> <span class="zh">｜正交性與投影</span></h1>
+        <p class="desc">正交 = 垂直 = 內積為零。投影 = 找最近點。Gram-Schmidt = 把任意基底變成正交基底。最小平方法 = 用投影做曲線擬合。</p>
+        <div class="chapter-meta">
+          <div class="chapter-meta-item"><span class="label">核心技能</span><span class="value">Gram-Schmidt · 投影矩陣 · 最小平方法</span></div>
+          <div class="chapter-meta-item"><span class="label">應用</span><span class="value">回歸分析 · 訊號處理 · QR 分解</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">💡</span> 核心概念</h2>
+        <div class="concept-grid">
+          <div class="concept-card">
+            <h4><span class="icon">⊥</span> Orthogonal | 正交</h4>
+            <p class="sub">u ⟂ v 當且僅當 u·v = 0</p>
+            <p>就像「北和東」——完全不重疊，往北走不會幫你往東走。正交的資訊通道之間沒有冗餘。</p>
+            <div class="formula">[1,0]·[0,1] = 0 → [1,0] ⟂ [0,1]</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              正交 = 垂直。兩個正交的方向，測量其中一個完全不會影響另一個的讀數。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">🎯</span> Orthogonal Projection | 正交投影</h4>
+            <p class="sub">把向量投射到子空間上的「最近點」</p>
+            <p>projᵥ(u) = (u·v)/(v·v) · v。u 對 v 的投影，是 v 方向上最接近 u 的點。</p>
+            <div class="formula">projᵥ(u) = (u·v / v·v) · v</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              像燈光打在牆上——你的影子（投影）落在牆面上。影子是你在牆面方向上「最近的你」。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">🔧</span> Gram-Schmidt Process</h4>
+            <p class="sub">把任意線性獨立向量組 → 正交基底</p>
+            <p>一步一步把每個向量減去它在前面向量上的投影，剩下的部分自然就和前面全部正交了。</p>
+            <div class="formula">v₁' = u₁｜v₂' = u₂ - projᵥ₁(u₂)｜v₃' = u₃ - projᵥ₁(u₃) - projᵥ₂(u₃)</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像在房間裡豎起第一根柱子（v₁'），再立第二根時，先把第一根投影過去、減掉，確保新柱子不和舊柱子重疊。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">📊</span> Least Squares | 最小平方法</h4>
+            <p class="sub">找不到精確解時，求「誤差最小」的近似解</p>
+            <p>min ||Ax - b||²，等價於解 AᵀA x̂ = Aᵀb（正規方程）。x̂ 是在 column space 上的投影。</p>
+            <div class="formula">x̂ = (AᵀA)⁻¹Aᵀb — 當 AᵀA 可逆時</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像用尺畫線通過一堆散點——不是所有點都在線上，但讓所有點到線的「垂直距離總和最小」。這就是回歸分析的本質。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">📐</span> Projection Matrix | 投影矩陣</h4>
+            <p class="sub">P = A(AᵀA)⁻¹Aᵀ — 把向量投影到 A 的 column space</p>
+            <p>投影矩陣的性質：P² = P（冪等），P = Pᵀ（對稱）。</p>
+            <div class="formula">Pb = 投影到 A 的 column space</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像一個「投影燈」。不論你投影多少次（應用 P 兩次），結果都不會改變——投影後的東西再投影一次，還是它自己。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">📏</span> QR Decomposition | QR 分解</h4>
+            <p class="sub">Gram-Schmidt 的矩陣形式封裝</p>
+            <p>A = QR，Q 是 orthogonal（QᵀQ = I），R 是上三角。Q 的 columns 就是 A columns 經 Gram-Schmidt 正交化後的結果。</p>
+            <div class="formula">A = Q · R</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              Q = 旋轉後的座標軸（R³的三個正交方向）。R = 在這些方向上的「座標值」。分解把複雜的 A 拆成「方向」和「強度」。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">📖</span> 詞彙</h2>
+        <div class="vocab-section">
+          <div class="vocab-grid">
+            <div class="vocab-item">
+              <div class="term">Orthogonal</div>
+              <div class="chinese">正交</div>
+              <div class="definition">u·v = 0 意味著 u 與 v 垂直。正交向量是線性獨立的。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Orthonormal</div>
+              <div class="chinese">正交規範（單位正交）</div>
+              <div class="definition">兩兩正交且每個向量都是單位向量。QᵀQ = I。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Gram-Schmidt</div>
+              <div class="chinese">Gram-Schmidt 正交化</div>
+              <div class="definition">把線性獨立向量組轉換為正交（或正規）基底。Q = orth(A)。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Least Squares</div>
+              <div class="chinese">最小平方法</div>
+              <div class="definition">min ||Ax - b||² 的解 x̂ = (AᵀA)⁻¹Aᵀb（當 AᵀA 可逆）。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Projection Matrix</div>
+              <div class="chinese">投影矩陣</div>
+              <div class="definition">P = A(AᵀA)⁻¹Aᵀ。P² = P, P = Pᵀ。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">QR Decomposition</div>
+              <div class="chinese">QR 分解</div>
+              <div class="definition">A = QR，Q 正交，R 上三角。等價於 Gram-Schmidt 應用於 A。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CH6: 特徵值 ===== -->
+    <div class="chapter-page" id="ch6">
+      <div class="chapter-header">
+        <h1><span class="en">Ch6. Eigenvalues & Eigenvectors</span> <span class="zh">｜特徵值與特徵向量</span></h1>
+        <p class="desc">Ax = λx — 矩陣作用的「本質」。特徵向量是變換後方向不變的向量，特徵值是縮放倍率。PCA、電網穩定性分析、PageRank — 全靠這個。</p>
+        <div class="chapter-meta">
+          <div class="chapter-meta-item"><span class="label">核心技能</span><span class="value">特徵方程式 · 對角化 · 幾何重數</span></div>
+          <div class="chapter-meta-item"><span class="label">應用</span><span class="value">電網穩定性 · PCA · 微分方程 · PageRank</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">💡</span> 核心概念</h2>
+        <div class="concept-grid">
+          <div class="concept-card">
+            <h4><span class="icon">🎯</span> Eigenvalue & Eigenvector</h4>
+            <p class="sub">Ax = λx — 方向不變的向量</p>
+            <p>特徵向量 x 被矩陣 A 變換後，方向不變，只是縮放了 λ 倍。λ = 特徵值。</p>
+            <div class="formula">A = [2 1] → A·[1,0] = [2,0] = 2·[1,0] → λ=2, x=[1,0]</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像轉動一個啞鈴——啞鈴的兩個把手（軸）方向不變，變的只是轉了多少度。軸 = eigenvector，轉角 = eigenvalue。
+            </div>
+            <div class="keywords">
+              <span class="kw">Ax = λx</span><span class="kw">characteristic equation</span><span class="kw">eigenvalue λ</span><span class="kw">eigenvector x</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">🔢</span> Characteristic Equation | 特徵方程式</h4>
+            <p class="sub">det(A - λI) = 0</p>
+            <p>用來找 λ：把 λ 當成未知數，解這個多項式。λ 的根就是特徵值。</p>
+            <div class="formula">det([2-λ 1] - [0 0]) = (2-λ)(1-λ) - 0 = 0 → λ=2, λ=1 [3 2]
+              [0 1-λ]</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像問「這次線性變換，哪些方向是不會被旋轉的？」答案就是特徵向量。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">🔗</span> Diagonalization | 對角化</h4>
+            <p class="sub">A = SΛS⁻¹ — 換到特徵向量基底</p>
+            <p>如果 A 有 n 個線性獨立的特徵向量，就能對角化。在新座標系（特徵向量基底）下，A 只是一個「縮放器」Λ。</p>
+            <div class="formula">S = [eigenvectors] · Λ = diag(λ₁, λ₂, ..., λₙ)</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像把房間的座標軸從「牆角」旋轉到「特徵向量方向」。在新座標下，複雜的 A 變成了「沿每個軸縮放 λᵢ 倍」的簡單操作。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">↔️</span> Symmetric Matrix | 對稱矩陣</h4>
+            <p class="sub">A = Aᵀ → 所有特徵值都是實數</p>
+            <p>對稱矩陣的特徵向量不僅存在，而且是兩兩正交的：A = QΛQᵀ（正交對角化）。</p>
+            <div class="formula">對稱矩陣：A = QΛQᵀ（Q 正交矩陣，Qᵀ = Q⁻¹）</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              對稱矩陣就像「均勻的拉伸/壓縮」——沿著每個正交方向獨立地縮放。真實世界的很多物理系統都是對稱的。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">🔄</span> 電網穩定性：Eigenvalues 的應用</h4>
+            <p class="sub">小信號穩定性分析</p>
+            <p>電力系統動態方程線性化後：Δẋ = J·Δx。Jacobian 矩陣 J 的 eigenvalues 決定系統穩定與否。</p>
+            <div class="formula">Re(λᵢ) &lt; 0 → 振盪衰減（穩定）｜Re(λᵢ) &gt; 0 → 振盪放大（失穩）</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              把電網想成一個彈簧系統。如果輕輕推一下，系統搖晃後回到原位（λ 負）→ 穩定。如果推一下，晃得越來越大（λ 正）→ 不穩定，會斷電。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">📊</span> Trace & Determinant</h4>
+            <p class="sub">和與積：所有特徵值的代數關係</p>
+            <p>trace(A) = Σλᵢ = 對角線元素之和<br>det(A) = Πλᵢ = 特徵值乘積</p>
+            <div class="formula">A = [2 1] → trace = 3, det = 2 → λ₁+λ₂=3, λ₁λ₂=2 → λ=2,1
+              [0 1]</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              trace = 戰略縱深（總戰力）。det = 佔領領土（最終成就）。兩個一起告訴你這場戰爭的所有重要資訊。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">📖</span> 詞彙</h2>
+        <div class="vocab-section">
+          <div class="vocab-grid">
+            <div class="vocab-item">
+              <div class="term">Eigenvalue / Eigenvector</div>
+              <div class="chinese">特徵值 / 特徵向量</div>
+              <div class="definition">Ax = λx 中，λ 為特徵值，x 為對應特徵向量。x 在 A 的變換下方向不變，只縮放 λ 倍。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Characteristic Polynomial</div>
+              <div class="chinese">特徵多項式</div>
+              <div class="definition">det(A - λI) = 0。λ 的 n 次多項式，根為特徵值。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Diagonalization</div>
+              <div class="chinese">對角化</div>
+              <div class="definition">A = SΛS⁻¹，當 S 的 columns 為 A 的特徵向量時成立。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Geometric Multiplicity</div>
+              <div class="chinese">幾何重數</div>
+              <div class="definition">特徵值 λ 的幾何重數 = λ 的特徵向量所張成空間的維度。幾何重數 ≤ 代數重數。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CH7: SVD / PCA ===== -->
+    <div class="chapter-page" id="ch7">
+      <div class="chapter-header">
+        <h1><span class="en">Ch7. SVD & PCA</span> <span class="zh">｜奇異值分解與主成分分析</span></h1>
+        <p class="desc">SVD 是所有矩陣分解的「通用貨幣」——任何矩陣都能分解。PCA = SVD 的應用。這是你的電網異常偵測研究的核心工具。</p>
+        <div class="chapter-meta">
+          <div class="chapter-meta-item"><span class="label">核心技能</span><span class="value">A = UΣVᵀ · SVD · PCA · 奇異值</span></div>
+          <div class="chapter-meta-item"><span class="label">應用</span><span class="value">異常偵測 · 降維 · 推薦系統 · 影像壓縮</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">💡</span> 核心概念</h2>
+        <div class="concept-grid">
+          <div class="concept-card">
+            <h4><span class="icon">🔍</span> SVD — Singular Value Decomposition</h4>
+            <p class="sub">A = UΣVᵀ — 任何矩陣都適用的分解</p>
+            <p>U 和 V 是正交矩陣（UᵀU = I, VᵀV = I），Σ 是對角矩陣，對角線上是奇異值 σ₁ ≥ σ₂ ≥ ... ≥ 0。</p>
+            <div class="formula">A(m×n) = U(m×m) · Σ(m×n) · Vᵀ(n×n)</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              把矩陣想成一個「訊號處理器」：Vᵀ 先旋轉 → Σ 沿每個方向縮放（奇異值=強度）→ U 再旋轉輸出。
+            </div>
+            <div class="keywords">
+              <span class="kw">σ₁ ≥ σ₂ ≥ ... ≥ 0</span><span class="kw">left singular vectors</span><span class="kw">right singular vectors</span><span class="kw">奇異值</span>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">📊</span> PCA — Principal Component Analysis</h4>
+            <p class="sub">用 SVD 找資料中最重要的方向</p>
+            <p>數據矩陣 X → 中心化（減去均值）→ SVD(X) → V 的 columns = 主成分。取前 k 個 σ → 保留 95%+ 變異量。</p>
+            <div class="formula">PCA = SVD(X_centered) → 根據 σ 選擇主要成分 → 降維</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像把一個3D形狀投影到2D平面，選擇那個「看起來最像原本形狀」的角度。第一主成分 = 投影後散點分佈最大的方向。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">⚡</span> 電網異常偵測的應用</h4>
+            <p class="sub">基於 SVD/PCA 的異常偵測流程</p>
+            <p>收集 N 個時間點的感測器數據 → 形成數據矩陣 X → SVD 分解 → 正常行為的主要成分 → 新的異常數據偏離主要成分 → 偵測！</p>
+            <div class="formula">重構誤差 = ||x - proj_{前k成分}(x)||² > 閾值 → 異常</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像學習「正常的心電圖波形」——老師說正常長這樣。新的心電圖偏離這個模式太多 → 異常。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">📐</span> Covariance Matrix | 共變異數矩陣</h4>
+            <p class="sub">資料在各維度上的「共同變異」</p>
+            <p>Σ = (1/(n-1)) XᵀX（對中心化後的 X）。PCA = Σ 的特徵值分解。但 SVD 比特徵值分解更數值穩定。</p>
+            <div class="formula">Σ(i,j) = covariance of dimension i and j</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              電網中：bus電壓和頻率可能共同變動（正相關）。共變異數矩陣告訴你所有維度兩兩之間「一起搖擺」的程度。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">🔢</span> Pseudoinverse | 偽逆矩陣</h4>
+            <p class="sub">A⁺ = VΣ⁺Uᵀ — 當 A 不可逆時的最佳近似</p>
+            <p>Σ⁺ 把 Σ 對角線上的非零 σ 換成 1/σ。當 A 可逆時，A⁺ = A⁻¹。最小平方法的解：x̂ = A⁺b。</p>
+            <div class="formula">x̂ = A⁺b — 最小範數最小平方解</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              就像在方程無解時，找一個「最接近」的解。pseudo-inverse 就是這個「最接近」的代數表達。
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <h4><span class="icon">📏</span> Low-Rank Approximation</h4>
+            <p class="sub">用前 k 個奇異值近似原始矩陣</p>
+            <p>A ≈ U₁..ₖ Σ₁..ₖ V₁..ₖᵀ。誤差 = Σᵢ₌ₖ₊₁ σᵢ²。選擇 k 使得累計解釋變異量 ≥ 95%。</p>
+            <div class="formula">A_k = Σᵢ₌₁ᵏ σᵢ uᵢ vᵢᵀ</div>
+            <div class="analogy">
+              <strong>💬 直覺</strong>
+              把一本書的核心思想濃縮成3個要點——你忽略了細節，但捕捉到了最重要的模式。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">📖</span> 詞彙</h2>
+        <div class="vocab-section">
+          <div class="vocab-grid">
+            <div class="vocab-item">
+              <div class="term">Singular Values</div>
+              <div class="chinese">奇異值</div>
+              <div class="definition">Σ 對角線上的非負實數。σ₁ ≥ σ₂ ≥ ... ≥ 0。奇異值的平方 = AᵀA 的特徵值。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Left/Right Singular Vectors</div>
+              <div class="chinese">左/右奇異向量</div>
+              <div class="definition">U 的 columns = A 的左奇異向量。V 的 columns = A 的右奇異向量。U 和 V 都是正交的。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">PCA</div>
+              <div class="chinese">主成分分析</div>
+              <div class="definition">找資料變異量最大的正交方向。V 的 columns = 主成分。取前 k 個 → 降維。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Explained Variance</div>
+              <div class="chinese">解釋變異量</div>
+              <div class="definition">σᵢ²/Σⱼσⱼ²。第 i 個奇異值解釋的變異量比例。取足夠的 k 讓累計 ≥ 95%。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Moore-Penrose Pseudoinverse</div>
+              <div class="chinese">摩爾-潘洛斯偽逆</div>
+              <div class="definition">A⁺ = VΣ⁺Uᵀ。對於任意矩陣 A 都存在。當 A 可逆時等於 A⁻¹。</div>
+            </div>
+            <div class="vocab-item">
+              <div class="term">Reconstruction Error</div>
+              <div class="chinese">重構誤差</div>
+              <div class="definition">||A - A_k||_F² = Σᵢ₌ₖ₊₁ σᵢ²。用前 k 個成分重構時遺漏的資訊量。</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
   <footer>
     Last updated: 2026-04-28<br>
-    <span class="en">Linear Algebra Zero-to-ML Foundation for 黑皮's Smart Grid Research</span>
-    <span class="zh">｜黑皮智能電網研究的線性代數速通框架</span><br>
-    Recommended: 3Blue1Brown → MIT 18.06 → Deep Learning Book Ch2
+    <span class="en">Linear Algebra Learning System — Built through discussion</span>
+    <span class="zh">｜線性代數學習系統 — 透過討論持續更新</span>
   </footer>
 
   <script>
@@ -845,75 +1312,29 @@
       localStorage.setItem('la-theme', name);
     }
 
-    function switchTheme(name) {
-      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-      document.querySelector(`[data-theme="${name}"]`).classList.add('active');
-      setTheme(name);
-    }
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        setTheme(btn.dataset.theme);
+      };
+    });
 
     const savedTheme = localStorage.getItem('la-theme') || 'warm';
-    switchTheme(savedTheme);
+    setTheme(savedTheme);
+    document.querySelector(`[data-theme="${savedTheme}"]`)?.classList.add('active');
 
-    // Progress & Checklists
-    const phaseChecklists = {
-      phase0: ['Watch 3Blue1Brown Lec 1-5 (vectors, linear combinations)', 'Watch 3Blue1Brown Lec 6-10 (transformations, matrices)', 'Watch 3Blue1Brown Lec 11-15 (eigenvalues, SVD)'],
-      phase1: ['Define Rⁿ, vector addition, scalar multiplication', 'Compute dot product and norm of vectors', 'Identify linearly independent vs dependent vectors', 'Find span of 2-3 vectors'],
-      phase2: ['Multiply matrices: (3×4)·(4×2) = ?', 'Find null space of a 2×3 matrix (rank 2)', 'Identify rank from row echelon form'],
-      phase3: ['Solve Ax=b via Gaussian elimination', 'Distinguish: unique / infinite / no solution', 'Perform LU decomposition on 2×2'],
-      phase4: ['Orthogonalize {[1,1],[1,0]} via Gram-Schmidt', 'Find least squares solution to overdetermined system', 'Verify: ||proj||² = (v·w)/(w·w)'],
-      phase5: ['Find eigenvalues of 2×2 symmetric matrix', 'Diagonalize A = SΛS⁻¹ if possible', 'Relate eigenvalues to trace and determinant'],
-      phase6: ['Compute SVD of 2×2 matrix', 'Use SVD for dimensionality reduction (keep 95% variance)', 'Connect PCA → covariance → SVD']
-    };
-
-    const TOTAL_TASKS = Object.values(phaseChecklists).reduce((s, arr) => s + arr.length, 0);
-
-    function loadProgress() {
-      return JSON.parse(localStorage.getItem('la-progress') || '{}');
+    // Tab Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.chapter-page').forEach(p => p.classList.remove('active'));
+      document.querySelector(`[data-tab="${tabId}"]`)?.classList.add('active');
+      document.getElementById(tabId)?.classList.add('active');
     }
 
-    function saveProgress(progress) {
-      localStorage.setItem('la-progress', JSON.stringify(progress));
-    }
-
-    function renderChecklists() {
-      Object.entries(phaseChecklists).forEach(([phase, items]) => {
-        const container = document.getElementById('check-' + phase);
-        if (!container) return;
-        container.innerHTML = '';
-        items.forEach((item, i) => {
-          const div = document.createElement('div');
-          div.className = 'check-item';
-          const progress = loadProgress();
-          if (progress[phase + '-' + i]) div.classList.add('checked');
-          div.innerHTML = `<div class="checkbox"></div><span>${item}</span>`;
-          div.onclick = () => {
-            const p = loadProgress();
-            p[phase + '-' + i] = !p[phase + '-' + i];
-            saveProgress(p);
-            div.classList.toggle('checked');
-            updateProgress();
-          };
-          container.appendChild(div);
-        });
-      });
-    }
-
-    function updateProgress() {
-      const p = loadProgress();
-      let completed = 0;
-      Object.entries(phaseChecklists).forEach(([phase, items]) => {
-        items.forEach((_, i) => { if (p[phase + '-' + i]) completed++; });
-      });
-      const pct = Math.round((completed / TOTAL_TASKS) * 100);
-      document.getElementById('progress-bar').style.width = pct + '%';
-      document.getElementById('progress-pct').textContent = pct + '%';
-      const phaseMap = ['Phase 0: Geometric Intuition', 'Phase 1: Vectors', 'Phase 2: Matrices', 'Phase 3: Linear Systems', 'Phase 4: Orthogonality', 'Phase 5: Eigenvalues', 'Phase 6: Decompositions'];
-      const phaseNum = Math.min(6, Math.floor(pct / 15));
-      document.getElementById('progress-text').textContent = pct === 0 ? 'Start your journey — Phase 0: Geometric Intuition' : pct === 100 ? '🎉 All phases complete! You have the LA foundation for ML research.' : `Phase ${phaseNum}: ${phaseMap[phaseNum]} (${completed}/${TOTAL_TASKS} tasks)`;
-    }
-
-    renderChecklists();
-    updateProgress();
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.onclick = () => switchTab(btn.dataset.tab);
+    });
   </script>
 </body>
 </html>
