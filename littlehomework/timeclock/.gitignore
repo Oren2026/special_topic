@@ -1,0 +1,13 @@
+bin/
+obj/
+*.suo
+*.user
+*.db
+.vs/
+*.vsidx
+*.slnx.cache
+*.metadata.v10.bin
+*.strings.v10.bin
+*.projects.v10.bin
+.DTBCache.v2
+.futdcache.v2
