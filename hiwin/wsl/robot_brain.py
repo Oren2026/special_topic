@@ -94,14 +94,22 @@ class RobotBrain:
         return None
 
     def _handle_calibration(self, packet: dict):
-        """接收4點校正資料，更新透視矩陣"""
+        """接收4點校正資料，更新透視矩陣，計算並回傳6個口袋像素位置"""
         pts = packet[P.FIELD_CAL_POINTS]
         if len(pts) != 4:
             print(f"[RobotBrain] 校正點數量錯誤：{len(pts)}（期望4）")
             return None
         self._coord.update_calibration(pts)
-        print("[RobotBrain] 校正完成")
-        return None  # receipt-only
+
+        # 計算6個口袋的像素座標
+        pockets_mm = self._strategy.get_all_pockets_mm()
+        pockets_pixel = self._coord.get_pockets_pixel(pockets_mm)
+
+        print("[RobotBrain] 校正完成，計算口袋位置")
+        return {
+            P.FIELD_TYPE: P.MSG_TYPE_CALIBRATION_COMPLETE,
+            "pockets": pockets_pixel,
+        }
 
     def _handle_manual(self, packet: dict):
         """處理手動擊球預測"""

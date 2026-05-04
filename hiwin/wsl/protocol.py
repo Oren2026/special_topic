@@ -20,6 +20,7 @@ MSG_MODE_MANUAL  = "MANUAL"               # Windows → WSL
 MSG_MODE_INSTALL = "INSTALL"              # Windows → WSL（內部用，INSTALL 觸發時送的是 CALIBRATION）
 MSG_MODE_COMPETE = "COMPETE"             # Windows → WSL
 MSG_TYPE_PREDICTION = "PREDICTION"        # WSL → Windows
+MSG_TYPE_CALIBRATION_COMPLETE = "CALIBRATION_COMPLETE"  # WSL → Windows
 
 # =============================================================================
 # JSON 欄位名稱

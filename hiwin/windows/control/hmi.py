@@ -134,6 +134,19 @@ class HMI:
             self._selected_ball = hit
             return
 
+        # TEST 模式：點擊口袋圓圈 → 自動選定該口袋
+        if self._state.current_mode() == State.TEST:
+            pkt_hit = self._hit_pocket(u, v)
+            if pkt_hit:
+                self._scene.add_or_update("POCKET", pkt_hit["u"], pkt_hit["v"])
+                result = self._state.handle_click(pkt_hit["u"], pkt_hit["v"])
+                if result:
+                    if result.get("ready"):
+                        self._info_lbl.config(text="擊球任務已發送！\n可直接拖曳調整路徑。")
+                    else:
+                        self._info_lbl.config(text=f"已記錄: {result.get('label')}")
+                return
+
         # 否則交給狀態機處理
         result = self._state.handle_click(u, v)
         if result:
@@ -160,11 +173,28 @@ class HMI:
                 return ball_type
         return None
 
+    def _hit_pocket(self, u, v):
+        """回傳被點中的口袋dict，或 None"""
+        for pkt in self._scene._pockets:
+            if ((pkt["u"] - u)**2 + (pkt["v"] - v)**2) ** 0.5 < 20:
+                return pkt
+        return None
+
     # ── Socket 回應 ──────────────────────────────────────────────────────────
 
     def _on_wsl_message(self, data: dict):
-        if data.get("type") == "PREDICTION":
+        msg_type = data.get("type")
+        if msg_type == "PREDICTION":
             self._prediction_data = data
+        elif msg_type == "CALIBRATION_COMPLETE":
+            # 校正完成：設定6個口袋 → 自動切 TEST 模式
+            pockets = data.get("pockets", {})
+            self._scene.set_pockets(pockets)
+            self._on_mode_set(State.TEST)
+            messagebox.showinfo("校正完成",
+                f"已設定 {len(pockets)} 個口袋。\n"
+                "現在進入測試模式：請點擊目標球 → 白球（口袋已自動設定）")
+            self._info_lbl.config(text="口袋已設定，請依序點擊：目標球 → 白球")
 
     def _on_prediction(self, data: dict):
         self._prediction_data = data

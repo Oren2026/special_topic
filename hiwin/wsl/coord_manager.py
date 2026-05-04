@@ -80,3 +80,14 @@ class CoordinateManager:
 
     # 向前相容別名
     convert = pixel_to_mm
+
+    def get_pockets_pixel(self, pockets_mm: dict) -> dict:
+        """
+        將口袋 mm 座標轉為像素座標
+        輸入：{"pocket_name": (x_mm, y_mm)}
+        輸出：{"pocket_name": [u_pixel, v_pixel]}
+        """
+        return {
+            name: list(self.mm_to_pixel(x, y))
+            for name, (x, y) in pockets_mm.items()
+        }

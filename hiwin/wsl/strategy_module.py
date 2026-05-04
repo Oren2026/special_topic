@@ -26,11 +26,19 @@ class BilliardStrategy:
         self.ROBOT_MAX_REACH = config.ROBOT_MAX_REACH
 
         self.POCKETS = {
-            "top_left":  (-600,   0),
-            "top_right": ( 600,   0),
-            "bot_left":  (-600, config.TABLE_HEIGHT),
-            "bot_right": ( 600, config.TABLE_HEIGHT),
+            # 4角袋
+            "top_left":   (-600,   0),
+            "top_right":  ( 600,   0),
+            "bot_left":   (-600, config.TABLE_HEIGHT),
+            "bot_right":  ( 600, config.TABLE_HEIGHT),
+            # 2側袋（長邊中央）— 9-ball 第5/6袋
+            "side_left":  (   0,   0),
+            "side_right": (   0, config.TABLE_HEIGHT),
         }
+
+    def get_all_pockets_mm(self):
+        """回傳所有口袋的 mm 座標（名稱, x, y）"""
+        return {name: pos for name, pos in self.POCKETS.items()}
 
     def get_best_shot(self, cue_ball, target_ball, pocket_name="top_left"):
         """

@@ -51,7 +51,18 @@ class SimulationScene:
     """
 
     def __init__(self):
-        self.balls = {}  # {"CUE_BALL": BilliardBall, ...}
+        self.balls = {}   # {"CUE_BALL": BilliardBall, ...}
+        self._pockets = []  # [{"name": str, "u": float, "v": float}, ...]
+
+    def set_pockets(self, pockets: dict):
+        """
+        設定口袋清單（校正完成後由 WSL 回傳）
+        輸入：{"pocket_name": [u_pixel, v_pixel], ...}
+        """
+        self._pockets = [
+            {"name": name, "u": float(uv[0]), "v": float(uv[1])}
+            for name, uv in pockets.items()
+        ]
 
     def add_or_update(self, ball_type, u, v):
         if ball_type not in self.balls:
@@ -63,6 +74,16 @@ class SimulationScene:
         return self.balls.get(ball_type)
 
     def render_all(self, img):
+        # 繪製口袋（在校正完成後自動有6個）
+        for pkt in self._pockets:
+            u, v = int(pkt["u"]), int(pkt["v"])
+            color = (255, 255, 0)  # 青藍色
+            cv2.circle(img, (u, v), 8, color, 2)
+            # 顯示口袋名稱
+            cv2.putText(img, pkt["name"].replace("_", "\n"), (u - 12, v - 12),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.35, color, 1)
+
+        # 繪製球體
         for ball in self.balls.values():
             ball.draw(img)
 
