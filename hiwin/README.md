@@ -161,12 +161,14 @@
    └─▶ SocketClient.connect() → 嘗試連線 WSL
 
 3. INSTALL 模式（四角校正）
-   使用者點擊4點
+   目的：建立 pixel ↔ mm 映射，讓系統知道「畫面中的像素」=「球檯上的哪個位置」
+   使用者點擊4點（左上→右上→右下→左下）
      → CalibrationHandler.add_point()
      → StateMachine.handle_click() → .get_packet()
      → SocketClient.send()
      → WSL: coord_manager.update_calibration()
      → 模式重置 IDLE，自動進入 TEST
+     → HMI 顯示「口袋已設定（6個）請點擊：目標球 → 白球」
 
 4. BREAK 模式（開球）
    使用者點擊白球位置
@@ -178,16 +180,23 @@
      → 回應 BREAK_RESULT
      → HMI._draw_break() 繪製擊球線
 
-5. TEST 模式（擊球預測）
-   校正完成後口袋已預填，使用者依序點擊：TARGET_BALL → CUE_BALL
+5. TEST 模式（模擬擊球 / 路線試算）
+   目的：校正完成後，給定「口袋 + 目標球 + 白球」，試算 Ghost Ball 路線
+   使用者依序點擊：TARGET_BALL → CUE_BALL
      → ShotDispatcher.add()
      → StateMachine.handle_click() → .get_packet()
      → SocketClient.send()
      → WSL: robot_brain._handle_manual()
+         → _find_nearest_pocket_name() 動態比對口袋（不再是 hardcode "top_left"）
          → coord_manager.pixel_to_mm() × 3
          → strategy_module.get_best_shot()
      → 回應 PREDICTION
      → HMI._draw_prediction() 繪製 ghost ball + 擊球線
+
+   互動：
+     · 點擊口袋（已顯示）→ 重新試算（口袋→目標球 白球 組合改變）
+     · 拖曳任一球 → 即時更新路線（task_id=9999）
+     · 點擊球桌外空白區 → 未來規劃：重置 scene，重新布置
 
 6. 拖曳即時更新
    使用者拖曳任一球
@@ -215,17 +224,18 @@ mm_to_pixel:  手臂mm (arm_x, arm_y) → 像素 (u,v)
 
 ## ⚠️ 待確認 / 待實作
 
-|| 項目 | 優先級 | 說明 |
-|------|--------|------|
-| `striker_bridge.py` | 🔴 高 | WSL→Arduino 介面已定義，序列通訊待實作 |
-| 口袋真實座標 | 🟡 中 | `strategy_module.POCKETS` 硬編碼，需與實際球檯對齊 |
-| 多口袋候選線 | 🟡 中 | 一次顯示 6 條可行路徑，方案 A（見下方策略藍圖） |
-| 開球多方向 | 🟡 中 | BREAK 目前 angle=90° 固定，未來支援多方向開球 |
-| COMPETE 模式 | 🟡 中 | 尚未實作（自動辨識流程） |
-| 校正資料持久化 | 🟡 中 | 矩陣存在記憶體，斷電消失 |
-| 策略學習層 | 🟢 低 | 貝氏估計 / 強化學習權重，累積擊球資料訓練 |
-| `win_ui_vision.py` | 🟢 低 | HSV 參數調校工具，可整合至 HMI |
-| `find_cameras.py` | 🟢 低 | 鏡頭ID掃描工具，獨立使用 |
+| # | 項目 | 優先級 | 說明 |
+|---|------|--------|------|
+| 1 | 擊球後多餘點擊重複送 Socket | 🔴 高 | 3球完成後點擊不應重送，浪費頻寬且誤導使用者 |
+| 2 | 口袋真實 mm 座標 | 🔴 高 | `strategy_module.POCKETS` 硬編碼，需實地測量對齊 |
+| 3 | WSL IP 更新 | 🔴 高 | `windows/config.py` 的 `SOCKET_HOST` 待確認 |
+| 4 | COMPETE 模式 | 🟡 中 | 視覺形狀先於顏色，自動分球 + 策略排序 |
+| 5 | 球桌外點擊重置 scene | 🟡 中 | 空白區點擊 → 清除 scene，重新布置 |
+| 6 | 校正資料持久化 | 🟡 中 | 矩陣寫入 JSON，斷電重啟後無需重新校正 |
+| 7 | striker_bridge Arduino | 🟡 中 | 實機擊球控制（目前 MOCK 模式）|
+| 8 | 多口袋候選線 | 🟢 低 | Phase 2，一次顯示 6 條可行路徑 |
+| 9 | 開球多方向 | 🟢 低 | BREAK angle 目前固定 90° |
+|10 | 策略學習層 | 🟢 低 | 貝氏估計 / 強化學習權重 |
 
 ---
 

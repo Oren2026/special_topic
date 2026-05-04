@@ -8,6 +8,7 @@ wsl/robot_brain.py
 """
 import socket
 import json
+import math
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -73,6 +74,37 @@ class RobotBrain:
                 except json.JSONDecodeError:
                     pass
 
+    # ── 口袋名稱反向查詢 ───────────────────────────────────────────────────
+
+    def _find_nearest_pocket_name(self, pocket_u: int, pocket_v: int) -> str:
+        """
+        根據點擊口袋的像素座標，回傳最近的已知口袋名稱。
+        流程：pixel → mm → 與 6 個已知口袋比對，找 mm 距離最近者。
+        """
+        # 像素 → mm（使用當前校正矩陣）
+        clicked_mm_x, clicked_mm_y, is_cal = self._coord.pixel_to_mm(pocket_u, pocket_v)
+        if not is_cal:
+            print("[RobotBrain] 未校正，使用 fallback top_left")
+            return "top_left"
+
+        pockets_mm = self._strategy.get_all_pockets_mm()
+        best_name = "top_left"
+        best_dist = float("inf")
+
+        for name, (px, py) in pockets_mm.items():
+            dist = math.hypot(clicked_mm_x - px, clicked_mm_y - py)
+            if dist < best_dist:
+                best_dist = dist
+                best_name = name
+
+        # 容許閾值：偏離 > 100mm 視為無效點擊
+        if best_dist > 100:
+            print(f"[RobotBrain] 口袋偏離過大 ({best_dist:.1f}mm > 100mm)，fallback top_left")
+            return "top_left"
+
+        print(f"[RobotBrain] 口袋匹配：pixel=({pocket_u},{pocket_v}) → {best_name} (dist={best_dist:.1f}mm)")
+        return best_name
+
     # ── 模式分派 ──────────────────────────────────────────────────────────
 
     def _dispatch(self, packet: dict):
@@ -132,11 +164,14 @@ class RobotBrain:
             tx, ty, _ = self._coord.pixel_to_mm(p_target["u"], p_target["v"])
             cx, cy, _ = self._coord.pixel_to_mm(p_cue["u"], p_cue["v"])
 
+            # 動態查詢口袋名稱（pixel → mm → 找最近已知口袋）
+            pocket_name = self._find_nearest_pocket_name(p_pocket["u"], p_pocket["v"])
+
             # 策略計算
             result = self._strategy.get_best_shot(
                 cue_ball={"x": cx, "y": cy},
                 target_ball={"x": tx, "y": ty},
-                pocket_name="top_left"  # TODO: 動態袋口選擇
+                pocket_name=pocket_name,
             )
 
             # 毫米 → 像素（供 UI 繪圖）
