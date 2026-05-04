@@ -1,7 +1,19 @@
 # HIWIN RA605 9-Ball 撞球機器人
 
-> 版本：2026-05-04  
-> 狀態：⚠️ `striker_bridge.py` 為空殼（介面已定義），待實作 Arduino 通訊
+> 版本：2026-05-04
+> 狀態：⚠️ `striker_bridge.py` MOCK 模式（`STRIKER_MOCK_MODE=True`），Arduino 通訊待實作
+
+---
+
+## 🖥️ 開發環境
+
+| 端 | Python | 專案路徑 | 備註 |
+|----|--------|----------|------|
+| WSL | 3.12.3 (.venv) | `~/projects/hiwin_robot/wsl/` | 需設定 WSL IP 至 `windows/config.py` |
+| Windows | 3.14.2 | `c:\hiwin_win_project\windows\` | 需設定 `WSL_IP` 環境變數或修改 `config.py` |
+
+**注意**：`striker_bridge.py` 使用 `dict | None`（Python 3.10+），WSL 3.12 / Windows 3.14 皆支援。
+`state_machine.py`、`hmi.py` 已修復為 `Optional[...]`（同時支援 Python 3.9+）。
 
 ---
 

@@ -6,7 +6,9 @@ windows/control/state_machine.py
 輸出：set_mode(str) / handle_click(u,v) / handle_drag(type,u,v)
       on_prediction(callback) / 狀態標籤文字
 """
-from typing import Optional, Callable
+from typing import Optional
+from .calibration import CalibrationHandler
+from .shot_dispatcher import ShotDispatcher
 
 
 class State:
