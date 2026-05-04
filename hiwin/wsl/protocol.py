@@ -49,7 +49,7 @@ TYPE_CUE_BALL     = "CUE_BALL"
 # striker_config 預設值（由 config.py 同步）
 # =============================================================================
 DEFAULT_BALL_DIAMETER    = 38.0   # mm
-DEFAULT_POCKET_DIAMETER  = 45.0   # mm
+DEFAULT_POCKET_DIAMETER  = 50.0   # mm
 DEFAULT_ACCEL_DIST_LIMIT  = 150.0  # mm
 DEFAULT_FORCE_FACTOR     = 1.0
 

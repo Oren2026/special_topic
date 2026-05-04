@@ -2,8 +2,14 @@
 windows/vision/objects.py
 球體物件管理 + 模擬場景
 
-依賴：cv2, config (BALL_DIAMETER)
+依賴：cv2, config (BALL_DIAMETER, POCKET_DIAMETER, TABLE_WIDTH, TOP_CANVAS_W)
 輸出：cv2 繪圖 / get_all_data() → list[dict]
+
+繪圖比例尺：
+  scale = canvas_width / TABLE_WIDTH（像素/mm）
+  球半徑 = (BALL_DIAMETER / 2) * scale
+  口袋半徑 = (POCKET_DIAMETER / 2) * scale
+  → 球與口袋真實比例 38:50 = 19:25
 """
 import cv2
 import sys, os
@@ -16,13 +22,11 @@ class BilliardBall:
     單一球體物件
     """
 
-    def __init__(self, ball_type, u=0, v=0, real_diameter=None):
+    def __init__(self, ball_type, u=0, v=0):
         self.type = ball_type
         self.u = float(u)
         self.v = float(v)
-        d = real_diameter if real_diameter is not None else config.BALL_DIAMETER
-        # 視覺半徑（pixel），約為 球徑*0.66/2，但可依解析度調整
-        self.radius = int((d / 2) * 0.66)
+        self._diameter = config.BALL_DIAMETER
         self.color = self._set_color()
 
     def _set_color(self):
@@ -37,11 +41,16 @@ class BilliardBall:
         self.u = float(u)
         self.v = float(v)
 
-    def draw(self, img):
-        cv2.circle(img, (int(self.u), int(self.v)), self.radius, self.color, -1)
+    def draw(self, img, scale):
+        """
+        根據比例尺在 img 上繪製本球
+        scale = canvas_width / TABLE_WIDTH（pixels per mm）
+        """
+        radius = int((self._diameter / 2) * scale)
+        cv2.circle(img, (int(self.u), int(self.v)), radius, self.color, -1)
         label = self.type[0]  # "C", "T", "P"
         cv2.putText(img, label,
-                    (int(self.u) - 5, int(self.v) - self.radius - 2),
+                    (int(self.u) - 5, int(self.v) - radius - 2),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.color, 1)
 
 
@@ -52,7 +61,7 @@ class SimulationScene:
 
     def __init__(self):
         self.balls = {}   # {"CUE_BALL": BilliardBall, ...}
-        self._pockets = []  # [{"name": str, "u": float, "v": float}, ...]
+        self._pockets = []  # [{"name": str, "u": float, "v": float, "diameter": float}, ...]
 
     def set_pockets(self, pockets: dict):
         """
@@ -60,7 +69,8 @@ class SimulationScene:
         輸入：{"pocket_name": [u_pixel, v_pixel], ...}
         """
         self._pockets = [
-            {"name": name, "u": float(uv[0]), "v": float(uv[1])}
+            {"name": name, "u": float(uv[0]), "v": float(uv[1]),
+             "diameter": config.POCKET_DIAMETER}
             for name, uv in pockets.items()
         ]
 
@@ -74,18 +84,28 @@ class SimulationScene:
         return self.balls.get(ball_type)
 
     def render_all(self, img):
-        # 繪製口袋（在校正完成後自動有6個）
+        """
+        根據 canvas 寬度計算比例尺，統一 render 口袋 + 球
+        scale = canvas_width / TABLE_WIDTH → 真實世界比例
+        """
+        canvas_w = img.shape[1]
+        scale = canvas_w / config.TABLE_WIDTH  # pixels per mm
+
+        # 口袋（口徑 50mm → 半徑 25*scale pixels）
+        pocket_radius = int((config.POCKET_DIAMETER / 2) * scale)
         for pkt in self._pockets:
             u, v = int(pkt["u"]), int(pkt["v"])
             color = (255, 255, 0)  # 青藍色
-            cv2.circle(img, (u, v), 8, color, 2)
-            # 顯示口袋名稱
-            cv2.putText(img, pkt["name"].replace("_", "\n"), (u - 12, v - 12),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.35, color, 1)
+            cv2.circle(img, (u, v), pocket_radius, color, 2)
+            # 名稱分兩行顯示（"top" 放上面，"left" 放下面）
+            name_parts = pkt["name"].split("_")
+            text = name_parts[0]
+            cv2.putText(img, text, (u - pocket_radius, v - pocket_radius - 2),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1)
 
-        # 繪製球體
+        # 球（口徑 38mm → 半徑 19*scale pixels）
         for ball in self.balls.values():
-            ball.draw(img)
+            ball.draw(img, scale)
 
     def get_all_data(self):
         """
