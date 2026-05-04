@@ -68,6 +68,8 @@ class HMI:
 
         tk.Button(self._ctrl, text="安裝模式（四角標定）", width=20, bg="#f0f0f0",
                  command=lambda: self._on_mode_set(State.INSTALL)).pack(pady=5)
+        tk.Button(self._ctrl, text="開球模式（Break）", width=20, bg="#fff3e0",
+                 command=lambda: self._on_mode_set(State.BREAK)).pack(pady=5)
         tk.Button(self._ctrl, text="測試模式（模擬擊球）", width=20, bg="#e1f5fe",
                  command=lambda: self._on_mode_set(State.TEST)).pack(pady=5)
         tk.Button(self._ctrl, text="比賽模式（自動辨識）", width=20, bg="#ffcdd2",
@@ -105,6 +107,7 @@ class HMI:
 
         labels = {
             State.INSTALL: "安裝模式",
+            State.BREAK:   "開球模式",
             State.TEST:    "測試模式",
             State.COMPETE: "比賽模式",
         }
@@ -118,6 +121,7 @@ class HMI:
     def _get_mode_hint(self, mode) -> str:
         hints = {
             State.INSTALL: "請依序點擊：左上 → 右上 → 右下 → 左下",
+            State.BREAK:   "請點擊白球位置（Break 將以最大力朝球堆方向擊出）",
             State.TEST:    "直接點擊：目標球 → 白球（口袋已顯示，可直接點選更換）",
             State.COMPETE: "自動辨識模式（待實作）",
         }
@@ -149,8 +153,12 @@ class HMI:
                 return
 
         # 否則交給狀態機處理
-        shot = self._state._shot
-        ball_type = shot.next_label() if self._state.current_mode() == State.TEST else None
+        ball_type = None
+        if self._state.current_mode() == State.TEST:
+            ball_type = self._state._shot.next_label()
+        elif self._state.current_mode() == State.BREAK:
+            ball_type = "CUE_BALL"
+
         result = self._state.handle_click(u, v)
         if result:
             if ball_type and ball_type not in self._scene.balls:
@@ -189,6 +197,8 @@ class HMI:
     def _on_wsl_message(self, data: dict):
         msg_type = data.get("type")
         if msg_type == "PREDICTION":
+            self._prediction_data = data
+        elif msg_type == "BREAK_RESULT":
             self._prediction_data = data
         elif msg_type == "CALIBRATION_COMPLETE":
             pockets = data.get("pockets", {})
@@ -232,8 +242,11 @@ class HMI:
             self._draw_calibration_helper(img)
 
         # 預測線路繪圖
-        if self._prediction_data and len(self._scene.balls) == 3:
-            self._draw_prediction(img)
+        if self._prediction_data:
+            if self._state.current_mode() == State.BREAK:
+                self._draw_break(img)
+            elif len(self._scene.balls) == 3:
+                self._draw_prediction(img)
 
         self._photo_t = ImageTk.PhotoImage(image=Image.fromarray(img))
         self._canvas_top.create_image(0, 0, image=self._photo_t, anchor=tk.NW)
@@ -247,7 +260,7 @@ class HMI:
             self._canvas_side.create_image(0, 0, image=self._photo_s, anchor=tk.NW)
 
     def _draw_prediction(self, img):
-        """在 img 上繪製 ghost ball + 擊球線"""
+        """在 img 上繪製 ghost ball + 擊球線（普通擊球）"""
         try:
             g_u, g_v = map(int, self._prediction_data["ghost_pixel"])
             r_u, r_v = map(int, self._prediction_data["robot_pixel"])
@@ -269,6 +282,29 @@ class HMI:
             cv2.circle(img, (g_u, g_v), 15, (0, 255, 255), 2)
         except Exception as e:
             print(f"線路繪圖錯誤: {e}")
+
+    def _draw_break(self, img):
+        """在 img 上繪製開球線（無 ghost ball，只有機器人 → 白球）"""
+        try:
+            r_u, r_v = map(int, self._prediction_data["robot_pixel"])
+            cue = self._scene.get("CUE_BALL")
+
+            if cue:
+                # 擊球線（藍）：手臂 → 白球
+                cv2.line(img, (r_u, r_v), (int(cue.u), int(cue.v)), (255, 128, 0), 3)
+                # 白球標記
+                cv2.circle(img, (int(cue.u), int(cue.v)), 15, (255, 255, 0), 2)
+                cv2.putText(img, "BREAK", (int(cue.u) - 30, int(cue.v) - 20),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 200, 0), 2)
+
+            # 機器人 TCP 位置
+            cv2.drawMarker(img, (r_u, r_v), (255, 128, 0), cv2.MARKER_CROSS, 20, 2)
+            cv2.putText(img, f"angle={self._prediction_data.get('angle', 0)}° "
+                            f"stroke={self._prediction_data.get('stroke_dist', 0)}mm",
+                            (r_u - 80, r_v - 20),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 128, 0), 1)
+        except Exception as e:
+            print(f"開球繪圖錯誤: {e}")
 
     def _draw_calibration_helper(self, img):
         """在 INSTALL 模式下繪製校正點：已收集的點 + 序號標記 + 順序連線"""

@@ -9,12 +9,14 @@ windows/control/state_machine.py
 from typing import Optional
 from .calibration import CalibrationHandler
 from .shot_dispatcher import ShotDispatcher
+from .break_handler import BreakHandler
 
 
 class State:
     IDLE     = "IDLE"
     INSTALL  = "INSTALL"
     TEST     = "TEST"
+    BREAK    = "BREAK"
     COMPETE  = "COMPETE"
 
 
@@ -30,15 +32,17 @@ class StateMachine:
         self._socket = socket_client
         self._cal = CalibrationHandler()
         self._shot = ShotDispatcher()
+        self._break = BreakHandler()
         self._prediction_cb = None
 
     # ── 模式控制 ─────────────────────────────────────────────────────────────
 
     def set_mode(self, mode: str):
-        """切換模式（INSTALL / TEST / COMPETE）"""
+        """切換模式（INSTALL / TEST / BREAK / COMPETE）"""
         self._mode = mode
         self._cal.reset()
         self._shot.reset()
+        self._break.reset()
         print(f"[StateMachine] 模式切換 → {mode}")
 
     def set_pocket(self, u: int, v: int):
@@ -61,6 +65,8 @@ class StateMachine:
             return self._handle_install(u, v)
         elif self._mode == State.TEST:
             return self._handle_test(u, v)
+        elif self._mode == State.BREAK:
+            return self._handle_break(u, v)
         elif self._mode == State.COMPETE:
             # COMPETE 模式由自動辨識主導，此處暫不處理
             return {"label": "自動模式", "ready": False}
@@ -97,6 +103,12 @@ class StateMachine:
         if complete:
             self._socket.send(self._shot.get_packet())
         return {"label": self._shot.next_label(), "ready": complete, "count": self._shot.ball_count()}
+
+    def _handle_break(self, u, v) -> dict:
+        """處理 BREAK 模式：只需要白球位置"""
+        self._break.add(u, v)
+        self._socket.send(self._break.get_packet())
+        return {"label": "已完成", "ready": True}
 
     # ── 預測回調 ─────────────────────────────────────────────────────────────
 

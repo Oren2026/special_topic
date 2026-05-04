@@ -19,6 +19,7 @@ MSG_CALIBRATION  = "calibration_points"   # Windows → WSL
 MSG_MODE_MANUAL  = "MANUAL"               # Windows → WSL
 MSG_MODE_INSTALL = "INSTALL"              # Windows → WSL（內部用，INSTALL 觸發時送的是 CALIBRATION）
 MSG_MODE_COMPETE = "COMPETE"             # Windows → WSL
+MSG_MODE_BREAK   = "BREAK"                # Windows → WSL
 MSG_TYPE_PREDICTION = "PREDICTION"        # WSL → Windows
 MSG_TYPE_CALIBRATION_COMPLETE = "CALIBRATION_COMPLETE"  # WSL → Windows
 
@@ -87,4 +88,13 @@ PREDICTION_PACKET_EXAMPLE = {
     # 例：FIELD_ROBOT_PIXEL:   [450, 300]
     FIELD_IS_REACHABLE: True,
     FIELD_ANGLE:        45.2,        # 擊球角度（度）
+}
+
+# Windows → WSL：開球（BREAK 模式）
+BREAK_PACKET_EXAMPLE = {
+    FIELD_TASK_ID: 2001,
+    FIELD_MODE:    MSG_MODE_BREAK,
+    FIELD_VISION_DATA: [
+        {FIELD_TYPE: TYPE_CUE_BALL, FIELD_U: 400, FIELD_V: 100},
+    ],
 }

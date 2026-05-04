@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from coord_manager import CoordinateManager
 from strategy_module import BilliardStrategy
+from break_module import BreakStrategy
 from striker_bridge import StrikerBridge
 import config
 import protocol as P
@@ -27,6 +28,7 @@ class RobotBrain:
     def __init__(self):
         self._coord = CoordinateManager()
         self._strategy = BilliardStrategy()
+        self._break_strategy = BreakStrategy()
         self._striker = StrikerBridge()
         self._running = False
 
@@ -85,6 +87,9 @@ class RobotBrain:
 
         if mode == P.MSG_MODE_MANUAL:
             return self._handle_manual(packet)
+
+        if mode == P.MSG_MODE_BREAK:
+            return self._handle_break(packet)
 
         # COMPETE 模式（未實作）
         if mode == P.MSG_MODE_COMPETE:
@@ -161,4 +166,41 @@ class RobotBrain:
 
         except Exception as e:
             print(f"[RobotBrain] 策略計算錯誤: {e}")
+            return None
+
+    def _handle_break(self, packet: dict):
+        """處理開球（Break）模式"""
+        vision_data = packet.get(P.FIELD_VISION_DATA, [])
+
+        try:
+            p_cue = next(p for p in vision_data if p[P.FIELD_TYPE] == P.TYPE_CUE_BALL)
+
+            # 像素 → 毫米
+            cx, cy, _ = self._coord.pixel_to_mm(p_cue["u"], p_cue["v"])
+
+            # 開球計算（angle=90°，stroke=MAX）
+            result = self._break_strategy.compute_break(
+                cue_ball_mm={"x": cx, "y": cy}
+            )
+
+            # 毫米 → 像素（供 UI 繪圖）
+            robot_u, robot_v = self._coord.mm_to_pixel(*result["robot_tcp"])
+
+            # 發送擊球指令
+            success = self._striker.execute(
+                robot_tcp=result["robot_tcp"],
+                stroke_dist=result["stroke_dist"],
+                angle=result["angle"],
+            )
+
+            return {
+                P.FIELD_TYPE:         "BREAK_RESULT",
+                P.FIELD_ROBOT_PIXEL: [robot_u, robot_v],
+                P.FIELD_IS_REACHABLE: result["is_reachable"],
+                P.FIELD_ANGLE:        result["angle"],
+                "stroke_dist":         result["stroke_dist"],
+            }
+
+        except Exception as e:
+            print(f"[RobotBrain] 開球計算錯誤: {e}")
             return None
