@@ -118,7 +118,7 @@ class HMI:
     def _get_mode_hint(self, mode) -> str:
         hints = {
             State.INSTALL: "請依序點擊：左上 → 右上 → 右下 → 左下",
-            State.TEST:    "請依序點擊：袋口 → 目標球 → 白球",
+            State.TEST:    "直接點擊：目標球 → 白球（口袋已顯示，可直接點選更換）",
             State.COMPETE: "自動辨識模式（待實作）",
         }
         return hints.get(mode, "")
@@ -138,6 +138,7 @@ class HMI:
         if self._state.current_mode() == State.TEST:
             pkt_hit = self._hit_pocket(u, v)
             if pkt_hit:
+                # 寫入 scene.balls（用於預測線繪圖）同時保持 scene._pockets（用於顯示）
                 self._scene.add_or_update("POCKET", pkt_hit["u"], pkt_hit["v"])
                 result = self._state.handle_click(pkt_hit["u"], pkt_hit["v"])
                 if result:
@@ -148,9 +149,12 @@ class HMI:
                 return
 
         # 否則交給狀態機處理
+        shot = self._state._shot
+        ball_type = shot.next_label() if self._state.current_mode() == State.TEST else None
         result = self._state.handle_click(u, v)
         if result:
-            ball_type = self._selected_ball  # 可能已被 handle_click 內部加入
+            if ball_type and ball_type not in self._scene.balls:
+                self._scene.add_or_update(ball_type, u, v)
             if result.get("ready"):
                 self._info_lbl.config(text="擊球任務已發送！\n可直接拖曳調整路徑。")
             else:
@@ -187,14 +191,20 @@ class HMI:
         if msg_type == "PREDICTION":
             self._prediction_data = data
         elif msg_type == "CALIBRATION_COMPLETE":
-            # 校正完成：設定6個口袋 → 自動切 TEST 模式
             pockets = data.get("pockets", {})
-            self._scene.set_pockets(pockets)
             self._on_mode_set(State.TEST)
-            messagebox.showinfo("校正完成",
-                f"已設定 {len(pockets)} 個口袋。\n"
-                "現在進入測試模式：請點擊目標球 → 白球（口袋已自動設定）")
-            self._info_lbl.config(text="口袋已設定，請依序點擊：目標球 → 白球")
+            self._scene.set_pockets(pockets)
+            # 預設使用第一個口袋，讓 TEST 流程只需 TARGET + CUE（2步）
+            first_pocket = next(iter(pockets.values()), None)
+            if first_pocket:
+                pu, pv = int(first_pocket[0]), int(first_pocket[1])
+                self._scene.add_or_update("POCKET", pu, pv)
+                self._state.set_pocket(pu, pv)
+            self._info_lbl.config(text=f"口袋已設定（{len(pockets)}個）\n請點擊：目標球 → 白球")
+            self._root.after(100, lambda: messagebox.showinfo(
+                "校正完成",
+                f"已辨識 {len(pockets)} 個口袋。\n"
+                "請依序點擊：①目標球 ②白球\n（口袋可直接點擊重新選擇）"))
 
     def _on_prediction(self, data: dict):
         self._prediction_data = data

@@ -41,6 +41,12 @@ class StateMachine:
         self._shot.reset()
         print(f"[StateMachine] 模式切換 → {mode}")
 
+    def set_pocket(self, u: int, v: int):
+        """
+        預先設定口袋（由 HMI 在校正完成後呼叫，避免使用者需手動再點一次口袋）
+        """
+        self._shot._balls["POCKET"] = {"u": u, "v": v}
+
     def current_mode(self) -> str:
         return self._mode
 
