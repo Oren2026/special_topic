@@ -187,6 +187,10 @@ class HMI:
         # 場景物件繪圖
         self._scene.render_all(img)
 
+        # 安裝模式：繪製校正點輔助線
+        if self._state.current_mode() == State.INSTALL:
+            self._draw_calibration_helper(img)
+
         # 預測線路繪圖
         if self._prediction_data and len(self._scene.balls) == 3:
             self._draw_prediction(img)
@@ -225,3 +229,33 @@ class HMI:
             cv2.circle(img, (g_u, g_v), 15, (0, 255, 255), 2)
         except Exception as e:
             print(f"線路繪圖錯誤: {e}")
+
+    def _draw_calibration_helper(self, img):
+        """在 INSTALL 模式下繪製校正點：已收集的點 + 序號標記 + 順序連線"""
+        points = self._state._cal.get_points()
+        labels = ["左上", "右上", "右下", "左下"]
+        h, w = img.shape[:2]
+
+        # 繪製操作提示（左上角）
+        cv2.putText(img, f"校正: {len(points)}/4", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+
+        # 已收集的點：畫編號圓圈 + 標籤
+        for i, (u, v) in enumerate(points):
+            u, v = int(u), int(v)
+            color = (0, 255, 0)
+            cv2.circle(img, (u, v), 12, color, 2)
+            cv2.putText(img, str(i + 1), (u - 6, v + 5),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+
+        # 依序連線（1→2→3→4→1）
+        if len(points) >= 2:
+            pts = [tuple(map(int, p)) for p in points]
+            for i in range(len(pts) - 1):
+                cv2.line(img, pts[i], pts[i + 1], (0, 200, 255), 1)
+        if len(points) == 4:
+            # 閉合最後一邊
+            cv2.line(img, pts[3], pts[0], (0, 200, 255), 1)
+            # 畫對角線協助確認視角變換是否合理
+            cv2.line(img, pts[0], pts[2], (80, 80, 255), 1)  # 左上→右下
+            cv2.line(img, pts[1], pts[3], (80, 80, 255), 1)  # 右上→左下

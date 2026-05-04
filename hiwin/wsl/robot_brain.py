@@ -132,7 +132,7 @@ class RobotBrain:
 
             # 如有 striker_config 中的直徑參數，可更新 strategy（預留）
             if cfg:
-                self._strategy._D = cfg.get("ball_diameter", self._strategy._D)
+                self._strategy.D = cfg.get("ball_diameter", self._strategy.D)
 
             # ── 嘗試發送擊球指令至 Arduino ─────────────────────────────
             # 會列印指令並顯示發送結果（無 Arduino 連線時顯示失敗，為正常行為）
