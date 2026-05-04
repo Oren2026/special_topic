@@ -9,13 +9,15 @@ import tkinter as tk
 from tkinter import messagebox
 import cv2
 from PIL import Image, ImageTk
+from typing import Optional
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import config
 from .state_machine import StateMachine, State
 from .socket_client import SocketClient
-from ..vision import BilliardVision, SimulationScene
+import vision
+from vision import BilliardVision, SimulationScene
 
 
 class HMI:
@@ -151,7 +153,7 @@ class HMI:
     def _on_release(self, event):
         self._selected_ball = None
 
-    def _hit_test(self, u, v) -> str | None:
+    def _hit_test(self, u, v) -> Optional[str]:
         """回傳被點中的球類型，或 None"""
         for ball_type, ball in self._scene.balls.items():
             if ((ball.u - u)**2 + (ball.v - v)**2) ** 0.5 < 20:

@@ -82,8 +82,8 @@ MANUAL_PACKET_EXAMPLE = {
 # WSL → Windows：擊球預測回應
 PREDICTION_PACKET_EXAMPLE = {
     FIELD_TYPE:         MSG_TYPE_PREDICTION,
-    FIELD_GHOST_PIXEL:  [gu, gv],   # 鬼球 pixel 座標
-    FIELD_ROBOT_PIXEL:   [ru, rv],   # 手臂停泊點 pixel 座標
+    # 例：FIELD_GHOST_PIXEL:  [320, 240]
+    # 例：FIELD_ROBOT_PIXEL:   [450, 300]
     FIELD_IS_REACHABLE: True,
     FIELD_ANGLE:        45.2,        # 擊球角度（度）
 }

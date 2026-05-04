@@ -6,6 +6,7 @@ windows/control/state_machine.py
 輸出：set_mode(str) / handle_click(u,v) / handle_drag(type,u,v)
       on_prediction(callback) / 狀態標籤文字
 """
+from typing import Optional, Callable
 
 
 class State:
@@ -43,7 +44,7 @@ class StateMachine:
 
     # ── 事件處理 ─────────────────────────────────────────────────────────────
 
-    def handle_click(self, u, v) -> dict | None:
+    def handle_click(self, u, v) -> Optional[dict]:
         """
         處理點擊事件
         回傳：info dict {"label": str, "ready": bool} 或 None
