@@ -42,8 +42,8 @@ FRAME_WIDTH  = 640
 FRAME_HEIGHT = 480
 CAMERA_FPS   = 15
 
-# MJPEG 壓縮（關鍵：釋放 USB 頻寬）
-FOURCC = "MJPEG"
+# MJPG 壓縮（4 char，釋放 USB 頻寬）
+FOURCC = "MJPG"
 
 # =============================================================================
 # 網路參數（由 protocol.py 提供，此處同步）
