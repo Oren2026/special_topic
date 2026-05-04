@@ -58,8 +58,8 @@ DEFAULT_FORCE_FACTOR     = 1.0
 
 # Windows → WSL：校正（INSTALL 模式觸發）
 CALIBRATION_PACKET_EXAMPLE = {
-    FIELD_CAL_POINTS: [[x1,y1], [x2,y2], [x3,y3], [x4,y4]]
     # 順序：左上 → 右上 → 右下 → 左下（像素座標）
+    # 例：FIELD_CAL_POINTS: [[100,100], [900,100], [900,500], [100,500]]
 }
 
 # Windows → WSL：手動擊球（TEST 模式 / 拖曳更新）
