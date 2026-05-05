@@ -102,6 +102,7 @@ class BankShotPlanner:
         if dist == 0:
             return (tb_x, tb_y)
 
+        # Ghost 在 target → pocket 方向（pocket 側），cue 瞄準 ghost 擊中 target
         gx = tb_x + (dx / dist) * self.ball_d
         gy = tb_y + (dy / dist) * self.ball_d
         return (round(gx, 2), round(gy, 2))
@@ -125,7 +126,7 @@ class BankShotPlanner:
         if dist == 0:
             return (tb_x, tb_y)
 
-        # Ghost 在 target→pocket 方向
+        # Ghost 在 target → pocket 方向，與 direct shot 一致
         gx = tb_x + (dx / dist) * self.ball_d
         gy = tb_y + (dy / dist) * self.ball_d
 
@@ -142,9 +143,22 @@ class BankShotPlanner:
 
         障礙球半徑 = 球半徑（考慮球的大小）
         白球本身也有半徑，所以要預留緩衝。
+
+        支援 from_pt/to_pt 為 dict{"x", "y"} 或 tuple(x, y)
+        obstacles 元素亦兩者皆可
         """
+        # 統一成 tuple
+        def to_tuple(pt):
+            if isinstance(pt, dict):
+                return (pt["x"], pt["y"])
+            return pt
+
+        from_t = to_tuple(from_pt)
+        to_t   = to_tuple(to_pt)
+
         for obs in obstacles:
-            if self._dist_point_to_segment(obs, from_pt, to_pt) < self.ball_d:
+            obs_t = to_tuple(obs)
+            if self._dist_point_to_segment(obs_t, from_t, to_t) < self.ball_d:
                 return True
         return False
 
@@ -240,9 +254,17 @@ class BankShotPlanner:
 
         反射服從：入射角 = 反射角
         這等價於「鏡像法」：從鏡像點看向 from_pt 的連線，與庫邊的交點
+
+        支援 dict 或 tuple 輸入。
         """
-        fx, fy = from_pt[0], from_pt[1]
-        tx, ty = to_pt[0], to_pt[1]
+        # 統一成 tuple
+        def to_tuple(pt):
+            if isinstance(pt, dict):
+                return (pt["x"], pt["y"])
+            return pt
+
+        fx, fy = to_tuple(from_pt)
+        tx, ty = to_tuple(to_pt)
 
         if rail == "left":
             # 鏡像：對 x=0 做鏡射 → tx_mirror = -tx
