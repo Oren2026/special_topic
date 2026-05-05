@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HIWIN 撞球機器人 — 進度追蹤</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #FFFAF0;
+    --card: #FFFFFF;
+    --border: #E8D5B7;
+    --accent: #D4956A;
+    --text: #3D2B1F;
+    --text-muted: #8B7355;
+    --green: #6B8E5A;
+    --yellow: #C9A84C;
+    --red: #B85C4E;
+    --blue: #5B7FA3;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+  }
+
+  /* ── Timeline ── */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    border-left: 3px solid var(--border);
+    margin-bottom: 3rem;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 2.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.35rem;
+    top: 0.3rem;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid var(--card);
+    background: var(--border);
+  }
+
+  .timeline-item.done::before { background: var(--green); }
+  .timeline-item.active::before { background: var(--yellow); border-color: var(--yellow); box-shadow: 0 0 0 4px rgba(201,168,76,0.25); }
+  .timeline-item.pending::before { background: var(--border); }
+
+  .phase-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 0.4rem;
+  }
+  .phase-tag.phase1 { background: #D4E8C4; color: #4A6B3A; }
+  .phase-tag.phase2 { background: #E8DDC4; color: #7B5B2A; }
+  .phase-tag.phase3 { background: #D4E0E8; color: #3A5B7B; }
+  .phase-tag.foundation { background: #EDE0D4; color: #6B4A3A; }
+
+  .timeline-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  .timeline-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+  .commit-hash {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: var(--blue);
+    background: #EEF3F8;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .files {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  /* ── Phase summary cards ── */
+  .phase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+  }
+
+  .card h2 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .card .big {
+    font-size: 2rem;
+    font-weight: 800;
+  }
+  .card .big.green { color: var(--green); }
+  .card .big.yellow { color: var(--yellow); }
+  .card .big.red { color: var(--red); }
+
+  .card .label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* ── Todo section ── */
+  .todo-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .todo-section h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .todo-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #F5EFE7;
+    font-size: 0.88rem;
+  }
+  .todo-row:last-child { border-bottom: none; }
+
+  .todo-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .todo-check.done { background: var(--green); color: white; }
+  .todo-check.active { background: var(--yellow); color: white; }
+  .todo-check.pending { background: var(--border); color: var(--text-muted); }
+
+  .todo-id {
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    min-width: 30px;
+  }
+
+  .priority {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .priority.high { background: #F8D7DA; color: #842029; }
+  .priority.med { background: #FFF3CD; color: #664A0E; }
+  .priority.low { background: #D1E7DD; color: #0F5132; }
+
+  /* ── Architecture diagram ── */
+  .arch-diagram {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+  }
+  .arch-diagram h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .arch-box {
+    display: inline-block;
+    background: #EDE0D4;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 0.25rem;
+  }
+  .arch-box.windows { background: #D4E0E8; border-color: #A8C4D8; }
+  .arch-box.wsl { background: #D4E8C4; border-color: #A8C8A0; }
+  .arch-box.new { background: #FFF3CD; border-color: #D9C87A; box-shadow: 0 2px 8px rgba(201,168,76,0.3); }
+
+  .arch-arrow { display: inline-block; color: var(--text-muted); font-size: 1.2rem; vertical-align: middle; padding: 0 0.25rem; }
+
+  .arch-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .arch-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 0.5rem;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    .phase-grid { grid-template-columns: 1fr 1fr; }
+    .arch-row { flex-direction: column; align-items: flex-start; }
+    .arch-arrow { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<h1>🎱 HIWIN RA605 撞球機器人</h1>
+<p class="subtitle">進度追蹤 · 2026-05-05 · 複審截止：2026-05-22</p>
+
+<!-- Phase summary -->
+<div class="phase-grid">
+  <div class="card">
+    <h2>Foundation</h2>
+    <div class="big foundation">✓</div>
+    <div class="label">校正流程 · 擊球修復 · Socket 通訊</div>
+  </div>
+  <div class="card">
+    <h2>Phase 1 — 影像辨識</h2>
+    <div class="big yellow">●●</div>
+    <div class="label">骨架完成 · 圓形+顏色 · COMPETE 串接待做</div>
+  </div>
+  <div class="card">
+    <h2>Phase 2 — 簡單策略</h2>
+    <div class="big red">○</div>
+    <div class="label">單一擊打 · 障礙判斷</div>
+  </div>
+  <div class="card">
+    <h2>Phase 3 — 參數空間</h2>
+    <div class="big red">○</div>
+    <div class="label">摩擦係數 · 側邊相機 · 係數微調</div>
+  </div>
+</div>
+
+<!-- Architecture -->
+<div class="arch-diagram">
+  <h2>🏗️ 系統架構</h2>
+
+  <div class="arch-row">
+    <span class="arch-label">Windows</span>
+    <div class="arch-box windows">camera.py<br><small>BilliardVision</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box windows">hmi.py<br><small>Tkinter UI</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box windows">state_machine.py<br><small>模式分派</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box windows">socket_client.py<br><small>TCP :5005</small></div>
+  </div>
+
+  <div class="arch-row">
+    <span class="arch-label">WSL</span>
+    <div class="arch-box wsl">robot_brain.py<br><small>模式分派</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box wsl">strategy_module.py<br><small>Ghost Ball</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box wsl">coord_manager.py<br><small>pixel↔mm</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box wsl">striker_bridge.py<br><small>⚠ MOCK</small></div>
+  </div>
+
+  <div class="arch-row" style="margin-top:0.75rem; padding-top:0.75rem; border-top: 1px dashed var(--border);">
+    <span class="arch-label" style="color:var(--yellow);">NEW</span>
+    <div class="arch-box new">calibration_control.py<br><small>4角校正+驗證</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box new">table_geometry.py<br><small>比例尺計算</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box new">ball_identifier.py<br><small>圓形+顏色</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box new">vision_pipeline.py<br><small>整合層</small></div>
+  </div>
+</div>
+
+<!-- Timeline -->
+<h2 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">📋 完成記錄</h2>
+<div class="timeline">
+
+  <div class="timeline-item done">
+    <span class="phase-tag foundation">Foundation</span>
+    <div class="timeline-title">Ghost Ball 口袋動態查詢</div>
+    <div class="timeline-desc">pixel→mm→歐氏距離比對6口袋，100mm fallback</div>
+    <span class="commit-hash">8af5950</span>
+    <div class="files">robot_brain.py</div>
+  </div>
+
+  <div class="timeline-item done">
+    <span class="phase-tag foundation">Foundation</span>
+    <div class="timeline-title">擊球後多餘點擊修復</div>
+    <div class="timeline-desc">_shot_sent flag 區分第一次/重複，球桌外重置</div>
+    <span class="commit-hash">cf66885</span>
+    <div class="files">state_machine.py, hmi.py</div>
+  </div>
+
+  <div class="timeline-item done">
+    <span class="phase-tag phase1">Phase 1</span>
+    <div class="timeline-title">影像辨識骨架</div>
+    <div class="timeline-desc">calibration_control + ball_identifier + vision_pipeline</div>
+    <span class="commit-hash">fb90af8</span>
+    <div class="files">3 new files</div>
+  </div>
+
+  <div class="timeline-item done">
+    <span class="phase-tag phase1">Phase 1</span>
+    <div class="timeline-title">TableGeometry 動態比例</div>
+    <div class="timeline-desc">移除 hardcode 半徑，由校正矩陣計算 1pixel=?mm</div>
+    <span class="commit-hash">c17cbdd</span>
+    <div class="files">table_geometry.py, ball_identifier.py, vision_pipeline.py</div>
+  </div>
+
+  <div class="timeline-item active">
+    <span class="phase-tag phase1">Phase 1</span>
+    <div class="timeline-title">COMPETE 模式串接</div>
+    <div class="timeline-desc">VisionPipeline → StateMachine → 自動擊球（待實作）</div>
+    <div class="files">需修改 hmi.py + state_machine.py</div>
+  </div>
+
+  <div class="timeline-item pending">
+    <span class="phase-tag phase2">Phase 2</span>
+    <div class="timeline-title">簡單策略（單一擊打）</div>
+    <div class="timeline-desc">白球→目標球→口袋夾角最小，考慮障礙球遮蔽</div>
+  </div>
+
+  <div class="timeline-item pending">
+    <span class="phase-tag phase3">Phase 3</span>
+    <div class="timeline-title">物理參數預留空間</div>
+    <div class="timeline-desc">StrategyParams：摩擦/反彈/側邊相機 offset</div>
+  </div>
+
+  <div class="timeline-item pending">
+    <span class="phase-tag foundation">高優</span>
+    <div class="timeline-title">口袋 mm 座標實地測量</div>
+    <div class="timeline-desc">strategy_module.POCKETS 與實際球檯對齊</div>
+  </div>
+
+  <div class="timeline-item pending">
+    <span class="phase-tag foundation">高優</span>
+    <div class="timeline-title">WSL IP 更新</div>
+    <div class="timeline-desc">windows/config.py SOCKET_HOST 待確認</div>
+  </div>
+
+</div>
+
+<!-- Todo list -->
+<div class="todo-section">
+  <h2>✅ 待辦清單（hiwin-todos.md 同步）</h2>
+
+  <div class="todo-row">
+    <div class="todo-check done">✓</div>
+    <div class="todo-id">#1</div>
+    <span>擊球後多餘點擊修復</span>
+    <span class="priority high" style="margin-left:auto;">high</span>
+  </div>
+  <div class="todo-row">
+    <div class="todo-check pending">○</div>
+    <div class="todo-id">#2</div>
+    <span>口袋 mm 座標實地測量對齊</span>
+    <span class="priority high" style="margin-left:auto;">high</span>
+  </div>
+  <div class="todo-row">
+    <div class="todo-check pending">○</div>
+    <div class="todo-id">#3</div>
+    <span>WSL IP 更新到 windows/config.py</span>
+    <span class="priority high" style="margin-left:auto;">high</span>
+  </div>
+  <div class="todo-row">
+    <div class="todo-check active">●</div>
+    <div class="todo-id">#4a</div>
+    <span>Phase 1：COMPETE 模式串接（VisionPipeline → StateMachine）</span>
+    <span class="priority high" style="margin-left:auto;">high</span>
+  </div>
+  <div class="todo-row">
+    <div class="todo-check pending">○</div>
+    <div class="todo-id">#4b</div>
+    <span>Phase 2：簡單策略（單一擊打）</span>
+    <span class="priority med" style="margin-left:auto;">med</span>
+  </div>
+  <div class="todo-row">
+    <div class="todo-check pending">○</div>
+    <div class="todo-id">#4c</div>
+    <span>Phase 3：物理參數空間（StrategyParams）</span>
+    <span class="priority low" style="margin-left:auto;">low</span>
+  </div>
+  <div class="todo-row">
+    <div class="todo-check pending">○</div>
+    <div class="todo-id">#5</div>
+    <span>擊球後場景重置（球桌外點擊）</span>
+    <span class="priority med" style="margin-left:auto;">med</span>
+  </div>
+  <div class="todo-row">
+    <div class="todo-check pending">○</div>
+    <div class="todo-id">#6</div>
+    <span>校正資料持久化（JSON）</span>
+    <span class="priority med" style="margin-left:auto;">med</span>
+  </div>
+  <div class="todo-row">
+    <div class="todo-check pending">○</div>
+    <div class="todo-id">#7</div>
+    <span>校正完成後 6 口袋視覺化顯示</span>
+    <span class="priority med" style="margin-left:auto;">med</span>
+  </div>
+  <div class="todo-row">
+    <div class="todo-check pending">○</div>
+    <div class="todo-id">#8</div>
+    <span>多口袋候選線（6條路徑）</span>
+    <span class="priority low" style="margin-left:auto;">low</span>
+  </div>
+  <div class="todo-row">
+    <div class="todo-check pending">○</div>
+    <div class="todo-id">#9</div>
+    <span>開球多方向（BREAK angle 非固定）</span>
+    <span class="priority low" style="margin-left:auto;">low</span>
+  </div>
+  <div class="todo-row">
+    <div class="todo-check pending">○</div>
+    <div class="todo-id">#10</div>
+    <span>策略學習層（貝氏/強化學習）</span>
+    <span class="priority low" style="margin-left:auto;">low</span>
+  </div>
+</div>
+
+<div class="footer">
+  HIWIN RA605 · Git: github.com/Oren2026/special_topic · 分支：main<br>
+  最新 commit：<span class="commit-hash">c17cbdd</span> · Push ✓ · 複審倒數 17 天
+</div>
+
+</body>
+</html>
