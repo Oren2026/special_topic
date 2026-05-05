@@ -224,22 +224,22 @@
           <th>洞口徑</th>
         </tr>
         <tr>
-          <td>上左（角袋）</td><td>角袋</td><td class="coord">(0, 0)</td><td>50 mm</td>
+          <td>上左（角袋）</td><td>角袋</td><td>(50, 580)</td><td>50mm</td>
         </tr>
         <tr>
-          <td>上中（側袋）</td><td>側袋</td><td class="coord">(600, 0)</td><td>50 mm</td>
+          <td>上中（側袋）</td><td>側袋</td><td>(600, 580)</td><td>50mm</td>
         </tr>
         <tr>
-          <td>上右（角袋）</td><td>角袋</td><td class="coord">(1200, 0)</td><td>50 mm</td>
+          <td>上右（角袋）</td><td>角袋</td><td>(1150, 580)</td><td>50mm</td>
         </tr>
         <tr>
-          <td>下左（角袋）</td><td>角袋</td><td class="coord">(0, 630)</td><td>50 mm</td>
+          <td>下左（角袋）</td><td>角袋</td><td>(50, 50)</td><td>50mm</td>
         </tr>
         <tr>
-          <td>下中（側袋）</td><td>側袋</td><td class="coord">(600, 630)</td><td>50 mm</td>
+          <td>下中（側袋）</td><td>側袋</td><td>(600, 50)</td><td>50mm</td>
         </tr>
         <tr>
-          <td>下右（角袋）</td><td>角袋</td><td class="coord">(1200, 630)</td><td>50 mm</td>
+          <td>下右（角袋）</td><td>角袋</td><td>(1150, 50)</td><td>50mm</td>
         </tr>
       </table>
 
@@ -307,7 +307,7 @@
       <div class="profile">
         <h4>Felt 桌面（Playable Area）</h4>
         <div class="profile-felt" style="width: calc(100% - 80px); max-width: 440px;">
-          1120 × 550 mm（1200-40×2 × 630-40×2）
+          1100 × 530 mm（外框 1200-50×2 × 630-50×2）
         </div>
         <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.4rem;">
           口袋內緣 = 洞口徑 50mm 內側邊緣（球心到此距離 &lt; 25mm 視為進袋）</p>
@@ -383,7 +383,10 @@
   const s = Math.min(sx, sy); // 0.5333 — 用於均勻縮放
   const ox = (W_C - W_MM * s) / 2;
   const oy = (H_C - H_MM * s) / 2;
-  const mm2px = (xm, ym) => [ox + xm * s, oy + ym * s];
+  const mm2px = (xm, ym) => [
+    ox + xm * s,           // x: 直接線性映射
+    oy + (H_MM - ym) * s  // y: 翻轉（Canvas y=0 在上方，Table y=0 在下方）
+  ];
 
   // ── 顏色 ─────────────────────────────────────────────────────────
   const C_RAIL    = '#5D4037';
@@ -403,12 +406,12 @@
   // ── 口袋定義 (mm) ────────────────────────────────────────────────
   const POCKET_R = 25; // 洞口半徑 mm
   const POCKETS = [
-    { name: '上左',  x: 0,     y: 0,     type: 'corner' },
-    { name: '上中',  x: 600,   y: 0,     type: 'side' },
-    { name: '上右',  x: 1200,  y: 0,     type: 'corner' },
-    { name: '下左',  x: 0,     y: 630,   type: 'corner' },
-    { name: '下中',  x: 600,   y: 630,   type: 'side' },
-    { name: '下右',  x: 1200,  y: 630,   type: 'corner' },
+    { name: '上左（角袋）',  x: 50,   y: 580,  type: 'corner' },
+    { name: '上中（側袋）',  x: 600,  y: 580,  type: 'side' },
+    { name: '上右（角袋）',  x: 1150, y: 580,  type: 'corner' },
+    { name: '下左（角袋）',  x: 50,   y: 50,   type: 'corner' },
+    { name: '下中（側袋）',  x: 600,  y: 50,   type: 'side' },
+    { name: '下右（角袋）',  x: 1150, y: 50,   type: 'corner' },
   ];
 
   // ── 庫邊寬度（待實測）───────────────────────────────────────────
@@ -417,37 +420,35 @@
   function drawTable() {
     ctx.clearRect(0, 0, W_C, H_C);
 
-    // 外框（整個球檯，含庫邊）
+    // 外框（整個球檯，含庫邊）— top-left corner of rail in canvas
     ctx.fillStyle = C_RAIL;
-    const [ox0, oy0] = mm2px(-RAIL, -RAIL);
+    const railTopLeft_x = ox - RAIL * s;             // left of felt
+    const railTopLeft_y = oy - RAIL * s;             // above felt top
     const railW = (W_MM + RAIL * 2) * s;
     const railH = (H_MM + RAIL * 2) * s;
-    ctx.fillRect(ox0, oy0, railW, railH);
+    ctx.fillRect(railTopLeft_x, railTopLeft_y, railW, railH);
 
-    // Felt（綠色檯面）
+    // Felt（綠色檯面）— top-left corner in canvas = (ox, oy)
     ctx.fillStyle = C_FELT;
-    const [ofx, ofy] = mm2px(0, 0);
-    const feltW = W_MM * s;
-    const feltH = H_MM * s;
-    ctx.fillRect(ofx, ofy, feltW, feltH);
+    ctx.fillRect(ox, oy, W_MM * s, H_MM * s);
 
     // 格子（視覺輔助）
     ctx.strokeStyle = C_GRID;
     ctx.lineWidth = 0.5;
     for (let x = 0; x <= W_MM; x += 100) {
       const [px] = mm2px(x, 0);
-      ctx.beginPath(); ctx.moveTo(px, ofy); ctx.lineTo(px, ofy + feltH); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px, oy); ctx.lineTo(px, oy + H_MM * s); ctx.stroke();
     }
     for (let y = 0; y <= H_MM; y += 100) {
       const [, py] = mm2px(0, y);
-      ctx.beginPath(); ctx.moveTo(ofx, py); ctx.lineTo(ofx + feltW, py); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox, py); ctx.lineTo(ox + W_MM * s, py); ctx.stroke();
     }
 
     // 庫邊內緣線（虛線）
     ctx.strokeStyle = 'rgba(93,64,55,0.6)';
     ctx.lineWidth = 1.5;
     ctx.setLineDash([6, 4]);
-    ctx.strokeRect(ofx, oy0, feltW, feltH);
+    ctx.strokeRect(ox, oy, W_MM * s, H_MM * s);
     ctx.setLineDash([]);
 
     // 中心線（長邊中線）
@@ -456,8 +457,8 @@
     const [, cMy] = mm2px(0, H_MM / 2);
     const [, bMy] = mm2px(0, 0);
     ctx.beginPath();
-    ctx.moveTo(ofx, cMy);
-    ctx.lineTo(ofx + feltW, cMy);
+    ctx.moveTo(ox, cMy);
+    ctx.lineTo(ox + W_MM * s, cMy);
     ctx.stroke();
 
     // ── 口袋 ────────────────────────────────────────────────────
@@ -511,14 +512,23 @@
     });
 
     // ── 範例球（白球、目標球、Ghost Ball）────────────────────────
-    // 長邊（1200mm）在上下側，短邊（630mm）在左右側
-    // 白球：下方中央 (500, 480)
-    // 目標球：上方偏右 (750, 250) → 配合上中口袋 (600, 0)
-    // Ghost Ball：目標球前方
-    const cueBall    = [500, 480];
-    const targetBall = [750, 250];
-    const ghostBall  = [700, 200];
-    const targetPocket = [600, 0];   // 上中口袋
+    // 球檯：x=0~1200, y=0~630（y=630 為上方，y=0 為下方）
+    // 口袋：上排 y=580、下排 y=50（y 往上增加）
+    //
+    // 範例：打下排中袋
+    //   白球：(400, 100)  — 下方
+    //   目標球：(600, 350) — 中間偏上
+    //   口袋：下中 (600, 50)  — y=50 是下排
+    //
+    // Ghost Ball 幾何：
+    //   G = T + normalize(P - T) × BALL_DIAMETER
+    //   P-T = (600-600, 50-350) = (0, -300)  → 往下（朝口袋方向）
+    //   |P-T| = 300
+    //   G = (600, 350) + (0/300, -300/300) × 38 = (600, 350-38) = (600, 312)
+    const cueBall     = [400, 100];
+    const targetBall  = [600, 350];
+    const targetPocket = [600, 50];   // 下中口袋
+    const ghostBall   = [600, 312];   // G = T + normalize(P-T) × 38
 
     drawBall(...cueBall, C_BALL_W, 'CUE');
     drawBall(...targetBall, C_BALL_Y, '①');

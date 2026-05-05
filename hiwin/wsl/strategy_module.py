@@ -28,25 +28,28 @@ class BilliardStrategy:
         self.max_stroke     = config.MAX_STROKE
         self.ROBOT_MAX_REACH = config.ROBOT_MAX_REACH
 
-        # 口袋座標（mm）— 長邊（1200mm）在上下側，側袋在 x=600
+        # 口袋座標（mm）— 使用者指定
         #
-        # ⚠️ 注意：TABLE_WIDTH/TABLE_HEIGHT 是球檯外框尺寸（包含庫邊）
-        # 口袋位於庫邊內側，實際座標需由「口袋直徑」與「庫邊夾角」推算
+        # 原點 (0,0) = 球檯幾何左下角（不是手臂原點）
+        # 口袋位置 = 洞口中心，直徑 50mm
+        # 手臂原點大約在 (600, -50)
         #
-        # 待確認項目：
-        #   - 口袋直徑（洞口 actual diameter）
-        #   - 角落口袋：兩庫邊的實際夾角（通常 ≠ 90°）
-        # 以下座標為假設值（口袋在檯面內側邊緣中心）
+        # 上排口袋：y = 580（距頂部邊緣約 50mm）
+        # 下排口袋：y =  50（距底部邊緣約 50mm）
+        # 左排：x =  50（距左側邊緣約 50mm）
+        # 中排：x = 600（長邊中點）
+        # 右排：x = 1150（距右側邊緣約 50mm）
+        #
+        # ⚠️ 注意：球檯外框 1200×630mm，口袋在內側，playable area 約 1100×530mm
         self.POCKETS = {
-            # 4角袋（庫邊轉角處）
-            # x: 0（左）到 1200（右），y: 0（上）到 630（下）
-            "top_left":   (  0,   0),
-            "top_right":  (1200,   0),
-            "bot_left":   (  0, 630),
-            "bot_right":  (1200, 630),
-            # 2側袋（長邊 x=600 中央，長邊在上下側）
-            "top_mid":    ( 600,   0),
-            "bot_mid":    ( 600, 630),
+            # 上排（長邊上側）
+            "top_left":   (  50, 580),
+            "top_mid":    ( 600, 580),
+            "top_right":  (1150, 580),
+            # 下排（長邊下側）
+            "bot_left":   (  50,  50),
+            "bot_mid":    ( 600,  50),
+            "bot_right":  (1150,  50),
         }
 
     def get_all_pockets_mm(self):
