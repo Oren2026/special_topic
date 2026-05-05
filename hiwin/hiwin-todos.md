@@ -1,7 +1,7 @@
 # HIWIN 撞球機器人 — 待辦追蹤
 
 > 更新日期：2026-05-05
-> 現況：Phase 1 準備啟動
+> 現況：Bank Shot Planner 已實作 + Unit Tests ✅
 > 複審截止：2026-05-22
 
 ---
@@ -26,6 +26,8 @@ Phase 1 (現在)   Phase 2 (中期)   Phase 3 (後期)
 |------|------|------|
 | 2026-05-05 | Ghost ball 口袋動態查詢 | `_find_nearest_pocket_name()` pixel→mm→比對6口袋 |
 | 2026-05-05 | 擊球後多餘點擊修復 | commit cf66885，_shot_sent flag + 球桌外重置 |
+| 2026-05-05 | Bank Shot Planner | 鏡像法計算4條庫邊反彈點，commit 2d97853 |
+| 2026-05-05 | Bank Shot Unit Tests ✅ | 32/32 通過，commit d67c729 |
 
 ---
 
