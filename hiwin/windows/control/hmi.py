@@ -8,6 +8,7 @@ Tkinter 人機介面
 import tkinter as tk
 from tkinter import messagebox
 import cv2
+import numpy as np
 from PIL import Image, ImageTk
 from typing import Optional
 import sys, os
@@ -147,7 +148,11 @@ class HMI:
                 result = self._state.handle_click(pkt_hit["u"], pkt_hit["v"])
                 if result:
                     if result.get("ready"):
-                        self._info_lbl.config(text="擊球任務已發送！\n可直接拖曳調整路徑。")
+                        self._info_lbl.config(
+                            text="擊球任務已發送！\n可直接拖曳調整路徑。"
+                            if not result.get("already_sent") else
+                            "已完成。可拖曳球調整路線，或點空白處重新布置。"
+                        )
                     else:
                         self._info_lbl.config(text=f"已記錄: {result.get('label')}")
                 return
@@ -163,8 +168,22 @@ class HMI:
         if result:
             if ball_type and ball_type not in self._scene.balls:
                 self._scene.add_or_update(ball_type, u, v)
+
+            # TEST 模式：檢查是否點在球桌範圍外（空白處）
+            if self._state.current_mode() == State.TEST and result.get("ready"):
+                is_off_table = not self._is_on_table(u, v)
+                if is_off_table and result.get("already_sent"):
+                    # 球桌外 + 已完成 → 重置 scene，重新布置
+                    self._reset_test_scene()
+                    self._info_lbl.config(text="已清除，請重新布置：目標球 → 白球")
+                    return
+
             if result.get("ready"):
-                self._info_lbl.config(text="擊球任務已發送！\n可直接拖曳調整路徑。")
+                self._info_lbl.config(
+                    text="擊球任務已發送！\n可直接拖曳調整路徑。"
+                    if not result.get("already_sent") else
+                    "已完成。可拖曳球調整路線，或點空白處重新布置。"
+                )
             else:
                 self._info_lbl.config(text=f"已記錄: {result.get('label')}")
 
@@ -191,6 +210,36 @@ class HMI:
             if ((pkt["u"] - u)**2 + (pkt["v"] - v)**2) ** 0.5 < 20:
                 return pkt
         return None
+
+    def _is_on_table(self, u, v) -> bool:
+        """
+        判斷點 (u, v) 是否在球桌範圍內（使用校正4點構成的矩形）。
+        使用 cv2.pointPolygonTest：>0 表示在內部。
+        若尚未校正（無4點），回傳 True（不主動阻擋）。
+        """
+        points = self._state._cal.get_points()
+        if len(points) < 4:
+            return True  # 未校正，不阻擋
+        pts = [tuple(map(int, p)) for p in points]
+        # cv2.pointPolygonTest 回傳：>0 在內部，=0 在邊界，<0 在外部
+        return cv2.pointPolygonTest(np.array(pts, dtype=np.int32), (float(u), float(v))) >= 0
+
+    def _reset_test_scene(self):
+        """
+        重置 TEST 模式場景（清除球，保留口袋），以便重新布置。
+        """
+        pockets = {p["name"]: [p["u"], p["v"]] for p in self._scene._pockets}
+        self._scene = SimulationScene()
+        self._scene.set_pockets(pockets)
+        self._state._shot.reset()
+        self._state._shot_sent = False
+        self._prediction_data = None
+        # 預設第一個口袋
+        if pockets:
+            first_name, first_uv = next(iter(pockets.items()))
+            pu, pv = int(first_uv[0]), int(first_uv[1])
+            self._scene.add_or_update("POCKET", pu, pv)
+            self._state.set_pocket(pu, pv)
 
     # ── Socket 回應 ──────────────────────────────────────────────────────────
 

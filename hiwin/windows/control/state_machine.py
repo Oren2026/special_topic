@@ -34,6 +34,7 @@ class StateMachine:
         self._shot = ShotDispatcher()
         self._break = BreakHandler()
         self._prediction_cb = None
+        self._shot_sent = False  # True：初始擊球封包已發送（區分「剛完成」vs「已完成」）
 
     # ── 模式控制 ─────────────────────────────────────────────────────────────
 
@@ -43,6 +44,7 @@ class StateMachine:
         self._cal.reset()
         self._shot.reset()
         self._break.reset()
+        self._shot_sent = False  # 重置
         print(f"[StateMachine] 模式切換 → {mode}")
 
     def set_pocket(self, u: int, v: int):
@@ -98,17 +100,23 @@ class StateMachine:
         # 自動從 shot sequence 取下一個類型
         next_type = self._shot.next_label()
         if next_type == "已完成":
-            return {"label": "已完成", "ready": True}
+            # 已完成：區分「剛完成（已發送過）」vs「已經完成（重複點擊）」
+            return {"label": "已完成", "ready": True, "already_sent": self._shot_sent}
         complete = self._shot.add(next_type, u, v)
         if complete:
             self._socket.send(self._shot.get_packet())
-        return {"label": self._shot.next_label(), "ready": complete, "count": self._shot.ball_count()}
+            self._shot_sent = True  # 標記已發送
+        return {"label": self._shot.next_label(), "ready": complete, "already_sent": self._shot_sent}
 
     def _handle_break(self, u, v) -> dict:
         """處理 BREAK 模式：只需要白球位置"""
+        # 防止重複點擊（已完成後不再發送）
+        if self._shot_sent:
+            return {"label": "已完成", "ready": True, "already_sent": True}
         self._break.add(u, v)
         self._socket.send(self._break.get_packet())
-        return {"label": "已完成", "ready": True}
+        self._shot_sent = True
+        return {"label": "已完成", "ready": True, "already_sent": False}
 
     # ── 預測回調 ─────────────────────────────────────────────────────────────
 
