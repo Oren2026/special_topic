@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 from .state_machine import StateMachine, State
 from .socket_client import SocketClient
+from .sim_table import SimTable, DEFAULT_TABLE
 import vision
 from vision import BilliardVision, SimulationScene
 
@@ -65,32 +66,42 @@ class HMI:
         self._ctrl = tk.Frame(self._root, padx=10, pady=10, relief=tk.RIDGE, bd=2)
         self._ctrl.pack(side=tk.LEFT, fill=tk.Y)
 
-        tk.Label(self._ctrl, text="控制面板", font=('Arial', 16, 'bold')).pack(pady=10)
+        tk.Label(self._ctrl, text="控制面板", font=('Arial', 16, 'bold')).pack(pady=(10, 5))
 
-        tk.Button(self._ctrl, text="安裝模式（四角標定）", width=20, bg="#f0f0f0",
-                 command=lambda: self._on_mode_set(State.INSTALL)).pack(pady=5)
-        tk.Button(self._ctrl, text="開球模式（Break）", width=20, bg="#fff3e0",
-                 command=lambda: self._on_mode_set(State.BREAK)).pack(pady=5)
-        tk.Button(self._ctrl, text="測試模式（模擬擊球）", width=20, bg="#e1f5fe",
-                 command=lambda: self._on_mode_set(State.TEST)).pack(pady=5)
-        tk.Button(self._ctrl, text="比賽模式（自動辨識）", width=20, bg="#ffcdd2",
-                 command=lambda: self._on_mode_set(State.COMPETE)).pack(pady=5)
+        # ── 設定區 ────────────────────────────────────────────────────────
+        tk.Label(self._ctrl, text="【設定區】", font=('Arial', 11, 'bold')).pack()
+
+        tk.Button(self._ctrl, text="檯球桌位置確認", width=18, bg="#f0f0f0",
+                 command=lambda: self._on_mode_set(State.TABLE_CALIB)).pack(pady=2)
+        tk.Button(self._ctrl, text="圓形校正", width=18, bg="#e8f5e9",
+                 command=lambda: self._on_mode_set(State.CIRCLE_CALIB)).pack(pady=2)
+        tk.Button(self._ctrl, text="顏色校正", width=18, bg="#e3f2fd",
+                 command=lambda: self._on_mode_set(State.COLOR_CALIB)).pack(pady=2)
+
+        # ── 測試區 ────────────────────────────────────────────────────────
+        tk.Label(self._ctrl, text="【測試區】", font=('Arial', 11, 'bold')).pack(pady=(10, 0))
+
+        tk.Button(self._ctrl, text="打球測試", width=18, bg="#fff3e0",
+                 command=lambda: self._on_mode_set(State.PLAY_TEST)).pack(pady=2)
+        tk.Button(self._ctrl, text="開球測試", width=18, bg="#fce4ec",
+                 command=lambda: self._on_mode_set(State.BREAK_TEST)).pack(pady=2)
+        tk.Button(self._ctrl, text="比賽模式", width=18, bg="#ffcdd2",
+                 command=lambda: self._on_mode_set(State.COMPETE)).pack(pady=2)
 
         self._status_lbl = tk.Label(self._ctrl, text="目前狀態: 待機中", fg="blue")
-        self._status_lbl.pack(pady=20)
+        self._status_lbl.pack(pady=15)
 
-        self._info_lbl = tk.Label(self._ctrl, text="請先執行安裝模式", justify=tk.LEFT)
-        self._info_lbl.pack(side=tk.BOTTOM, pady=10)
+        self._info_lbl = tk.Label(self._ctrl, text="請依序執行設定區項目", justify=tk.LEFT)
+        self._info_lbl.pack(side=tk.BOTTOM, pady=5)
 
-        # 中：頂視主畫面
+        # ── 主畫面區域 ────────────────────────────────────────────────────
         self._canvas_top = tk.Canvas(self._root, width=config.TOP_CANVAS_W,
-                                      height=config.TOP_CANVAS_H, bg="black")
+                                     height=config.TOP_CANVAS_H, bg="black")
         self._canvas_top.pack(side=tk.LEFT, padx=5)
 
-        # 右：側視監控
         self._canvas_side = tk.Canvas(self._root, width=config.SIDE_CANVAS_W,
-                                       height=config.SIDE_CANVAS_H, bg="black")
-        self._canvas_side.pack(side=tk.TOP, padx=10, pady=20)
+                                      height=config.SIDE_CANVAS_H, bg="black")
+        self._canvas_side.pack(side=tk.TOP, padx=10, pady=(20, 0))
 
     def _setup_events(self):
         # 點擊 → 狀態機處理
@@ -102,48 +113,132 @@ class HMI:
     # ── 模式切換 ─────────────────────────────────────────────────────────────
 
     def _on_mode_set(self, mode: str):
+        # ── Guard 檢查 ─────────────────────────────────────────────────────
+        if mode == State.CIRCLE_CALIB or mode == State.COLOR_CALIB:
+            if not self._has_calibration_json():
+                messagebox.showwarning("尚無校正檔",
+                    "請先執行「檯球桌位置確認」")
+                return
+
+        if mode == State.PLAY_TEST:
+            missing = self._get_missing_configs()
+            if missing:
+                messagebox.showwarning("設定檔不完整",
+                    f"缺少：{', '.join(missing)}\n請先完成設定區項目")
+                return
+
         self._state.set_mode(mode)
-        # 只有 IDLE / TEST / BREAK / COMPETE 才重建 Scene
-        # INSTALL 模式保留舊場景（邊框、口袋），避免清除已繪製的球桌
-        if mode != State.INSTALL:
+
+        # 非 CALIB 模式重建 Scene，CALIB 模式保留（用於輔助線繪製）
+        if mode not in (State.TABLE_CALIB, State.CIRCLE_CALIB, State.COLOR_CALIB):
             self._scene = SimulationScene()
+
         self._prediction_data = None
 
+        # 模式初始化
+        if mode == State.TABLE_CALIB:
+            pass  # 直接進流程，4角收集完成後自動儲存
+        elif mode == State.PLAY_TEST:
+            self._load_calibration_for_test()
+
         labels = {
-            State.INSTALL: "安裝模式",
-            State.BREAK:   "開球模式",
-            State.TEST:    "測試模式",
-            State.COMPETE: "比賽模式",
+            State.TABLE_CALIB:  "檯球桌位置確認",
+            State.CIRCLE_CALIB: "圓形校正",
+            State.COLOR_CALIB:  "顏色校正",
+            State.PLAY_TEST:    "打球測試",
+            State.BREAK_TEST:   "開球測試",
+            State.COMPETE:      "比賽模式",
         }
         self._status_lbl.config(text=f"狀態: {labels.get(mode, mode)}")
         self._info_lbl.config(text=self._get_mode_hint(mode))
 
-        if mode == State.INSTALL:
-            messagebox.showinfo("安裝指引",
+        if mode == State.TABLE_CALIB:
+            messagebox.showinfo("檯球桌位置確認",
                 "請在頂視畫面依序點擊球桌四個角：\n1. 左上 2. 右上 3. 右下 4. 左下")
 
     def _get_mode_hint(self, mode) -> str:
         hints = {
-            State.INSTALL: "請依序點擊：左上 → 右上 → 右下 → 左下",
-            State.BREAK:   "請點擊白球位置（Break 將以最大力朝球堆方向擊出）",
-            State.TEST:    "直接點擊：目標球 → 白球（口袋已顯示，可直接點選更換）",
-            State.COMPETE: "自動辨識模式（待實作）",
+            State.TABLE_CALIB:  "請依序點擊：左上 → 右上 → 右下 → 左下",
+            State.CIRCLE_CALIB: "點擊球面中心，確認半徑比例",
+            State.COLOR_CALIB:  "點擊球體取樣顏色",
+            State.PLAY_TEST:    "請先完成設定區項目",
+            State.BREAK_TEST:   "點擊白球位置（將以最大力朝球堆方向擊出）",
+            State.COMPETE:      "自動辨識模式（待實作）",
         }
         return hints.get(mode, "")
+
+    # ── TEST 模式初始化（讀取 JSON → 設定檯面 + 口袋）───────────────────────
+
+    def _calibration_json_path(self) -> str:
+        return os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "calibration.json"
+        )
+
+    def _has_calibration_json(self) -> bool:
+        return os.path.exists(self._calibration_json_path())
+
+    def _get_missing_configs(self) -> list:
+        """檢查 PLAY_TEST 所需的設定檔，回傳缺少的項目"""
+        missing = []
+        if not self._has_calibration_json():
+            missing.append("calibration.json")
+        return missing
+
+    def _load_calibration_for_test(self):
+        """
+        切入 TEST 模式時：
+        1. 嘗試讀取 calibration.json
+        2. 若有紀錄 → 注入 4 角校正點 + 計算口袋 pixel 位置
+        3. 若無檔案 → 提示使用者先執行檯球桌位置確認
+        """
+        json_path = self._calibration_json_path()
+        if not os.path.exists(json_path):
+            self._info_lbl.config(
+                text="無 calibration.json，請先執行「檯球桌位置確認」"
+            )
+            return
+
+        ok, msg = self._state._cal.load_json(json_path)
+        if not ok:
+            self._info_lbl.config(text=f"校正檔載入失敗：{msg}")
+            return
+
+        # 注入 4 角校正點 → 繪製 felt + rails 邊框
+        calib_pts = self._state._cal.get_points()
+        self._scene.set_calibration_points(calib_pts)
+
+        # 用 SimTable 的口袋 mm 座標，透過 Homography 轉換為 pixel
+        table = DEFAULT_TABLE
+        pockets_for_scene = {}
+        for pocket in table.get_all_pockets():
+            u, v = self._state._cal.mm_to_pixel(pocket.x_mm, pocket.y_mm)
+            if u == float('inf') or v == float('inf'):
+                continue
+            pockets_for_scene[pocket.name] = [u, v]
+
+        self._scene.set_pockets(pockets_for_scene)
+
+        self._info_lbl.config(
+            text=f"已讀取校正（{len(calib_pts)}點），口袋{len(pockets_for_scene)}個\n"
+                 "請點擊：目標球 → 白球（口袋可直接點選更換）"
+        )
+        print(f"[HMI] 已載入校正 + 口袋：{pockets_for_scene}")
 
     # ── 點擊 / 拖曳 ──────────────────────────────────────────────────────────
 
     def _on_click(self, event):
         u, v = event.x, event.y
 
-        # 球體碰撞檢測（優先於狀態機處理）
-        hit = self._hit_test(u, v)
-        if hit:
-            self._selected_ball = hit
-            return
+        # 球體碰撞檢測（僅 PLAY_TEST 模式）
+        if self._state.current_mode() == State.PLAY_TEST:
+            hit = self._hit_test(u, v)
+            if hit:
+                self._selected_ball = hit
+                return
 
-        # TEST 模式：點擊口袋圓圈 → 自動選定該口袋
-        if self._state.current_mode() == State.TEST:
+        # PLAY_TEST 模式：點擊口袋圓圈 → 自動選定該口袋
+        if self._state.current_mode() == State.PLAY_TEST:
             pkt_hit = self._hit_pocket(u, v)
             if pkt_hit:
                 # 寫入 scene.balls（用於預測線繪圖）同時保持 scene._pockets（用於顯示）
@@ -162,9 +257,9 @@ class HMI:
 
         # 否則交給狀態機處理
         ball_type = None
-        if self._state.current_mode() == State.TEST:
+        if self._state.current_mode() == State.PLAY_TEST:
             ball_type = self._state._shot.next_label()
-        elif self._state.current_mode() == State.BREAK:
+        elif self._state.current_mode() == State.BREAK_TEST:
             ball_type = "CUE_BALL"
 
         result = self._state.handle_click(u, v)
@@ -173,8 +268,8 @@ class HMI:
             if ball_type and ball_type != "已完成" and ball_type not in self._scene.balls:
                 self._scene.add_or_update(ball_type, u, v)
 
-            # TEST 模式：檢查是否點在球桌範圍外（空白處）
-            if self._state.current_mode() == State.TEST and result.get("ready"):
+            # PLAY_TEST 模式：檢查是否點在球桌範圍外（空白處）
+            if self._state.current_mode() == State.PLAY_TEST and result.get("ready"):
                 is_off_table = not self._is_on_table(u, v)
                 if is_off_table and result.get("already_sent"):
                     # 球桌外 + 已完成 → 重置 scene，重新布置
@@ -192,11 +287,12 @@ class HMI:
                 self._info_lbl.config(text=f"已記錄: {result.get('label')}")
 
     def _on_drag(self, event):
+        if self._state.current_mode() != State.PLAY_TEST:
+            return
         if self._selected_ball:
             u, v = event.x, event.y
             self._scene.add_or_update(self._selected_ball, u, v)
-            if self._state.current_mode() == State.TEST:
-                self._state.handle_drag(self._selected_ball, u, v)
+            self._state.handle_drag(self._selected_ball, u, v)
 
     def _on_release(self, event):
         self._selected_ball = None
@@ -255,7 +351,7 @@ class HMI:
             self._prediction_data = data
         elif msg_type == "CALIBRATION_COMPLETE":
             pockets = data.get("pockets", {})
-            self._on_mode_set(State.TEST)
+            self._on_mode_set(State.PLAY_TEST)
             self._scene.set_pockets(pockets)
             # 預設使用第一個口袋，讓 TEST 流程只需 TARGET + CUE（2步）
             first_pocket = next(iter(pockets.values()), None)
@@ -292,18 +388,19 @@ class HMI:
         if len(calib_pts) == 4:
             self._scene.set_calibration_points(calib_pts)
 
-        # 場景物件繪圖（felt/rails/口袋/球）
-        self._scene.render_all(img)
+        # 場景物件繪圖（僅 PLAY_TEST 模式：felt/口袋/球/預測線）
+        if self._state.current_mode() == State.PLAY_TEST:
+            self._scene.render_all(img)
 
-        # 安裝模式：繪製校正點輔助線
-        if self._state.current_mode() == State.INSTALL:
+        # 校正模式：繪製校正點輔助線
+        if self._state.current_mode() == State.TABLE_CALIB:
             self._draw_calibration_helper(img)
 
-        # 預測線路繪圖
+        # 預測線路繪圖（僅 PLAY_TEST + BREAK_TEST）
         if self._prediction_data:
-            if self._state.current_mode() == State.BREAK:
+            if self._state.current_mode() == State.BREAK_TEST:
                 self._draw_break(img)
-            elif len(self._scene.balls) == 3:
+            elif self._state.current_mode() == State.PLAY_TEST and len(self._scene.balls) == 3:
                 self._draw_prediction(img)
 
         self._photo_t = ImageTk.PhotoImage(image=Image.fromarray(img))

@@ -14,11 +14,13 @@ from .break_handler import BreakHandler
 
 
 class State:
-    IDLE     = "IDLE"
-    INSTALL  = "INSTALL"
-    TEST     = "TEST"
-    BREAK    = "BREAK"
-    COMPETE  = "COMPETE"
+    IDLE         = "IDLE"
+    TABLE_CALIB  = "TABLE_CALIB"   # 檯球桌位置確認（4角校正）
+    CIRCLE_CALIB = "CIRCLE_CALIB"  # 圓形校正
+    COLOR_CALIB  = "COLOR_CALIB"   # 顏色校正
+    PLAY_TEST    = "PLAY_TEST"     # 打球測試
+    BREAK_TEST   = "BREAK_TEST"    # 開球測試
+    COMPETE      = "COMPETE"       # 比賽模式（自動辨識）
 
 
 class StateMachine:
@@ -64,11 +66,15 @@ class StateMachine:
         處理點擊事件
         回傳：info dict {"label": str, "ready": bool} 或 None
         """
-        if self._mode == State.INSTALL:
-            return self._handle_install(u, v)
-        elif self._mode == State.TEST:
+        if self._mode == State.TABLE_CALIB:
+            return self._handle_table_calib(u, v)
+        elif self._mode == State.CIRCLE_CALIB:
+            return self._handle_circle_calib(u, v)
+        elif self._mode == State.COLOR_CALIB:
+            return self._handle_color_calib(u, v)
+        elif self._mode == State.PLAY_TEST:
             return self._handle_test(u, v)
-        elif self._mode == State.BREAK:
+        elif self._mode == State.BREAK_TEST:
             return self._handle_break(u, v)
         elif self._mode == State.COMPETE:
             # COMPETE 模式由自動辨識主導，此處暫不處理
@@ -80,7 +86,7 @@ class StateMachine:
         """
         拖曳球體 → 即時發送更新（task_id=9999）
         """
-        if self._mode != State.TEST:
+        if self._mode != State.PLAY_TEST:
             return
         self._shot._balls[ball_type] = {"u": int(u), "v": int(v)}
         packet = self._shot.get_packet()
@@ -89,7 +95,7 @@ class StateMachine:
 
     # ── 內部 ─────────────────────────────────────────────────────────────────
 
-    def _handle_install(self, u, v) -> dict:
+    def _handle_table_calib(self, u, v) -> dict:
         complete = self._cal.add_point(u, v)
         label = self._cal.next_label()
         if complete:
@@ -103,6 +109,14 @@ class StateMachine:
             print(f"[StateMachine] {msg}")
             self._mode = State.IDLE
         return {"label": label, "ready": complete, "count": self._cal.point_count()}
+
+    def _handle_circle_calib(self, u, v) -> dict:
+        """圓形校正（待實作）"""
+        return {"label": "圓形校正：點擊球中心確認半徑", "ready": False, "count": 0}
+
+    def _handle_color_calib(self, u, v) -> dict:
+        """顏色校正（待實作）"""
+        return {"label": "顏色校正：點擊球體取樣", "ready": False, "count": 0}
 
     def _handle_test(self, u, v) -> dict:
         # 自動從 shot sequence 取下一個類型
