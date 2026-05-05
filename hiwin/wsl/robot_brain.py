@@ -167,11 +167,13 @@ class RobotBrain:
             # 動態查詢口袋名稱（pixel → mm → 找最近已知口袋）
             pocket_name = self._find_nearest_pocket_name(p_pocket["u"], p_pocket["v"])
 
-            # 策略計算
-            result = self._strategy.get_best_shot(
+            # 策略計算（自動選擇 direct 或 bank shot）
+            # obstacles 留空：待視覺辨識完成後再接入
+            result = self._strategy.compute_shot(
                 cue_ball={"x": cx, "y": cy},
                 target_ball={"x": tx, "y": ty},
                 pocket_name=pocket_name,
+                obstacles=[],      # TODO: 視覺辨識完成後代入所有非目標球
             )
 
             # 毫米 → 像素（供 UI 繪圖）
@@ -197,6 +199,7 @@ class RobotBrain:
                 P.FIELD_ROBOT_PIXEL:  [robot_u, robot_v],
                 P.FIELD_IS_REACHABLE: result["is_reachable"],
                 P.FIELD_ANGLE:        result["angle"],
+                "shot_type":          result.get("type", "direct"),
             }
 
         except Exception as e:
