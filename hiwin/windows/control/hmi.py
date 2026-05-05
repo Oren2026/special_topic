@@ -103,7 +103,10 @@ class HMI:
 
     def _on_mode_set(self, mode: str):
         self._state.set_mode(mode)
-        self._scene = SimulationScene()  # 清除舊場景
+        # 只有 IDLE / TEST / BREAK / COMPETE 才重建 Scene
+        # INSTALL 模式保留舊場景（邊框、口袋），避免清除已繪製的球桌
+        if mode != State.INSTALL:
+            self._scene = SimulationScene()
         self._prediction_data = None
 
         labels = {
@@ -284,7 +287,12 @@ class HMI:
         img = cv2.resize(cv2.cvtColor(frame_t, cv2.COLOR_BGR2RGB),
                          (config.TOP_CANVAS_W, config.TOP_CANVAS_H))
 
-        # 場景物件繪圖
+        # 注入校正點（用於繪製球桌 felt + rails 邊框）
+        calib_pts = self._state._cal.get_points()
+        if len(calib_pts) == 4:
+            self._scene.set_calibration_points(calib_pts)
+
+        # 場景物件繪圖（felt/rails/口袋/球）
         self._scene.render_all(img)
 
         # 安裝模式：繪製校正點輔助線

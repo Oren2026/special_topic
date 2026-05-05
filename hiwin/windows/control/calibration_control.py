@@ -208,3 +208,64 @@ class CalibrationControl:
             "points": self._points,
             "matrix": self._matrix.tolist() if self._matrix is not None else None,
         }
+
+    # ── JSON 持久化 ─────────────────────────────────────────────────────────
+
+    def save_json(self, path: str) -> Tuple[bool, str]:
+        """
+        將校正結果寫入 JSON 檔案（覆寫）
+
+        回傳：(success, message)
+        """
+        if not self._calibrated:
+            return False, "尚未校正，無法儲存"
+
+        import json, os
+        data = {
+            "calibrated": True,
+            "point_count": len(self._points),
+            "points": self._points,
+            # Homography 矩陣（3×3 list）
+            "matrix": self._matrix.tolist() if self._matrix is not None else None,
+            "inverse_matrix": (
+                self._inverse_matrix.tolist()
+                if self._inverse_matrix is not None else None
+            ),
+            "table_width_mm": self.TABLE_WIDTH_MM,
+            "table_height_mm": self.TABLE_HEIGHT_MM,
+        }
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            return True, f"已儲存至 {path}"
+        except Exception as e:
+            return False, f"儲存失敗：{e}"
+
+    def load_json(self, path: str) -> Tuple[bool, str]:
+        """
+        從 JSON 檔案載入校正結果
+
+        回傳：(success, message)
+        """
+        import json
+        if not os.path.exists(path):
+            return False, f"檔案不存在：{path}"
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if not data.get("calibrated"):
+                return False, "JSON 記錄為未校正狀態"
+            self._points = data["points"]
+            self._matrix = (
+                np.array(data["matrix"], dtype=np.float64)
+                if data.get("matrix") else None
+            )
+            self._inverse_matrix = (
+                np.array(data["inverse_matrix"], dtype=np.float64)
+                if data.get("inverse_matrix") else None
+            )
+            self._calibrated = True
+            return True, f"已載入校正資料（{len(self._points)} 點）"
+        except Exception as e:
+            return False, f"載入失敗：{e}"

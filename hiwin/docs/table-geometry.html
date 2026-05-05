@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>球檯幾何示意 — HIWIN</title>
+  <style>
+    :root {
+      --bg: #FFFAF0;
+      --felt: #1B5E20;
+      --felt-light: #2E7D32;
+      --rail: #5D4037;
+      --rail-dark: #3E2723;
+      --pocket: #111;
+      --pocket-ring: #8B7355;
+      --ball-white: #F5F5F5;
+      --ball-yellow: #FFD600;
+      --ball-red: #D32F2F;
+      --ball-blue: #1565C0;
+      --text: #3E2723;
+      --text-muted: #6D4C41;
+      --accent: #D4830A;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      padding: 2rem;
+    }
+    h1 { color: var(--accent); font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.85rem; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto 2rem;
+    }
+    .card {
+      background: #fff;
+      border: 2px solid #E8D5B7;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .card-header {
+      background: #FFF3E0;
+      padding: 0.6rem 1rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #E8D5B7;
+      color: #E65100;
+    }
+    .card-body { padding: 1.5rem; }
+
+    canvas { display: block; margin: 0 auto; }
+
+    /* ── 說明區 ─────────────────────────── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .info-box {
+      background: #FAFAFA;
+      border: 1px solid #E8D5B7;
+      border-radius: 8px;
+      padding: 0.75rem;
+    }
+    .info-box h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    .info-box p, .info-box li {
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .info-box ul { padding-left: 1.2rem; }
+    .dim-label {
+      font-family: 'Consolas', monospace;
+      background: #FFF8E1;
+      padding: 0.05rem 0.35rem;
+      border-radius: 3px;
+      color: #E65100;
+      font-size: 0.8rem;
+    }
+
+    /* ── 口袋表格 ─────────────────────────── */
+    .pocket-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-top: 1rem;
+    }
+    .pocket-table th {
+      background: #E8F5E9;
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      border: 1px solid #C8E6C9;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      color: #388E3C;
+    }
+    .pocket-table td {
+      padding: 0.45rem 0.75rem;
+      border: 1px solid #E8D5B7;
+    }
+    .pocket-table tr:nth-child(even) td { background: #FAFAFA; }
+    .coord { font-family: 'Consolas', monospace; color: #1565C0; }
+
+    /* ── 球枱剖面 ─────────────────────────── */
+    .profile {
+      background: #FAFAFA;
+      border: 1px solid #E8D5B7;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .profile h4 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .profile-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.82rem;
+    }
+    .profile-label { min-width: 80px; color: var(--text-muted); }
+    .profile-val { font-family: 'Consolas', monospace; color: #E65100; }
+    .profile-bar {
+      background: #5D4037;
+      border-radius: 2px;
+      height: 16px;
+      position: relative;
+    }
+    .profile-rail {
+      background: #5D4037;
+      border-radius: 2px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+    .profile-felt {
+      background: #2E7D32;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      font-size: 0.65rem;
+    }
+
+    /* ── 箭頭解說 ─────────────────────────── */
+    .algo-box {
+      background: #FFF8E1;
+      border: 1px solid #FFE082;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .algo-box h4 {
+      color: #E65100;
+      font-size: 0.82rem;
+      margin-bottom: 0.5rem;
+    }
+    .algo-box p { font-size: 0.82rem; line-height: 1.7; }
+    .algo-box ol { padding-left: 1.3rem; font-size: 0.82rem; line-height: 2; }
+    .algo-box li { margin-bottom: 0.25rem; }
+    .code { font-family: Consolas, monospace; background: #F5F5F5; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.78rem; }
+
+    /* ── 球約束 ─────────────────────────── */
+    .constraint-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .constraint {
+      background: #FAFAFA;
+      border-left: 3px solid #E65100;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.8rem;
+    }
+    .constraint strong { color: #E65100; }
+  </style>
+</head>
+<body>
+
+<h1>🏹 球檯幾何視覺化 — 口袋 × 庫邊 × 約束條件</h1>
+<p class="subtitle">用於 HIWIN 撞球機器人軟體驗證 · 2026-05-05</p>
+
+<div class="two-col">
+
+  <!-- 左：視覺圖 -->
+  <div class="card">
+    <div class="card-header">📐 球檯幾何視圖（俯視圖，單位：mm）</div>
+    <div class="card-body">
+      <canvas id="tableCanvas" width="640" height="360"></canvas>
+
+      <!-- 口袋表格 -->
+      <table class="pocket-table">
+        <tr>
+          <th>口袋名稱</th>
+          <th>類型</th>
+          <th>中心座標 (x, y) mm</th>
+          <th>洞口徑</th>
+        </tr>
+        <tr>
+          <td>左上</td><td>角袋</td><td class="coord">(0, 0)</td><td>50 mm</td>
+        </tr>
+        <tr>
+          <td>右上</td><td>角袋</td><td class="coord">(1200, 0)</td><td>50 mm</td>
+        </tr>
+        <tr>
+          <td>右下</td><td>角袋</td><td class="coord">(1200, 630)</td><td>50 mm</td>
+        </tr>
+        <tr>
+          <td>左下</td><td>角袋</td><td class="coord">(0, 630)</td><td>50 mm</td>
+        </tr>
+        <tr>
+          <td>左側</td><td>側袋</td><td class="coord">(0, 315)</td><td>50 mm</td>
+        </tr>
+        <tr>
+          <td>右側</td><td>側袋</td><td class="coord">(1200, 315)</td><td>50 mm</td>
+        </tr>
+      </table>
+
+      <div class="info-grid">
+        <div class="info-box">
+          <h4>🔴 角袋（4個）</h4>
+          <p>位於球檯四個角落，由兩條庫邊交界形成。洞口徑 <span class="dim-label">50mm</span>。</p>
+        </div>
+        <div class="info-box">
+          <h4>🟡 側袋（2個）</h4>
+          <p>位於長邊（1200mm）中央，洞口徑 <span class="dim-label">50mm</span>。常作為主要進攻目標。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右：說明 -->
+  <div class="card">
+    <div class="card-header">📐 剖面結構</div>
+    <div class="card-body">
+
+      <!-- 外框總寬 -->
+      <div class="profile">
+        <h4>外框（球檯外邊緣）</h4>
+        <div class="profile-bar" style="width: 100%; max-width: 480px;">
+          <span style="color:#FFF;font-size:0.7rem;padding:0 0.5rem;">1200 mm（含庫邊）</span>
+        </div>
+      </div>
+
+      <!-- 庫邊 -->
+      <div class="profile">
+        <h4>庫邊（Rail）— 四面環繞 felt</h4>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+          <div style="text-align:center;">
+            <div class="profile-rail" style="width:60px;">上<br>40mm</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="profile-rail" style="width:60px;">下<br>40mm</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="profile-rail" style="width:160px;">左 40mm</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="profile-rail" style="width:160px;">右 40mm</div>
+          </div>
+        </div>
+        <p style="font-size:0.78rem;color:var(--text-muted);">* 庫邊寬度示意（實測待確認），包覆 felt 四邊</p>
+      </div>
+
+      <!-- Felt -->
+      <div class="profile">
+        <h4>Felt 桌面（Playable Area）</h4>
+        <div class="profile-felt" style="width: calc(100% - 80px); max-width: 440px;">
+          1120 × 550 mm（1200-40×2 × 630-40×2）
+        </div>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.4rem;">
+          口袋內緣 = 洞口徑 50mm 內側邊緣（球心到此距離 &lt; 25mm 視為進袋）</p>
+      </div>
+
+      <!-- 球約束 -->
+      <div class="constraint-grid">
+        <div class="constraint">
+          <strong>球心約束：</strong>球心座標必須在 felt 內部，不得接觸庫邊橡膠
+        </div>
+        <div class="constraint">
+          <strong>進袋條件：</strong>球心距離口袋中心 &lt; <span class="dim-label">25mm</span>（洞口徑/2）
+        </div>
+        <div class="constraint">
+          <strong>路徑約束：</strong>Ghost Ball 瞄準線不得穿越庫邊（銀行球除外）
+        </div>
+        <div class="constraint">
+          <strong>擊球約束：</strong>Ghost Ball 與目標球必須分居口袋兩側
+        </div>
+      </div>
+
+      <!-- 演算法需求 -->
+      <div class="algo-box">
+        <h4>🎯 演算法需求（待討論）</h4>
+        <ol>
+          <li><strong>口袋選擇：</strong>6個口袋誰來決定？手動點擊？或系統評分？</li>
+          <li><strong>障礙判斷：</strong>路徑直線上有無障礙球（目標球兩側 19mm 緩衝）</li>
+          <li><strong>庫邊反彈：</strong>直線行不通時，選擇哪條庫邊？鏡像法如何驗證反射角？</li>
+          <li><strong>白球剝離：</strong>擊球後白球會滾向哪裡？停車位置如何估算？</li>
+          <li><strong>9號球特殊：</strong>需最後打進，需避開直接路徑被封鎖的情形</li>
+        </ol>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 全域說明 -->
+<div class="card" style="max-width:1200px;margin:0 auto;">
+  <div class="card-header">🗺️ 球檯座標系定義</div>
+  <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+    <div class="info-box">
+      <h4>原點</h4>
+      <p>球檯幾何中心？還是長邊左端中點？<br>
+      目前採：<span class="code">手臂原點(0,0)</span> = 長邊中點。<br>
+      <strong>待確認：</strong>是否與視覺座標系一致？</p>
+    </div>
+    <div class="info-box">
+      <h4>像素 ↔ mm 映射</h4>
+      <p>校正後 Homography 建立 pixel↔mm 映射。<br>
+      洞口徑 50mm 在 pixel 中約等於多少？<br>
+      <span class="code">洞口_pixel ≈ 洞口_mm × scale</span></p>
+    </div>
+    <div class="info-box">
+      <h4>庫邊反彈物理</h4>
+      <p>入射角 = 反彈角（理想狀況）<br>
+      庫邊反彈係數 ≈ <span class="dim-label">0.75</span>（能量損耗）<br>
+      擊球力道影響反彈後速度與路徑</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('tableCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // ── 繪圖比例：640×360 canvas → 1200×630 mm ──────────────────────
+  const W_MM = 1200, H_MM = 630;
+  const W_C = 640, H_C = 360;
+  const sx = W_C / W_MM;   // 0.5333
+  const sy = H_C / H_MM;   // 0.5714
+  // 取平均 scale，但更理想是用校正後的透視
+  const s = Math.min(sx, sy); // 0.5333 — 用於均勻縮放
+  const ox = (W_C - W_MM * s) / 2;
+  const oy = (H_C - H_MM * s) / 2;
+  const mm2px = (xm, ym) => [ox + xm * s, oy + ym * s];
+
+  // ── 顏色 ─────────────────────────────────────────────────────────
+  const C_RAIL    = '#5D4037';
+  const C_FELT    = '#2E7D32';
+  const C_FELT2   = '#1B5E20';
+  const C_POCKET  = '#111111';
+  const C_POCKET_RING = '#8B7355';
+  const C_LINE    = '#4CAF50';
+  const C_GRID    = 'rgba(255,255,255,0.08)';
+  const C_LABEL   = '#FFF';
+  const C_BALL_W  = '#F5F5F5';
+  const C_BALL_Y  = '#FFD600';
+  const C_BALL_R  = '#D32F2F';
+  const C_BALL_BL = '#1565C0';
+  const C_GHOST   = 'rgba(255,255,255,0.5)';
+
+  // ── 口袋定義 (mm) ────────────────────────────────────────────────
+  const POCKET_R = 25; // 洞口半徑 mm
+  const POCKETS = [
+    { name: '左上', x: 0,     y: 0,     type: 'corner' },
+    { name: '右上', x: 1200,  y: 0,     type: 'corner' },
+    { name: '右下', x: 1200,  y: 630,   type: 'corner' },
+    { name: '左下', x: 0,     y: 630,   type: 'corner' },
+    { name: '左側', x: 0,     y: 315,   type: 'side' },
+    { name: '右側', x: 1200,  y: 315,   type: 'side' },
+  ];
+
+  // ── 庫邊寬度（待實測）───────────────────────────────────────────
+  const RAIL = 40; // mm
+
+  function drawTable() {
+    ctx.clearRect(0, 0, W_C, H_C);
+
+    // 外框（整個球檯，含庫邊）
+    ctx.fillStyle = C_RAIL;
+    const [ox0, oy0] = mm2px(-RAIL, -RAIL);
+    const railW = (W_MM + RAIL * 2) * s;
+    const railH = (H_MM + RAIL * 2) * s;
+    ctx.fillRect(ox0, oy0, railW, railH);
+
+    // Felt（綠色檯面）
+    ctx.fillStyle = C_FELT;
+    const [ofx, ofy] = mm2px(0, 0);
+    const feltW = W_MM * s;
+    const feltH = H_MM * s;
+    ctx.fillRect(ofx, ofy, feltW, feltH);
+
+    // 格子（視覺輔助）
+    ctx.strokeStyle = C_GRID;
+    ctx.lineWidth = 0.5;
+    for (let x = 0; x <= W_MM; x += 100) {
+      const [px] = mm2px(x, 0);
+      ctx.beginPath(); ctx.moveTo(px, ofy); ctx.lineTo(px, ofy + feltH); ctx.stroke();
+    }
+    for (let y = 0; y <= H_MM; y += 100) {
+      const [, py] = mm2px(0, y);
+      ctx.beginPath(); ctx.moveTo(ofx, py); ctx.lineTo(ofx + feltW, py); ctx.stroke();
+    }
+
+    // 庫邊內緣線（虛線）
+    ctx.strokeStyle = 'rgba(93,64,55,0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]);
+    ctx.strokeRect(ofx, oy0, feltW, feltH);
+    ctx.setLineDash([]);
+
+    // 中心線（長邊中線）
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    const [, cMy] = mm2px(0, H_MM / 2);
+    const [, bMy] = mm2px(0, 0);
+    ctx.beginPath();
+    ctx.moveTo(ofx, cMy);
+    ctx.lineTo(ofx + feltW, cMy);
+    ctx.stroke();
+
+    // ── 口袋 ────────────────────────────────────────────────────
+    POCKETS.forEach(p => {
+      const [px, py] = mm2px(p.x, p.y);
+      const rPx = POCKET_R * s;
+
+      // 口袋陰影
+      ctx.beginPath();
+      ctx.arc(px, py, rPx + 3, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.fill();
+
+      // 口袋本體（黑圓）
+      ctx.beginPath();
+      ctx.arc(px, py, rPx, 0, Math.PI * 2);
+      ctx.fillStyle = C_POCKET;
+      ctx.fill();
+
+      // 金屬環
+      ctx.beginPath();
+      ctx.arc(px, py, rPx + 2, 0, Math.PI * 2);
+      ctx.strokeStyle = C_POCKET_RING;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // 口袋名稱標籤
+      ctx.fillStyle = C_LABEL;
+      ctx.font = `bold 11px 'Segoe UI', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // 標籤位置：避開口袋邊緣
+      let lx = px, ly = py;
+      if (p.name.includes('左')) lx = px - rPx - 18;
+      if (p.name.includes('右')) lx = px + rPx + 18;
+      if (p.name.includes('上')) ly = py - rPx - 16;
+      if (p.name.includes('下')) ly = py + rPx + 16;
+      if (p.name === '左側') { lx = px - rPx - 24; ly = py; }
+      if (p.name === '右側') { lx = px + rPx + 24; ly = py; }
+
+      ctx.fillStyle = 'rgba(255,248,225,0.85)';
+      const label = `${p.name}`;
+      ctx.fillText(label, lx, ly);
+
+      // 洞口徑標註
+      ctx.font = `10px Consolas, monospace`;
+      ctx.fillStyle = '#FFE082';
+      const dimText = 'ø50';
+      ctx.fillText(dimText, px, py + rPx + 12);
+    });
+
+    // ── 範例球（白球、目標球、Ghost Ball）────────────────────────
+    // 白球
+    drawBall(350, 315, C_BALL_W, 'CUE');
+
+    // 目標球
+    drawBall(850, 200, C_BALL_Y, '①');
+
+    // Ghost Ball（虛線）
+    drawGhostBall(990, 140, 'G');
+
+    // 瞄準線（白球→Ghost→目標球→口袋）
+    drawAimLine();
+  }
+
+  function drawBall(xm, ym, color, label) {
+    const [px, py] = mm2px(xm, ym);
+    const r = 19 * s;
+
+    // 陰影
+    ctx.beginPath();
+    ctx.arc(px + 2, py + 2, r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fill();
+
+    // 球
+    const grad = ctx.createRadialGradient(px - r*0.3, py - r*0.3, r*0.1, px, py, r);
+    grad.addColorStop(0, lighten(color, 40));
+    grad.addColorStop(1, color);
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // 邊線
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // 標籤
+    ctx.fillStyle = '#333';
+    ctx.font = `bold ${Math.max(9, r * 0.9)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, px, py);
+  }
+
+  function drawGhostBall(xm, ym, label) {
+    const [px, py] = mm2px(xm, ym);
+    const r = 19 * s;
+
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fillStyle = C_GHOST;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#333';
+    ctx.font = `bold ${Math.max(9, r * 0.8)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, px, py);
+  }
+
+  function drawAimLine() {
+    const cue   = mm2px(350, 315);
+    const ghost = mm2px(990, 140);
+    const target = mm2px(850, 200);
+    const pocket = mm2px(1200, 0);
+
+    // CUE → GHOST
+    ctx.beginPath();
+    ctx.moveTo(...cue);
+    ctx.lineTo(...ghost);
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // GHOST → TARGET
+    ctx.beginPath();
+    ctx.moveTo(...ghost);
+    ctx.lineTo(...target);
+    ctx.strokeStyle = 'rgba(255,214,0,0.8)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // TARGET → POCKET
+    ctx.beginPath();
+    ctx.moveTo(...target);
+    ctx.lineTo(...pocket);
+    ctx.strokeStyle = 'rgba(255,0,0,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 箭頭（TARGET → POCKET）
+    const [tx, ty] = target;
+    const [px, py] = pocket;
+    const angle = Math.atan2(py - ty, px - tx);
+    drawArrow(px, py, angle, 'rgba(255,0,0,0.6)');
+  }
+
+  function drawArrow(x, y, angle, color) {
+    const len = 10;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle + Math.PI);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(len, 0);
+    ctx.lineTo(len - 4, -4);
+    ctx.moveTo(len, 0);
+    ctx.lineTo(len - 4, 4);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function lighten(hex, amt) {
+    // 簡單變亮
+    return hex;
+  }
+
+  drawTable();
+</script>
+</body>
+</html>

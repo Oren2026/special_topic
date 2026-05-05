@@ -12,6 +12,7 @@ windows/vision/objects.py
   → 球與口袋真實比例 38:50 = 19:25
 """
 import cv2
+import numpy as np
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
@@ -62,6 +63,7 @@ class SimulationScene:
     def __init__(self):
         self.balls = {}   # {"CUE_BALL": BilliardBall, ...}
         self._pockets = []  # [{"name": str, "u": float, "v": float, "diameter": float}, ...]
+        self._calib_points = []  # 校正4點（pixel），用於繪製 felt + rails
 
     def set_pockets(self, pockets: dict):
         """
@@ -83,13 +85,23 @@ class SimulationScene:
     def get(self, ball_type):
         return self.balls.get(ball_type)
 
+    def set_calibration_points(self, points):
+        """
+        注入 4 個校正點（pixel 座標），用於繪製球桌邊框
+        呼叫一次即可，之後每次 render_all() 都會繪製 felt + rails
+        """
+        self._calib_points = points  # [[u1,v1], [u2,v2], [u3,v3], [u4,v4]]
+
     def render_all(self, img):
         """
-        根據 canvas 寬度計算比例尺，統一 render 口袋 + 球
-        scale = canvas_width / TABLE_WIDTH → 真實世界比例
+        根據 canvas 寬度計算比例尺，統一 render 球桌邊框 + 口袋 + 球
         """
         canvas_w = img.shape[1]
         scale = canvas_w / config.TABLE_WIDTH  # pixels per mm
+
+        # ── 球桌邊框（Felt + Rails）───────────────────────────────
+        if self._calib_points and len(self._calib_points) == 4:
+            self._draw_table_border(img)
 
         # 口袋（口徑 50mm → 半徑 25*scale pixels）
         pocket_radius = int((config.POCKET_DIAMETER / 2) * scale)
@@ -97,7 +109,6 @@ class SimulationScene:
             u, v = int(pkt["u"]), int(pkt["v"])
             color = (255, 255, 0)  # 青藍色
             cv2.circle(img, (u, v), pocket_radius, color, 2)
-            # 名稱分兩行顯示（"top" 放上面，"left" 放下面）
             name_parts = pkt["name"].split("_")
             text = name_parts[0]
             cv2.putText(img, text, (u - pocket_radius, v - pocket_radius - 2),
@@ -106,6 +117,47 @@ class SimulationScene:
         # 球（口徑 38mm → 半徑 19*scale pixels）
         for ball in self.balls.values():
             ball.draw(img, scale)
+
+    def _draw_table_border(self, img):
+        """
+        在 img 上繪製球桌邊框：felt（綠色） + rails（棕色） + 庫邊標線
+        使用 4 個校正點構成的四邊形
+        """
+        pts = np.array(
+            [[int(p[0]), int(p[1])] for p in self._calib_points],
+            dtype=np.int32
+        )
+
+        # 外層：Rails（棕色，稍微擴大一點）
+        rail_expand = 12  # pixel向外擴展
+        center = pts.mean(axis=0).astype(int)
+        rail_pts = center + (pts - center) * (1 + rail_expand / 200)
+        rail_pts = np.clip(rail_pts, 0, [img.shape[1], img.shape[0]]).astype(np.int32)
+
+        cv2.fillPoly(img, [rail_pts], (93, 64, 55))        # 棕色 rails
+        cv2.polylines(img, [rail_pts], isClosed=True,
+                      color=(60, 40, 25), thickness=2)     # rail 邊線
+
+        # 中層：Felt（綠色，校正點構成的真實球桌區域）
+        cv2.fillPoly(img, [pts], (46, 139, 87))           # 深綠 felt
+        cv2.polylines(img, [pts], isClosed=True,
+                      color=(30, 90, 50), thickness=1)     # felt 邊線
+
+        # 內層：檯面格子輔助線（淡白色）
+        # 僅在 felt 內部畫簡單的透視參考線
+        h, w = img.shape[:2]
+        mask = np.zeros((h, w), dtype=np.uint8)
+        cv2.fillPoly(mask, [pts], 255)
+        overlay = img.copy()
+        overlay[mask > 0] = (
+            (img[mask > 0].astype(int) * 0.92 + np.array([30, 80, 30]) * 0.08)
+            .astype(np.uint8)
+        )
+        img[mask > 0] = overlay[mask > 0]
+
+        # 四角口袋：以校正點為基礎，根據口袋類型微調
+        # 口袋用來覆蓋 felt 邊緣（角袋位於校正點附近）
+        # 口袋本身由 render_all() 的 _pockets 繪製（統一尺寸）
 
     def get_all_data(self):
         """

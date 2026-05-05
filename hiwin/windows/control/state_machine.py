@@ -7,6 +7,7 @@ windows/control/state_machine.py
       on_prediction(callback) / 狀態標籤文字
 """
 from typing import Optional
+import os
 from .calibration import CalibrationHandler
 from .shot_dispatcher import ShotDispatcher
 from .break_handler import BreakHandler
@@ -93,6 +94,13 @@ class StateMachine:
         label = self._cal.next_label()
         if complete:
             self._socket.send(self._cal.get_packet())
+            # 儲存校正結果（覆寫 JSON）
+            json_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "calibration.json"
+            )
+            ok, msg = self._cal.save_json(json_path)
+            print(f"[StateMachine] {msg}")
             self._mode = State.IDLE
         return {"label": label, "ready": complete, "count": self._cal.point_count()}
 
