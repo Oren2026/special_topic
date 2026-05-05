@@ -32,19 +32,20 @@ def test_ghost_along_target_to_pocket_direction():
     """Ghost 在 target→pocket 方向，距離 target 一個球徑"""
     p = make_planner()
     target = {"x": 300, "y": 200}
-    ghost = p._ghost_pos_direct(target, "top_left")   # pocket (-600, 0)
-    # target 在 pocket 右側，ghost 應更靠右
-    assert ghost[0] > target["x"], f"ghost.x={ghost[0]} > target.x={target['x']}"
+    ghost = p._ghost_pos_direct(target, "top_left")   # pocket (0, 0)
+    # G = T + normalize(P-T) × D → G 朝口袋方向移動，所以 ghost.x < target.x
+    assert ghost[0] < target["x"], f"ghost.x={ghost[0]} < target.x={target['x']}"
     dist = math.hypot(ghost[0] - target["x"], ghost[1] - target["y"])
     assert eq(dist, config.BALL_DIAMETER)
 
 
 def test_ghost_top_right():
-    """top_right=(600,0), target=(0,300) → target 在 pocket 左側，ghost 更靠左"""
+    """top_right=(1200,0), target=(0,300) → target 在口袋左側，ghost 更靠右"""
     p = make_planner()
     target = {"x": 0, "y": 300}
     ghost = p._ghost_pos_direct(target, "top_right")
-    assert ghost[0] < target["x"], f"ghost.x={ghost[0]} < target.x={target['x']}"
+    # G = T + normalize(P-T) → P=(1200,0), T=(0,300), 所以 ghost.x > target.x
+    assert ghost[0] > target["x"], f"ghost.x={ghost[0]} > target.x={target['x']}"
     dist = math.hypot(ghost[0] - target["x"], ghost[1] - target["y"])
     assert eq(dist, config.BALL_DIAMETER)
 
@@ -98,12 +99,18 @@ def test_obstacle_on_line_blocked():
 
 
 def test_obstacle_off_line_not_blocked():
+    """障礙物在路徑旁邊，但垂直距離 > ball_d×1.5 → 不阻斷"""
     p = make_planner()
-    assert p._is_path_blocked((0, 0), (100, 0), [{"x": 50, "y": 50}]) is False
+    # dist((50,60), line(0,0)-(100,0)) = 60 > ball_d×1.5 = 57 → 不阻斷
+    assert p._is_path_blocked((0, 0), (100, 0), [{"x": 50, "y": 60}]) is False
 
 
 def test_obstacle_near_line_edge():
+    """障礙物靠近線段邊緣，在圓的範圍內（使用 ray-circle intersection）"""
     p = make_planner()
+    # (50, 15) 距離線段 (0,0)-(100,0) 的垂直距離 = 15
+    # 38mm 半徑的圓：半徑=38，所以水平 x=50, 半徑範圍 y=[-38, +38] → 包含 y=15
+    # 射線從 (0,0) 到 (100,0)，障礙圓心 (50,15)，半徑 38 → 應有交點
     assert p._is_path_blocked((0, 0), (100, 0), [{"x": 50, "y": 15}]) is True
 
 
@@ -213,24 +220,29 @@ def test_direct_when_no_obstacle():
     result = p.compute_shot(
         cue_ball={"x": 100, "y": 300},
         target_ball={"x": 400, "y": 300},
-        pocket_name="top_right",
+        pocket_name="top_right",    # pocket = (1200, 0)
         obstacles=[]
     )
     assert result["type"] == "direct"
     assert result["reflection_point"] is None
     assert result["rail"] is None
-    # pocket=(600,0), target=(400,300) → ghost 在 cue 跟 target 中間
-    assert 100 < result["ghost"][0] < 400
+    # G = T + normalize(P-T) × D → T=(400,300), P=(1200,0)
+    # dir = (800, -300), |dir| = 854.4
+    # G = (400 + 35.5, 300 - 13.3) = (435.5, 286.7)
+    # ghost 在 cue(100,300) 和 target(400,300) 的右側
+    assert result["ghost"][0] > 400  # ghost.x > target.x
 
 
 def test_bank_when_obstacle_blocks_direct():
-    """障礙物阻擋直線 → 回傳 bank"""
+    """障礙物擋直線 → 回傳 bank"""
     p = make_planner()
-    # 障礙物在 cue→ghost 直線上
+    # 障礙物在 cue→ghost 的路徑上（使用 ray-circle intersection 判定）
+    # pocket=(0,0), target=(600,100), ghost=(561,89), cue=(100,500)
+    # 障礙物 (300,300) 在這條射線上 → 必須走 bank shot
     result = p.compute_shot(
         cue_ball={"x": 100, "y": 500},
         target_ball={"x": 600, "y": 100},
-        pocket_name="top_left",
+        pocket_name="top_left",    # pocket = (0, 0)
         obstacles=[{"x": 300, "y": 300}]
     )
     assert result["type"] == "bank", f"expected bank, got {result['type']}"

@@ -433,43 +433,43 @@ mm_to_pixel:  手臂mm (arm_x, arm_y) → 像素 (u,v)
 1. 計算方向向量
    dir = normalize(T - P)           # 從口袋指向目標球（不是 P-T！）
    gx = tx + dir.x × BALL_DIAMETER
-   gy = ty + dir.y × BALL_DIAMETER   # G 在目標球「前方」
+   gy = ty + dir.y × BALL_DIAMETER   # G 在目標球「前方」（靠近口袋那一側）
 
-2. 共線驗證（擊球方向正確）
-   外積：cross = (gx-cx)(ty-cy) - (gy-cy)(tx-cx)
-   |cross| < ε → C、G、T 共線（擊球瞄準了）
+2. 驗證 T 在口袋範圍內
+   dist(T, P) < POCKET_RADIUS + BALL_RADIUS   # 否則不可能進袋
 
-3. 方向驗證（不是往回打）
-   dot = (gx-cx)(tx-gx) + (gy-cy)(ty-gy)
-   dot > 0 → G 在 C→T 方向上（不是反向）
+3. 擊球方向（dot product）— 區分 direct / bank，不禁止任何方向
+   dot = (C→G 方向) · (G→T 方向)
+   dot > 0 → 擊中 Ghost 前端（direct shot，白球在 G 這側）
+   dot < 0 → 擊中 Ghost 尾端（bank shot，白球在 G 另一側繞過來）
 
-4. 障礙球判斷（擊球線段 [C, G]）
-   對每個障礙球 O：
-     dist = |cross(O-C, G-C)| / |G-C|   # O 到直線的垂直距離
-     若 dist < BALL_DIAMETER × 1.5       # 碰撞半徑緩衝
-       → 阻斷，需要銀行球或換口袋
+4. 第一個碰到的球（障礙球判斷）
+   從 C 到 G 的路徑上，白球第一個碰到的球是誰？
+   → 求路徑上每個障礙球 O 與線段 [C, G] 的交點
+   → 如果交點存在且在 G 之前 → O 是第一個碰到的球
+   → 如果第一個碰到的不是 G 本身 → 路徑無效，換 direct/bank 或放棄
 
-5. 進袋線驗證（目標球→口袋）
-   cross2 = (tx-px)(ty-py) - (ty-py)(tx-px)
-   |cross2| < ε → T、P 共線（球會進袋）
+5. 庫邊約束（direct shot）
+   直線 [C, G] 不能穿越 felt 邊界
+   → 與邊界求交：交點在線段內部（非延長線）→ 阻斷
 
-6. 庫邊約束（直線 [C, G] 不穿越 felt 邊界）
-   4條邊界線段：TOP, BOTTOM, LEFT, RIGHT
-   對每條邊界：
-     求直線 [C,G] 與邊界的交點 I
-     若 I 在 [C,G] 線段內（非延長線）→ 阻斷，嘗試銀行球
+6. 銀行球（Bank Shot）
+   M = reflect(T, rail)             # 目標球對庫邊做鏡像
+   直線 [C, M] 與庫邊的交點 = 反彈點 B
+   驗證 B 在庫邊有效區間（去除角落緩衝）
+   擊球線：C → B → reflect(B, rail) → T → P
+   驗證：整條路徑無障礙
 
-7. 銀行球（當直線被阻斷時）
-   對 4 條庫邊：
-     M = reflect(T, rail)             # T 對庫邊做鏡像
-     直線 [C, M] 與庫邊的交點 = 反彈點 B
-     驗證 B 在庫邊有效區間（不是角落）
-     擊球線：C → B → reflect(B, rail) → T → P
+7. 選擇最佳策略
+   direct 可達 → direct
+   direct 被阻但 bank 可達 → bank
+   兩者都不行 → 回傳失敗（is_reachable = false）
 ```
 
 **備註**：
 - G 在 T 和口袋之間（不是 T 的後方）
-- 步驟 3 防止「往回打」的情況（C→T→P 反向）
+- 步驟 3 的 dot 不是禁止條件，只是用來區分 direct / bank shot
+- 步驟 4 的邏輯是「誰第一個被撞」，不是「垂直距離小於 threshold」
 - 障礙球半徑用 `×1.5` 緩衝（考慮球半徑疊加）
 
 ### Phase 2：多路徑展示

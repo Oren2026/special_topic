@@ -78,7 +78,8 @@ class BankShotPlanner:
 
         # 1. 先檢查直線是否通暢
         ghost_direct = self._ghost_pos_direct(target_ball, pocket_name)
-        if not self._is_path_blocked(cue_ball, ghost_direct, [target_ball] + obstacles):
+        # 只用額外障礙物檢查（target_ball 本身不在這裡，目標球是「要被撞到的球」不是「障礙物」）
+        if not self._is_path_blocked(cue_ball, ghost_direct, obstacles):
             # 直線通暢 → 回傳 direct shot
             return self._build_direct_result(cue_ball, ghost_direct)
 
@@ -91,18 +92,22 @@ class BankShotPlanner:
     # ══════════════════════════════════════════════════════════════════
 
     def _ghost_pos_direct(self, target_ball, pocket_name):
-        """計算直線 Ghost Ball：沿「目標球→口袋」方向延伸一個球徑"""
+        """計算直線 Ghost Ball：在目標球靠近口袋那一側，一個球徑的位置
+
+        G = T + normalize(P - T) × BALL_DIAMETER
+        （從口袋指向目標球的方向）
+        """
         pocket = self.strategy.POCKETS[pocket_name]
         tb_x, tb_y = target_ball['x'], target_ball['y']
         p_x,  p_y  = pocket[0], pocket[1]
 
-        dx = tb_x - p_x
-        dy = tb_y - p_y
+        # 從口袋到目標球的方向
+        dx = p_x - tb_x
+        dy = p_y - tb_y
         dist = math.hypot(dx, dy)
         if dist == 0:
             return (tb_x, tb_y)
 
-        # Ghost 在 target → pocket 方向（pocket 側），cue 瞄準 ghost 擊中 target
         gx = tb_x + (dx / dist) * self.ball_d
         gy = tb_y + (dy / dist) * self.ball_d
         return (round(gx, 2), round(gy, 2))
@@ -111,22 +116,20 @@ class BankShotPlanner:
         """
         計算 Bank Shot Ghost Ball。
 
-        幾何：
-        - 路徑：cue → ref → ghost → target → pocket
-        - ghost 在 target→pocket 延伸線上（與 direct 相同）
-        - 差異在於 cue 是瞄準 ref 而非 ghost
+        Ghost Ball 位置與 direct shot 相同（在 T 靠近口袋那一側），
+        差異只是白球從庫邊反彈過來，不是直接瞄準 Ghost。
         """
         pocket   = self.strategy.POCKETS[pocket_name]
         tb_x, tb_y = target_ball['x'], target_ball['y']
         p_x,  p_y  = pocket[0], pocket[1]
 
-        dx = tb_x - p_x
-        dy = tb_y - p_y
+        # 從口袋到目標球的方向（與 direct 相同）
+        dx = p_x - tb_x
+        dy = p_y - tb_y
         dist = math.hypot(dx, dy)
         if dist == 0:
             return (tb_x, tb_y)
 
-        # Ghost 在 target → pocket 方向，與 direct shot 一致
         gx = tb_x + (dx / dist) * self.ball_d
         gy = tb_y + (dy / dist) * self.ball_d
 
@@ -138,14 +141,15 @@ class BankShotPlanner:
 
     def _is_path_blocked(self, from_pt, to_pt, obstacles):
         """
-        檢查 from_pt→to_pt 線段是否被任何障礙球阻擋。
-        使用「點到線段距離」判斷。
+        檢查 from_pt→to_pt 路徑上，障礙球是否阻斷白球前進的路線。
 
-        障礙球半徑 = 球半徑（考慮球的大小）
-        白球本身也有半徑，所以要預留緩衝。
+        實作「誰第一個被撞」：
+        1. Ray-circle intersection（主要）：障礙球是否在 [from, to] 路徑範圍內
+        2. Perpendicular distance fallback（次要）：障礙球圓心到線段垂直距離 < ball_d × 1.5
+           （物理意義：障礙球半徑覆蓋了路徑，考慮兩球半徑疊加）
 
-        支援 from_pt/to_pt 為 dict{"x", "y"} 或 tuple(x, y)
-        obstacles 元素亦兩者皆可
+        支援 from_pt/to_pt 為 dict{"x", "y"} 或 tuple(x, y)。
+        obstacles 元素亦兩者皆可。
         """
         # 統一成 tuple
         def to_tuple(pt):
@@ -158,9 +162,54 @@ class BankShotPlanner:
 
         for obs in obstacles:
             obs_t = to_tuple(obs)
-            if self._dist_point_to_segment(obs_t, from_t, to_t) < self.ball_d:
-                return True
+
+            # 方法1：ray-circle intersection（球進入障礙球半徑範圍）
+            hit_t = self._ray_circle_intersection_t(from_t, to_t, obs_t, self.ball_d)
+            if hit_t is not None and 0 < hit_t < 1.0:
+                return True  # 穿過障礙球半徑 → 阻斷
+
+            # 方法2：perpendicular distance fallback
+            # 障礙球在路徑旁邊，但離得夠近（兩球半徑疊加 × 1.5）
+            dist = self._dist_point_to_segment(obs_t, from_t, to_t)
+            if dist < self.ball_d * 1.5:
+                return True  # 旁邊擦過 → 阻斷
+
         return False
+
+    def _ray_circle_intersection_t(self, ray_origin, ray_end, circle_center, radius):
+        """
+        求射線 [ray_origin → ray_end] 與半徑為 radius 的圓的最近交點參數 t。
+        回傳：0 < t < 1 表示線段內有交點
+        若無交點，回傳 None。
+        """
+        # 射線方向
+        dx = ray_end[0] - ray_origin[0]
+        dy = ray_end[1] - ray_origin[1]
+
+        # 轉移到圓心為原點的座標系
+        fx = ray_origin[0] - circle_center[0]
+        fy = ray_origin[1] - circle_center[1]
+
+        a = dx * dx + dy * dy
+        if a == 0:
+            return None  # 起點=終點
+
+        b = 2 * (fx * dx + fy * dy)
+        c = fx * fx + fy * fy - radius * radius
+
+        discriminant = b * b - 4 * a * c
+        if discriminant < 0:
+            return None  # 無交點
+
+        sqrt_d = math.sqrt(discriminant)
+        t1 = (-b - sqrt_d) / (2 * a)
+        t2 = (-b + sqrt_d) / (2 * a)
+
+        # 取 0 < t < 1 的範圍內的最小 t（最近交點）
+        candidates = [t for t in [t1, t2] if 0 < t < 1]
+        if not candidates:
+            return None
+        return min(candidates)
 
     def _dist_point_to_segment(self, pt, seg_a, seg_b):
         """
@@ -200,17 +249,17 @@ class BankShotPlanner:
             if ref is None:
                 continue
 
-            # 檢查：cue→ref 是否被阻擋（不含 target，排除 target 本身）
-            obs_no_target = [o for o in obstacles]
+            # 檢查：cue→ref 是否被阻擋（不含 target，cue 還沒遇到目標球）
             if self._is_path_blocked(
                 (cue_ball['x'], cue_ball['y']),
                 ref,
-                obs_no_target
+                obstacles
             ):
                 continue
 
             # 檢查：ref→ghost 是否被阻擋
-            if self._is_path_blocked(ref, ghost, [target_ball] + obstacles):
+            # target_ball 不在這裡：ghost 就是要打到 target，target 在路徑上是預期結果
+            if self._is_path_blocked(ref, ghost, obstacles):
                 continue
 
             # 計算 cue→ref 距離（越短越好）
