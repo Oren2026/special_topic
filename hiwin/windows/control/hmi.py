@@ -166,7 +166,8 @@ class HMI:
 
         result = self._state.handle_click(u, v)
         if result:
-            if ball_type and ball_type not in self._scene.balls:
+            # 防止 "已完成" 被當成 ball_type 加入 scene（bug fix）
+            if ball_type and ball_type != "已完成" and ball_type not in self._scene.balls:
                 self._scene.add_or_update(ball_type, u, v)
 
             # TEST 模式：檢查是否點在球桌範圍外（空白處）

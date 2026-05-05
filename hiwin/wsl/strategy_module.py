@@ -11,6 +11,9 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import config
 
+# Bank Shot Planner（延遲匯入，避免循環依賴）
+from bank_shot_planner import BankShotPlanner
+
 
 class BilliardStrategy:
     """
@@ -90,6 +93,26 @@ class BilliardStrategy:
             "stroke_dist":  round(stroke_dist, 2),
             "is_reachable": self._is_reachable(rx, ry),
         }
+
+    def compute_shot(self, cue_ball, target_ball, pocket_name, obstacles=None):
+        """
+        增強版擊球計算（自動選擇 direct 或 bank shot）。
+
+        當障礙球存在且阻擋直線路徑時，自動計算庫邊反彈。
+        等同於 get_best_shot，但多一層 bank shot 能力。
+
+        參數：
+            cue_ball:    {"x": float, "y": float}
+            target_ball: {"x": float, "y": float}
+            pocket_name: str
+            obstacles:   list[dict] [{"x": float, "y": float}, ...]
+                        若為空或 None，相當於 get_best_shot
+
+        回傳：與 BankShotPlanner.compute_shot() 相同格式
+             額外包含 "shot_type": "direct" | "bank"
+        """
+        planner = BankShotPlanner(self)
+        return planner.compute_shot(cue_ball, target_ball, pocket_name, obstacles)
 
     # ── 內部 ────────────────────────────────────────────────────────────────
 
