@@ -8,9 +8,9 @@
 
 | 頁面 | 說明 |
 |------|------|
-| [球檯幾何視覺化](table-geometry.html) | 球檯俯視圖：6 口袋座標、洞口徑、庫邊結構、幾何約束條件 |
-| [系統架構圖](../hiwin/docs/architecture.html) | Windows 端 / WSL 端完整模組關係圖、資料流向圖 |
-| [開發進度報告](../hiwin/docs/progress.html) | 各模式開發狀態、已知問題、待辦追蹤 |
+| [球檯幾何視覺化](https://oren2026.github.io/special_topic/hiwin/docs/table-geometry.html) | 球檯俯視圖：6 口袋座標、洞口徑、庫邊結構、幾何約束條件 |
+| [系統架構圖](https://oren2026.github.io/special_topic/hiwin/docs/architecture.html) | Windows 端 / WSL 端完整模組關係圖、資料流向圖 |
+| [開發進度報告](https://oren2026.github.io/special_topic/hiwin/docs/progress.html) | 各模式開發狀態、已知問題、待辦追蹤 |
 
 ---
 
@@ -19,9 +19,9 @@
 | 頁面 | 說明 |
 |------|------|
 | [趨勢報告](./trends/) | 智能電網 / 核能 SMR / AI 能源相關論文與新聞追蹤 |
-| [Linear Algebra](../linear_algebra.html) | 線性代數課程筆記（Ch1-Ch5） |
-| [Blueprint](../blueprint.html) | 系統性架構藍圖 |
-| [骰子猜拳遊戲](../dice_rps_game/) | 小專案：雙人骰子 + 猜拳遊戲（C# WinForms） |
+| [Linear Algebra](https://oren2026.github.io/special_topic/linear_algebra.html) | 線性代數課程筆記（Ch1-Ch5） |
+| [Blueprint](https://oren2026.github.io/special_topic/blueprint.html) | 系統性架構藍圖 |
+| [骰子猜拳遊戲](https://oren2026.github.io/special_topic/dice_rps_game/) | 小專案：雙人骰子 + 猜拳遊戲（C# WinForms） |
 
 ---
 
