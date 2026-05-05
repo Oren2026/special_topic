@@ -224,33 +224,33 @@
           <th>洞口徑</th>
         </tr>
         <tr>
-          <td>左上</td><td>角袋</td><td class="coord">(0, 0)</td><td>50 mm</td>
+          <td>上左（角袋）</td><td>角袋</td><td class="coord">(0, 0)</td><td>50 mm</td>
         </tr>
         <tr>
-          <td>右上</td><td>角袋</td><td class="coord">(1200, 0)</td><td>50 mm</td>
+          <td>上中（側袋）</td><td>側袋</td><td class="coord">(600, 0)</td><td>50 mm</td>
         </tr>
         <tr>
-          <td>右下</td><td>角袋</td><td class="coord">(1200, 630)</td><td>50 mm</td>
+          <td>上右（角袋）</td><td>角袋</td><td class="coord">(1200, 0)</td><td>50 mm</td>
         </tr>
         <tr>
-          <td>左下</td><td>角袋</td><td class="coord">(0, 630)</td><td>50 mm</td>
+          <td>下左（角袋）</td><td>角袋</td><td class="coord">(0, 630)</td><td>50 mm</td>
         </tr>
         <tr>
-          <td>左側</td><td>側袋</td><td class="coord">(0, 315)</td><td>50 mm</td>
+          <td>下中（側袋）</td><td>側袋</td><td class="coord">(600, 630)</td><td>50 mm</td>
         </tr>
         <tr>
-          <td>右側</td><td>側袋</td><td class="coord">(1200, 315)</td><td>50 mm</td>
+          <td>下右（角袋）</td><td>角袋</td><td class="coord">(1200, 630)</td><td>50 mm</td>
         </tr>
       </table>
 
       <div class="info-grid">
         <div class="info-box">
           <h4>🔴 角袋（4個）</h4>
-          <p>位於球檯四個角落，由兩條庫邊交界形成。洞口徑 <span class="dim-label">50mm</span>。</p>
+          <p>位於球檯四個角落，上左/上右/下左/下右。洞口徑 <span class="dim-label">50mm</span>。</p>
         </div>
         <div class="info-box">
           <h4>🟡 側袋（2個）</h4>
-          <p>位於長邊（1200mm）中央，洞口徑 <span class="dim-label">50mm</span>。常作為主要進攻目標。</p>
+          <p>位於短邊（630mm）中央，上中/下中。洞口徑 <span class="dim-label">50mm</span>。長邊（1200mm）在上下側。</p>
         </div>
       </div>
     </div>
@@ -264,29 +264,43 @@
       <!-- 外框總寬 -->
       <div class="profile">
         <h4>外框（球檯外邊緣）</h4>
-        <div class="profile-bar" style="width: 100%; max-width: 480px;">
-          <span style="color:#FFF;font-size:0.7rem;padding:0 0.5rem;">1200 mm（含庫邊）</span>
+        <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.5rem;">
+          寬 1200mm × 深 630mm（長邊在上下側）
+        </p>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div class="profile-bar" style="width:240px;">
+              <span style="color:#FFF;font-size:0.7rem;padding:0 0.5rem;">寬 1200mm（長邊）</span>
+            </div>
+          </div>
+          <div style="text-align:center;display:flex;align-items:center;">
+            <div class="profile-bar" style="width:120px;height:80px;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#FFF;font-size:0.7rem;">深<br>630mm</span>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- 庫邊 -->
       <div class="profile">
         <h4>庫邊（Rail）— 四面環繞 felt</h4>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;">
+          長邊（1200mm）在上下側，寬 40mm｜短邊（630mm）在左右側，寬 40mm
+        </p>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;align-items:center;">
           <div style="text-align:center;">
-            <div class="profile-rail" style="width:60px;">上<br>40mm</div>
+            <div class="profile-rail" style="width:120px;">上庫邊 40mm</div>
           </div>
           <div style="text-align:center;">
-            <div class="profile-rail" style="width:60px;">下<br>40mm</div>
+            <div class="profile-rail" style="width:120px;">下庫邊 40mm</div>
           </div>
           <div style="text-align:center;">
-            <div class="profile-rail" style="width:160px;">左 40mm</div>
+            <div class="profile-rail" style="width:70px;">左<br>40mm</div>
           </div>
           <div style="text-align:center;">
-            <div class="profile-rail" style="width:160px;">右 40mm</div>
+            <div class="profile-rail" style="width:70px;">右<br>40mm</div>
           </div>
         </div>
-        <p style="font-size:0.78rem;color:var(--text-muted);">* 庫邊寬度示意（實測待確認），包覆 felt 四邊</p>
       </div>
 
       <!-- Felt -->
@@ -337,21 +351,21 @@
   <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
     <div class="info-box">
       <h4>原點</h4>
-      <p>球檯幾何中心？還是長邊左端中點？<br>
-      目前採：<span class="code">手臂原點(0,0)</span> = 長邊中點。<br>
-      <strong>待確認：</strong>是否與視覺座標系一致？</p>
+      <p>球檯長邊左端？還是左上角？<br>
+      目前採：<span class="code">(0, 0)</span> = 長邊左上角。<br>
+      <strong>待確認：</strong>手臂原點是否等於視覺原點？</p>
     </div>
     <div class="info-box">
       <h4>像素 ↔ mm 映射</h4>
       <p>校正後 Homography 建立 pixel↔mm 映射。<br>
-      洞口徑 50mm 在 pixel 中約等於多少？<br>
-      <span class="code">洞口_pixel ≈ 洞口_mm × scale</span></p>
+      洞口徑 50mm 在 pixel 中約等於洞口徑/球檯邊長×canvas寬。<br>
+      <span class="code">洞口_pixel ≈ 50/1200 × canvas_w</span></p>
     </div>
     <div class="info-box">
-      <h4>庫邊反彈物理</h4>
-      <p>入射角 = 反彈角（理想狀況）<br>
-      庫邊反彈係數 ≈ <span class="dim-label">0.75</span>（能量損耗）<br>
-      擊球力道影響反彈後速度與路徑</p>
+      <h4>長邊在上下側</h4>
+      <p>長邊（1200mm）在視窗上下側，短邊（630mm）在左右側。<br>
+      上中/下中口袋位於 x=600（即長邊中點）。<br>
+      這影響口袋命名（角袋vs側袋）與射線幾何計算。</p>
     </div>
   </div>
 </div>
@@ -389,12 +403,12 @@
   // ── 口袋定義 (mm) ────────────────────────────────────────────────
   const POCKET_R = 25; // 洞口半徑 mm
   const POCKETS = [
-    { name: '左上', x: 0,     y: 0,     type: 'corner' },
-    { name: '右上', x: 1200,  y: 0,     type: 'corner' },
-    { name: '右下', x: 1200,  y: 630,   type: 'corner' },
-    { name: '左下', x: 0,     y: 630,   type: 'corner' },
-    { name: '左側', x: 0,     y: 315,   type: 'side' },
-    { name: '右側', x: 1200,  y: 315,   type: 'side' },
+    { name: '上左',  x: 0,     y: 0,     type: 'corner' },
+    { name: '上中',  x: 600,   y: 0,     type: 'side' },
+    { name: '上右',  x: 1200,  y: 0,     type: 'corner' },
+    { name: '下左',  x: 0,     y: 630,   type: 'corner' },
+    { name: '下中',  x: 600,   y: 630,   type: 'side' },
+    { name: '下右',  x: 1200,  y: 630,   type: 'corner' },
   ];
 
   // ── 庫邊寬度（待實測）───────────────────────────────────────────
@@ -497,17 +511,19 @@
     });
 
     // ── 範例球（白球、目標球、Ghost Ball）────────────────────────
-    // 白球
-    drawBall(350, 315, C_BALL_W, 'CUE');
+    // 長邊（1200mm）在上下側，短邊（630mm）在左右側
+    // 白球：下方中央 (500, 480)
+    // 目標球：上方偏右 (750, 250) → 配合上中口袋 (600, 0)
+    // Ghost Ball：目標球前方
+    const cueBall    = [500, 480];
+    const targetBall = [750, 250];
+    const ghostBall  = [700, 200];
+    const targetPocket = [600, 0];   // 上中口袋
 
-    // 目標球
-    drawBall(850, 200, C_BALL_Y, '①');
-
-    // Ghost Ball（虛線）
-    drawGhostBall(990, 140, 'G');
-
-    // 瞄準線（白球→Ghost→目標球→口袋）
-    drawAimLine();
+    drawBall(...cueBall, C_BALL_W, 'CUE');
+    drawBall(...targetBall, C_BALL_Y, '①');
+    drawGhostBall(...ghostBall, 'G');
+    drawAimLine(cueBall, ghostBall, targetBall, targetPocket);
   }
 
   function drawBall(xm, ym, color, label) {
@@ -566,43 +582,42 @@
     ctx.fillText(label, px, py);
   }
 
-  function drawAimLine() {
-    const cue   = mm2px(350, 315);
-    const ghost = mm2px(990, 140);
-    const target = mm2px(850, 200);
-    const pocket = mm2px(1200, 0);
+  function drawAimLine(cue, ghost, target, pocket) {
+    const [cx, cy] = cue;
+    const [gx, gy] = ghost;
+    const [tx, ty] = target;
+    const [px, py] = pocket;
 
-    // CUE → GHOST
+    // CUE → GHOST（白：擊球線）
     ctx.beginPath();
-    ctx.moveTo(...cue);
-    ctx.lineTo(...ghost);
-    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // GHOST → TARGET
-    ctx.beginPath();
-    ctx.moveTo(...ghost);
-    ctx.lineTo(...target);
-    ctx.strokeStyle = 'rgba(255,214,0,0.8)';
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(gx, gy);
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // TARGET → POCKET
+    // GHOST → TARGET（黃：傳遞線）
     ctx.beginPath();
-    ctx.moveTo(...target);
-    ctx.lineTo(...pocket);
-    ctx.strokeStyle = 'rgba(255,0,0,0.5)';
+    ctx.moveTo(gx, gy);
+    ctx.lineTo(tx, ty);
+    ctx.strokeStyle = 'rgba(255,214,0,0.9)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // TARGET → POCKET（紅虛線：進袋線）
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(px, py);
+    ctx.strokeStyle = 'rgba(255,80,80,0.7)';
     ctx.lineWidth = 1.5;
-    ctx.setLineDash([5, 4]);
+    ctx.setLineDash([6, 4]);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // 箭頭（TARGET → POCKET）
-    const [tx, ty] = target;
-    const [px, py] = pocket;
-    const angle = Math.atan2(py - ty, px - tx);
-    drawArrow(px, py, angle, 'rgba(255,0,0,0.6)');
+    // 口袋箭頭（紅色）
+    const pocketPx = mm2px(px, py);
+    const angle = Math.atan2(pocketPx[1] - ty * s, pocketPx[0] - tx * s);
+    drawArrow(pocketPx[0], pocketPx[1], angle, 'rgba(255,80,80,0.8)');
   }
 
   function drawArrow(x, y, angle, color) {
