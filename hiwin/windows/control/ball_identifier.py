@@ -209,9 +209,9 @@ class BallIdentifier:
     def classify_color(self, u: int, v: int, r: int) -> Tuple[str, int, bool]:
         """
         對指定位置做顏色分類
-        
+
         回傳：(color_name, ball_number, is_stripe)
-        
+
         邏輯：
         1. 先用亮度區分：黑色球（V < 50）
         2. 再用 Hue 對照顏色表
@@ -222,64 +222,91 @@ class BallIdentifier:
 
         # 取球心周圍一小區域的平均 Hue（避免單點噪聲）
         h, s, v_val = self._get_hsv_at(u, v)
-        
+
         # 步驟1：亮度極低 → 黑色球（8號）
         if v_val < 50:
             return ("black", 8, False)
 
         # 步驟2：Hue 映射
         color = self._classify_hue(h)
-        
+
         # 步驟3：條紋判斷（只對非黑球判斷）
         is_stripe = False
         if color != "black":
             is_stripe = self._is_stripe(u, v, r)
 
-        # 條紋球 → 球號 +9（條紋版本）
+        # 條紋球 → 球號 9
         if is_stripe and color == "yellow":
             return (f"{color}_stripe", 9, True)
-        
+
         # 根據顏色查球號
         color_key = color if not is_stripe else f"{color}_stripe"
         number = COLOR_TO_NUMBER.get(color_key, 0)
 
         return (color, number, is_stripe)
 
+    def _ball_confidence(self, circle: np.ndarray) -> float:
+        """
+        根據 HoughCircles accumulator 計算置信度
+
+        param2 越大 → 圓形越明確 → 置信度越高
+        circle = (u, v, r) — param2 在 circles[2] 不在這裡，
+        但我們可以用半徑穩定性估算（邊緣清晰度）
+        """
+        u, v, r = circle
+        if self._gray is None:
+            return 0.5
+
+        # 取圓周邊緣的梯度強度（邊緣越清晰 → 置信度越高）
+        try:
+            edges = cv2.Canny(self._gray, 50, 150)
+            # 在圓周上採樣邊緣強度
+            angles = np.linspace(0, 2 * np.pi, 16, endpoint=False)
+            x_pts = np.clip(np.round(u + r * np.cos(angles)).astype(int), 0, edges.shape[1] - 1)
+            y_pts = np.clip(np.round(v + r * np.sin(angles)).astype(int), 0, edges.shape[0] - 1)
+            edge_vals = edges[y_pts, x_pts]
+            edge_strength = np.mean(edge_vals) / 255.0  # 0-1
+            confidence = 0.4 + 0.5 * edge_strength  # 0.4-0.9
+            return round(min(confidence, 0.95), 2)
+        except Exception:
+            return 0.7  # fallback
+
     def _classify_hue(self, h: int) -> str:
         """
-        根據 Hue 值分類顏色
-        
-        HSV Hue 範圍：
-        - 紅色跨 0/180 邊界（0-15 或 170-180）
-        - 其他顏色在中間區間
+        根據 Hue 值分類顏色（OpenCV HSV Hue: 0-180）
+
+        HSV Hue 範圍（0-180）：
+        - 紅色跨 0/180 邊界（0-10 或 170-180）
+        - 橙色：10-25（不在紅色區間）
+        - 黃色：25-35
+        - 綠色：45-75
+        - 藍色：100-130
+        - 紫色：130-160
+        - 栗色（暗紅）：0-10（已由紅色處理）
         """
-        # 紅色（跨邊界）
-        if h <= 15 or h >= 170:
+        # 紅色（跨邊界）：0-10 或 170-180
+        if h <= 10 or h >= 170:
             return "red"
-        
-        # 橙色
-        if 10 <= h <= 25:
+
+        # 橙色：10-25（排除已處理的 0-10）
+        if 11 <= h <= 25:
             return "orange"
-        
-        # 黃色
+
+        # 黃色：25-35
         if 25 <= h <= 35:
             return "yellow"
-        
-        # 綠色
+
+        # 綠色：45-75
         if 45 <= h <= 75:
             return "green"
-        
-        # 藍色
+
+        # 藍色：100-130
         if 100 <= h <= 130:
             return "blue"
-        
-        # 紫色
+
+        # 紫色：130-160
         if 130 <= h <= 160:
             return "purple"
-        
-        # 栗色（暗紅）
-        if 0 <= h <= 10:
-            return "maroon"
 
         return "unknown"
 
@@ -289,7 +316,7 @@ class BallIdentifier:
         """
         一次執行完整 pipeline：
         圓形偵測 → 顏色分類 → 回傳所有球
-        
+
         回傳：[DetectedBall, ...]
         """
         if self._frame is None:
@@ -298,9 +325,10 @@ class BallIdentifier:
         circles = self.detect_circles()
         balls = []
 
-        for (u, v, r) in circles:
+        for circle in circles:
+            u, v, r = circle
             ui, vi, ri = int(u), int(v), int(r)
-            
+
             # 跳过边缘区域（可能有噪点）
             if ui < ri or vi < ri:
                 continue
@@ -308,12 +336,13 @@ class BallIdentifier:
                 continue
 
             color, number, is_stripe = self.classify_color(ui, vi, ri)
+            confidence = self._ball_confidence(np.array([u, v, r]))
 
             balls.append(DetectedBall(
                 u=u, v=v, radius=r,
                 color=color, number=number,
                 is_stripe=is_stripe,
-                confidence=0.8,  # TODO: 用實際圓形擬合 quality
+                confidence=confidence,
             ))
 
         return balls

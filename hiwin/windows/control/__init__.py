@@ -8,6 +8,7 @@ from .calibration_plus import CalibrationPlus
 from .table_geometry import TableGeometry
 from .ball_identifier import BallIdentifier, DetectedBall
 from .vision_pipeline import VisionPipeline, CompeteBall, CompeteScene
+from .vision_bridge import VisionBridge, make_mock_scene
 from .sim_table import SimTable, DEFAULT_TABLE, PocketSpec
 from .shot_dispatcher import ShotDispatcher
 from .state_machine import StateMachine
@@ -24,6 +25,8 @@ __all__ = [
     "VisionPipeline",
     "CompeteBall",
     "CompeteScene",
+    "VisionBridge",
+    "make_mock_scene",
     "SimTable",
     "DEFAULT_TABLE",
     "PocketSpec",

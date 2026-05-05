@@ -180,12 +180,33 @@ class VisionPipeline:
             return None
         return self._scene.sorted_targets[0]
 
+    def get_obstacles(self, exclude_numbers: List[int] = None) -> List[dict]:
+        """
+        取得障礙球列表（作為 compute_shot() 的 obstacles 參數）
+
+        格式：[{"x": x_mm, "y": y_mm}, ...]
+
+        exclude_numbers：排除的球號（預設排除白球=0）
+        """
+        if self._scene is None:
+            return []
+
+        exclude = set(exclude_numbers or [0])  # 預設排除白球
+        obstacles = []
+        for b in self._scene.balls:
+            if b.number in exclude:
+                continue
+            if b.x_mm == 0.0 and b.y_mm == 0.0:
+                continue  # 未校正，座標無效
+            obstacles.append({"x": b.x_mm, "y": b.y_mm})
+        return obstacles
+
     # ── 視覺化 ─────────────────────────────────────────────────────────────
 
     def draw_debug(self, frame: np.ndarray) -> np.ndarray:
         """
         在畫面上繪製偵測結果（除錯用）
-        
+
         顯示：
         - 圓形輪廓 + 編號
         - 顏色標籤
@@ -194,8 +215,17 @@ class VisionPipeline:
         if self._scene is None:
             return frame
 
-        # 先用 BallIdentifier 的繪圖
-        detected = self._identifier.detect_all()
+        # 直接用已偵測的球（不重跑 HoughCircles）
+        detected = []
+        for b in self._scene.balls:
+            from .ball_identifier import DetectedBall
+            detected.append(DetectedBall(
+                u=b.u_pixel, v=b.v_pixel,
+                radius=0,  # 已不需要
+                color=b.color, number=b.number,
+                is_stripe=b.is_stripe, confidence=1.0
+            ))
+
         frame = self._identifier.draw_balls(frame, detected)
 
         # 再加上瞄準順序
