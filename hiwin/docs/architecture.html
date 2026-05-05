@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HIWIN 撞球機器人 — 系統架構圖</title>
+  <style>
+    :root {
+      --bg: #FFFAF0;
+      --surface: #FFFFFF;
+      --border: #E8D5B7;
+      --text: #3D2B1F;
+      --text-muted: #8B7355;
+      --accent: #D4830A;
+      --accent2: #2E7D32;
+      --win-bg: #E3F2FD;
+      --wsl-bg: #FFF3E0;
+      --vision-bg: #F3E5F5;
+      --control-bg: #E8F5E9;
+      --socket-bg: #FCE4EC;
+      --brain-bg: #F1F8E9;
+      --tag-done: #4CAF50;
+      --tag-todo: #F44336;
+      --tag-mid: #FF9800;
+      --rail-h: 4px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+
+    /* ── 圖例 ───────────────────────────────────── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+    }
+    .legend-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .legend-line {
+      width: 24px; height: 3px;
+      flex-shrink: 0;
+      border-radius: 2px;
+    }
+
+    /* ── 容器佈局 ───────────────────────────────── */
+    .diagram-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto 2rem;
+    }
+    .panel {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 0.75rem 1.25rem;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid var(--border);
+    }
+    .panel-header.windows { background: var(--win-bg); color: #1565C0; }
+    .panel-header.wsl     { background: var(--wsl-bg); color: #E65100; }
+
+    .panel-body { padding: 1.25rem; }
+
+    /* ── 模組方塊 ───────────────────────────────── */
+    .module-group {
+      margin-bottom: 1.5rem;
+    }
+    .module-group-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .modules {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .module {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 8px;
+      border: 1.5px solid;
+      min-width: 130px;
+      max-width: 180px;
+      flex: 1;
+      position: relative;
+    }
+    .module.vision { background: #F3E5F5; border-color: #9C27B0; }
+    .module.control { background: #E8F5E9; border-color: #388E3C; }
+    .module.socket { background: #FCE4EC; border-color: #C2185B; }
+    .module.brain  { background: #F1F8E9; border-color: #558B2F; }
+    .module.strategy { background: #E3F2FD; border-color: #1565C0; }
+
+    .module-name {
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: var(--text);
+    }
+    .module-file {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-family: 'Consolas', monospace;
+    }
+    .module-role {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+    }
+    .module-api {
+      font-size: 0.65rem;
+      color: #5D4037;
+      font-family: 'Consolas', monospace;
+      background: rgba(0,0,0,0.04);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      margin-top: 0.2rem;
+    }
+
+    /* ── 箭頭連接 ───────────────────────────────── */
+    .flow-section {
+      max-width: 1400px;
+      margin: 0 auto 2rem;
+    }
+    .flow-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .flow-diagram {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+    .flow-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .flow-step {
+      background: #FAFAFA;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      font-family: 'Consolas', monospace;
+      white-space: nowrap;
+    }
+    .flow-step.win   { border-color: #1976D2; color: #1565C0; background: #E3F2FD; }
+    .flow-step.wsl   { border-color: #E65100; color: #E65100; background: #FFF3E0; }
+    .flow-step.tcp   { border-color: #C2185B; color: #C2185B; background: #FCE4EC; }
+    .flow-step.done  { border-color: var(--tag-done); color: var(--tag-done); }
+    .flow-step.todo  { border-color: var(--tag-todo); color: var(--tag-todo); }
+    .flow-arrow {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .flow-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: var(--bg);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    /* ── 狀態追蹤表格 ───────────────────────────── */
+    .status-section {
+      max-width: 1400px;
+      margin: 0 auto 2rem;
+    }
+    .status-section h2 {
+      font-size: 1.1rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .status-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .status-table th {
+      background: var(--bg);
+      padding: 0.65rem 1rem;
+      text-align: left;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border);
+    }
+    .status-table td {
+      padding: 0.55rem 1rem;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .status-table tr:last-child td { border-bottom: none; }
+    .status-table tr:hover td { background: #FFF8F0; }
+
+    .tag {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .tag-done { background: #C8E6C9; color: #2E7D32; }
+    .tag-todo { background: #FFCDD2; color: #C62828; }
+    .tag-mid  { background: #FFE0B2; color: #E65100; }
+
+    /* ── 響應式 ─────────────────────────────────── */
+    @media (max-width: 900px) {
+      .diagram-wrapper { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      .flow-row { flex-direction: column; align-items: flex-start; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🏀 HIWIN RA605 9-Ball 撞球機器人</h1>
+<p class="subtitle">系統模組架構圖 · 2026-05-05 · 46 tests ✅</p>
+
+<!-- 圖例 -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#9C27B0"></div>視覺 Vision</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#388E3C"></div>控制 Control</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#C2185B"></div>通訊 Socket</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1565C0"></div>策略 Strategy</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#558B2F"></div>大腦 Brain</div>
+  <div class="legend-item"><div class="legend-line" style="background:#4CAF50"></div>已完成</div>
+  <div class="legend-item"><div class="legend-line" style="background:#F44336"></div>待實作</div>
+  <div class="legend-item"><div class="legend-line" style="background:#FF9800"></div>進行中</div>
+</div>
+
+<!-- 模組圖 -->
+<div class="diagram-wrapper">
+
+  <!-- Windows 端 -->
+  <div class="panel">
+    <div class="panel-header windows">🖥️ Windows 端（感知層 / UI）</div>
+    <div class="panel-body">
+
+      <div class="module-group">
+        <div class="module-group-title">📷 視覺 Vision</div>
+        <div class="modules">
+          <div class="module vision">
+            <span class="module-name">BilliardVision</span>
+            <span class="module-file">vision/camera.py</span>
+            <span class="module-role">USB 雙鏡頭讀取 + MJPEG</span>
+            <span class="module-api">.get_raw_frames()</span>
+          </div>
+          <div class="module vision">
+            <span class="module-name">VisionBridge</span>
+            <span class="module-file">vision_bridge.py</span>
+            <span class="module-role">相機/mock 統一介面</span>
+            <span class="module-api">.start_camera() / .capture_and_process()</span>
+          </div>
+          <div class="module vision">
+            <span class="module-name">VisionPipeline</span>
+            <span class="module-file">vision_pipeline.py</span>
+            <span class="module-role">整合：圓形→顏色→排序→mm</span>
+            <span class="module-api">.run() → CompeteScene / .get_obstacles()</span>
+          </div>
+          <div class="module vision">
+            <span class="module-name">BallIdentifier</span>
+            <span class="module-file">ball_identifier.py</span>
+            <span class="module-role">HoughCircles + HSV 分類</span>
+            <span class="module-api">.detect_all() / .classify_color()</span>
+          </div>
+          <div class="module vision">
+            <span class="module-name">CalibrationControl</span>
+            <span class="module-file">calibration_control.py</span>
+            <span class="module-role">4角校正 → Homography 矩陣</span>
+            <span class="module-api">.add_click() / .pixel_to_mm()</span>
+          </div>
+          <div class="module vision">
+            <span class="module-name">TableGeometry</span>
+            <span class="module-file">table_geometry.py</span>
+            <span class="module-role">球徑估算、比例尺、距離</span>
+            <span class="module-api">.scale_x/y() / .pixel_to_mm_2d()</span>
+          </div>
+          <div class="module vision">
+            <span class="module-name">SimTable</span>
+            <span class="module-file">sim_table.py</span>
+            <span class="module-role">模擬球檯（無硬體測試）</span>
+            <span class="module-api">.add_ball() / .render()</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="module-group">
+        <div class="module-group-title">🎮 控制 Control</div>
+        <div class="modules">
+          <div class="module control">
+            <span class="module-name">HMI</span>
+            <span class="module-file">hmi.py</span>
+            <span class="module-role">Tkinter 主視窗 + 事件</span>
+            <span class="module-api">.run()</span>
+          </div>
+          <div class="module control">
+            <span class="module-name">StateMachine</span>
+            <span class="module-file">state_machine.py</span>
+            <span class="module-role">模式分派（5種模式）</span>
+            <span class="module-api">.set_mode() / .handle_click()</span>
+          </div>
+          <div class="module control">
+            <span class="module-name">CalibrationHandler</span>
+            <span class="module-file">calibration.py</span>
+            <span class="module-role">INSTALL：4點收集</span>
+            <span class="module-api">.add_point() / .is_ready()</span>
+          </div>
+          <div class="module control">
+            <span class="module-name">ShotDispatcher</span>
+            <span class="module-file">shot_dispatcher.py</span>
+            <span class="module-role">TEST：POCKET/TARGET/CUE</span>
+            <span class="module-api">.add() / .is_complete()</span>
+          </div>
+          <div class="module control">
+            <span class="module-name">BreakHandler</span>
+            <span class="module-file">break_handler.py</span>
+            <span class="module-role">BREAK：白球座標收集</span>
+            <span class="module-api">.add() / .get_packet()</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="module-group">
+        <div class="module-group-title">🔌 通訊 Socket</div>
+        <div class="modules">
+          <div class="module socket">
+            <span class="module-name">SocketClient</span>
+            <span class="module-file">socket_client.py</span>
+            <span class="module-role">TCP 收發 + 粘包處理</span>
+            <span class="module-api">.connect() / .send() / .on_message()</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WSL 端 -->
+  <div class="panel">
+    <div class="panel-header wsl">🧠 WSL 端（決策層 / Brain）</div>
+    <div class="panel-body">
+
+      <div class="module-group">
+        <div class="module-group-title">🧠 大腦 Brain</div>
+        <div class="modules">
+          <div class="module brain">
+            <span class="module-name">RobotBrain</span>
+            <span class="module-file">robot_brain.py</span>
+            <span class="module-role">Socket Server + 模式分派</span>
+            <span class="module-api">.start()</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="module-group">
+        <div class="module-group-title">📐 座標 Coordinate</div>
+        <div class="modules">
+          <div class="module strategy">
+            <span class="module-name">CoordinateManager</span>
+            <span class="module-file">coord_manager.py</span>
+            <span class="module-role">透視變換 + 座標系轉換</span>
+            <span class="module-api">.update_calibration() / .pixel_to_mm()</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="module-group">
+        <div class="module-group-title">🎯 策略 Strategy</div>
+        <div class="modules">
+          <div class="module strategy">
+            <span class="module-name">BilliardStrategy</span>
+            <span class="module-file">strategy_module.py</span>
+            <span class="module-role">Ghost Ball 瞄準點計算</span>
+            <span class="module-api">.get_best_shot() / .compute_shot(obstacles=[])</span>
+          </div>
+          <div class="module strategy">
+            <span class="module-name">BankShotPlanner</span>
+            <span class="module-file">bank_shot_planner.py</span>
+            <span class="module-role">庫邊反彈（鏡像法）</span>
+            <span class="module-api">.plan_bank_shot() / .direct_vs_bank()</span>
+          </div>
+          <div class="module strategy">
+            <span class="module-name">BreakStrategy</span>
+            <span class="module-file">break_module.py</span>
+            <span class="module-role">開球：角度 + 力道計算</span>
+            <span class="module-api">.compute_break()</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="module-group">
+        <div class="module-group-title">⚙️ 執行 Execute</div>
+        <div class="modules">
+          <div class="module brain">
+            <span class="module-name">StrikerBridge</span>
+            <span class="module-file">striker_bridge.py</span>
+            <span class="module-role">→ Arduino（⚠️ MOCK）</span>
+            <span class="module-api">.execute()</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="module-group">
+        <div class="module-group-title">📦 設定 Config</div>
+        <div class="modules">
+          <div class="module control">
+            <span class="module-name">config.py</span>
+            <span class="module-file">config.py</span>
+            <span class="module-role">球檯/球徑/口袋/手臂參數</span>
+          </div>
+          <div class="module control">
+            <span class="module-name">protocol.py</span>
+            <span class="module-file">protocol.py</span>
+            <span class="module-role">通訊格式唯一事實來源</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- 資料流向 -->
+<div class="flow-section">
+  <div class="flow-title">🔄 擊球預測資料流向（TEST 模式）</div>
+  <div class="flow-diagram">
+    <div class="flow-row">
+      <div class="flow-step win">使用者點擊 TARGET_BALL</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step win">ShotDispatcher.add("TARGET", u, v)</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step win">StateMachine.handle_click()</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step win">SocketClient.send(json)</div>
+    </div>
+    <div class="flow-row">
+      <span class="flow-label">TCP :5005</span>
+      <span class="flow-arrow">↓</span>
+      <div class="flow-step wsl">robot_brain._handle_manual()</div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-step wsl">coord_manager.pixel_to_mm() × 3</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step wsl">strategy_module.compute_shot()</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step wsl">bank_shot_planner.plan_bank_shot()</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step done">PREDICTION {ghost, robot, angle}</div>
+    </div>
+    <div class="flow-row">
+      <span class="flow-label">TCP :5005</span>
+      <span class="flow-arrow">↑</span>
+      <div class="flow-step win">SocketClient.on_message()</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step win">HMI._draw_prediction()</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPETE 流向 -->
+<div class="flow-section">
+  <div class="flow-title">🏆 COMPETE 模式流向（自動視覺）</div>
+  <div class="flow-diagram">
+    <div class="flow-row">
+      <div class="flow-step win">VisionBridge.capture_and_process()</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step win">VisionPipeline.set_frame(frame)</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step win">BallIdentifier.detect_all()</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step win">HSV 顏色分類</div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-step win">CompeteScene {balls, cue_ball, targets}</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step win">VisionPipeline.get_obstacles()</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step done">compute_shot(obstacles=[...])</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step todo">自動擊球（待實作）</div>
+    </div>
+  </div>
+</div>
+
+<!-- 狀態追蹤 -->
+<div class="status-section">
+  <h2>📋 待辦追蹤</h2>
+  <table class="status-table">
+    <thead>
+      <tr>
+        <th>狀態</th>
+        <th>項目</th>
+        <th>模組</th>
+        <th>說明</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag tag-done">✅ 完成</span></td>
+        <td>Ghost ball 口袋動態查詢</td>
+        <td>strategy_module.py</td>
+        <td>_find_nearest_pocket_name() pixel→mm→比對6口袋</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-done">✅ 完成</span></td>
+        <td>擊球後多餘點擊修復</td>
+        <td>state_machine.py</td>
+        <td>_shot_sent flag + 球桌外重置</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-done">✅ 完成</span></td>
+        <td>Bank Shot Planner</td>
+        <td>bank_shot_planner.py</td>
+        <td>鏡像法計算4條庫邊反彈點，32 tests ✅</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-done">✅ 完成</span></td>
+        <td>視覺 Phase 1 核心</td>
+        <td>ball_identifier + vision_pipeline</td>
+        <td>Hue/Orange/maroon 分類修復、confidence、VisionBridge</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-done">✅ 完成</span></td>
+        <td>Vision Unit Tests</td>
+        <td>tests/test_vision.py</td>
+        <td>14/14 tests ✅</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-todo">🔴 高</span></td>
+        <td>COMPETE 狀態機整合</td>
+        <td>state_machine.py + vision_bridge.py</td>
+        <td>VisionBridge 接入 StateMachine.COMPETE 模式</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-todo">🔴 高</span></td>
+        <td>HMI 相機捕獲</td>
+        <td>hmi.py</td>
+        <td>Tkinter 定時 polling 或事件驅動</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-todo">🔴 高</span></td>
+        <td>真實相機測試</td>
+        <td>vision/camera.py</td>
+        <td>720p USB camera 實測</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-todo">🔴 高</span></td>
+        <td>口袋真實 mm 座標</td>
+        <td>strategy_module.py</td>
+        <td>POCKETS 硬編碼，需實地測量</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-todo">🔴 高</span></td>
+        <td>WSL IP 更新</td>
+        <td>windows/config.py</td>
+        <td>SOCKET_HOST 待確認</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-mid">🟡 中</span></td>
+        <td>striker_bridge Arduino</td>
+        <td>striker_bridge.py</td>
+        <td>實機擊球控制（目前 MOCK 模式）</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-mid">🟡 中</span></td>
+        <td>校正資料持久化</td>
+        <td>calibration_control.py</td>
+        <td>矩陣寫入 JSON，斷電重啟後無需重新校正</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
