@@ -38,17 +38,20 @@ Phase 1 (現在)   Phase 2 (中期)   Phase 3 (後期)
 - 訊息區分：第一次顯示「擊球任務已發送！」，重複顯示「已完成，可拖曳調整，或點空白處重新布置」
 - BREAK 模式同樣保護
 
-### 2. 口袋直徑 & 開口夾角確認
-**現況**：`strategy_module.POCKETS` 使用假設座標（口袋在檯面內側邊緣中心）
+### 2. 口袋直徑 & 開口夾角確認 + SimTable 模型
+**現況**：`strategy_module.POCKETS` 使用假設座標，校正後口袋計算可能與實際不符
 **問題**：
 - `TABLE_WIDTH/TABLE_HEIGHT` 是**外框尺寸（含庫邊）**，口袋位於庫邊內側
 - 角落口袋的兩庫邊夾角通常 **≠ 90°**（視檯面而定）
 - 側邊口袋位置並非精確認證
+**已建立**：
+- `sim_table.py`：模擬球檯幾何模型（預設參數：洞口50mm、倒角105°、rail寬50mm）
+- `calibration_plus.py`：校正增強（可呼叫 `compute_expected_pockets()` 視覺化口袋位置）
 **需要確認**：
-- 洞口直徑（洞口實際大小，影響 ghost ball 偏移量）
+- 洞口直徑（洞口實際大小）
 - 角落口袋：兩庫邊的**實際夾角**
 - 側邊口袋：在長邊的**實際位置**（Y 座標）
-**影響**：Ghost Ball 偏移量 = `球半徑 + 口袋半徑`，夾角影響鬼球計算方向
+**Ghost Ball 偏移量** = `球半徑 + 口袋半徑`，夾角影響鬼球計算方向
 
 ### 3. WSL IP 更新到 windows/config.py
 **症狀**：`windows/config.py` 的 `SOCKET_HOST` 尚未更新為 WSL IP
