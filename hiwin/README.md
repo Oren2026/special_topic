@@ -1,7 +1,7 @@
 # HIWIN RA605 9-Ball 撞球機器人
 
 > 版本：2026-05-05
-> 狀態：⚠️ `striker_bridge.py` MOCK 模式（Arduino 通訊待實作）
+> 狀態：✅ 校正 JSON 持久化 + 球桌 felt/rails 邊框繪圖
 > 測試：**46/46 PASS** ✅
 
 ---
@@ -423,6 +423,54 @@ mm_to_pixel:  手臂mm (arm_x, arm_y) → 像素 (u,v)
 
 - 單一路徑計算（Ghost Ball）
 - 6 口袋各自獨立計算
+
+### Ghost Ball 演算法
+
+```
+已知：白球 C (cx, cy)、目標球 T (tx, ty)、口袋 P (px, py)
+目標：找到 Ghost Ball G 位置，驗證擊球路線
+
+1. 計算方向向量
+   dir = normalize(T - P)           # 從口袋指向目標球（不是 P-T！）
+   gx = tx + dir.x × BALL_DIAMETER
+   gy = ty + dir.y × BALL_DIAMETER   # G 在目標球「前方」
+
+2. 共線驗證（擊球方向正確）
+   外積：cross = (gx-cx)(ty-cy) - (gy-cy)(tx-cx)
+   |cross| < ε → C、G、T 共線（擊球瞄準了）
+
+3. 方向驗證（不是往回打）
+   dot = (gx-cx)(tx-gx) + (gy-cy)(ty-gy)
+   dot > 0 → G 在 C→T 方向上（不是反向）
+
+4. 障礙球判斷（擊球線段 [C, G]）
+   對每個障礙球 O：
+     dist = |cross(O-C, G-C)| / |G-C|   # O 到直線的垂直距離
+     若 dist < BALL_DIAMETER × 1.5       # 碰撞半徑緩衝
+       → 阻斷，需要銀行球或換口袋
+
+5. 進袋線驗證（目標球→口袋）
+   cross2 = (tx-px)(ty-py) - (ty-py)(tx-px)
+   |cross2| < ε → T、P 共線（球會進袋）
+
+6. 庫邊約束（直線 [C, G] 不穿越 felt 邊界）
+   4條邊界線段：TOP, BOTTOM, LEFT, RIGHT
+   對每條邊界：
+     求直線 [C,G] 與邊界的交點 I
+     若 I 在 [C,G] 線段內（非延長線）→ 阻斷，嘗試銀行球
+
+7. 銀行球（當直線被阻斷時）
+   對 4 條庫邊：
+     M = reflect(T, rail)             # T 對庫邊做鏡像
+     直線 [C, M] 與庫邊的交點 = 反彈點 B
+     驗證 B 在庫邊有效區間（不是角落）
+     擊球線：C → B → reflect(B, rail) → T → P
+```
+
+**備註**：
+- G 在 T 和口袋之間（不是 T 的後方）
+- 步驟 3 防止「往回打」的情況（C→T→P 反向）
+- 障礙球半徑用 `×1.5` 緩衝（考慮球半徑疊加）
 
 ### Phase 2：多路徑展示
 
