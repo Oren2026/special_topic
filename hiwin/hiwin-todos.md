@@ -1,7 +1,7 @@
 # HIWIN 撞球機器人 — 待辦追蹤
 
 > 更新日期：2026-05-05
-> 現況：Bank Shot Planner 已實作 + Unit Tests ✅
+> 現況：視覺 Phase 1 核心完成，46 tests ✅
 > 複審截止：2026-05-22
 
 ---
@@ -28,6 +28,8 @@ Phase 1 (現在)   Phase 2 (中期)   Phase 3 (後期)
 | 2026-05-05 | 擊球後多餘點擊修復 | commit cf66885，_shot_sent flag + 球桌外重置 |
 | 2026-05-05 | Bank Shot Planner | 鏡像法計算4條庫邊反彈點，commit 2d97853 |
 | 2026-05-05 | Bank Shot Unit Tests ✅ | 32/32 通過，commit d67c729 |
+| 2026-05-05 | 視覺 Phase 1 核心 | Hue 分類修復、confidence、VisionBridge，commit f4b3edb |
+| 2026-05-05 | Vision Unit Tests ✅ | 14/14 通過，commit f4b3edb |
 
 ---
 
@@ -65,9 +67,20 @@ Phase 1 (現在)   Phase 2 (中期)   Phase 3 (後期)
 
 ### 4. COMPETE 模式（自動視覺辨識）
 
-**🔴 Phase 1：影像辨識介面（現在開始）**
+**✅ Phase 1：影像辨識介面（核心完成）**
 
-目標：建立 `windows/control/vision_pipeline.py` + `ball_identifier.py` + `calibration_control.py`
+已完成：
+- ✅ `ball_identifier.py` — HoughCircles + HSV 顏色分類（Hue bug 已修）
+- ✅ `vision_pipeline.py` — 整合 pipeline + `get_obstacles()` API
+- ✅ `table_geometry.py` — 球徑估算、Hough 半徑範圍、pixel↔mm 轉換
+- ✅ `vision_bridge.py` — mock/實相機 bridge，`capture_and_process()` API
+- ✅ `confidence` — Canny 邊緣強度估算（0.4-0.9）
+- ✅ `tests/test_vision.py` — 14 tests，46 total tests ✅
+
+待完成：
+- 🔴 COMPETE 模式狀態機整合（`state_machine.py` + VisionBridge）
+- 🔴 HMI 相機捕獲（定時 polling 或事件驅動）
+- 🔴 真實相機測試（720p USB camera）
 
 流程：
 ```
