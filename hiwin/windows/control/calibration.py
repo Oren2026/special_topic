@@ -106,12 +106,14 @@ class CalibrationHandler:
         )
         orientation = "cw" if cross_sum > 0 else "ccw"
 
-        # 目標：球檯 mm 座標
+        # 目標：球檯 mm 座標（與 SimTable 座標系對齊）
+        # SimTable 原點在長邊中點：X ∈ [-600, +600]，Y ∈ [0, 630]
+        # POINT_ORDER = ["左上", "右上", "右下", "左下"]
         dst = np.array([
-            [0, 0],
-            [self.TABLE_WIDTH_MM, 0],
-            [self.TABLE_WIDTH_MM, self.TABLE_HEIGHT_MM],
-            [0, self.TABLE_HEIGHT_MM],
+            [-600,   0],   # 左上
+            [ 600,   0],   # 右上
+            [ 600, 630],   # 右下
+            [-600, 630],   # 左下
         ], dtype=np.float32)
 
         # 根據方向調整 src 順序
