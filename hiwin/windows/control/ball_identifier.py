@@ -63,27 +63,26 @@ class BallIdentifier:
 
     使用方式：
     1. set_frame(frame) — 餵入 BGR 畫面
-    2. detect_circles() — HoughCircles 偵測圓形
+    2. detect_circles() — HoughCircles 偵測圓形（半徑範圍由 TableGeometry 動態計算）
     3. classify_ball(u, v, radius) — 對特定位置做顏色分類
     4. detect_all() — 一次執行完整流程，回傳所有偵測到的球
     """
 
-    # HoughCircles 參數（可在 create 時客製）
+    # HoughCircles 固定參數
     HOUGH_PARAM1 = 50   # 邊緣偵測門檻
     HOUGH_PARAM2 = 30   # 圓心偵測門檻（越小越容易誤判）
-    MIN_RADIUS = 10     # 最小半徑（pixel）
-    MAX_RADIUS = 50     # 最大半徑（pixel）
     DIST_BETWEEN_CIRCLES = 40  # 兩圓最小距離
 
     # 條紋判斷參數
     STRIPE_BRIGHTNESS_DIFF = 30  # 邊緣vs中心亮度差閾值
     STRIPE_SATURATION_DIFF = 20  # 邊緣vs中心飽和度差閾值
 
-    def __init__(self, hough_param1: int = None, hough_param2: int = None):
+    def __init__(self, table_geometry=None, hough_param1: int = None, hough_param2: int = None):
         self._frame: Optional[np.ndarray] = None
         self._gray: Optional[np.ndarray] = None
         self._hsv: Optional[np.ndarray] = None
         self._circles: Optional[np.ndarray] = None
+        self._table_geometry = table_geometry  # 動態計算半徑範圍
 
         if hough_param1 is not None:
             self.HOUGH_PARAM1 = hough_param1
@@ -104,11 +103,20 @@ class BallIdentifier:
     def detect_circles(self) -> List[Tuple[float, float, float]]:
         """
         HoughCircles 圓形偵測
-        
+
         回傳：[(u, v, radius), ...] 圓心+半徑列表
+
+        半徑範圍：由 TableGeometry 根據校正動態計算（pixel↔mm 比例）
+        未校正時 fallback 為 (5, 100)
         """
         if self._gray is None:
             return []
+
+        # 動態半徑範圍（由校正矩陣計算）
+        if self._table_geometry:
+            min_r, max_r = self._table_geometry.hough_radius_range()
+        else:
+            min_r, max_r = 5, 100  # fallback：未校正時
 
         # 去噪 + 模糊
         blurred = cv2.medianBlur(self._gray, 5)
@@ -120,8 +128,8 @@ class BallIdentifier:
             minDist=self.DIST_BETWEEN_CIRCLES,
             param1=self.HOUGH_PARAM1,
             param2=self.HOUGH_PARAM2,
-            minRadius=self.MIN_RADIUS,
-            maxRadius=self.MAX_RADIUS,
+            minRadius=min_r,        # 動態：由 TableGeometry 計算
+            maxRadius=max_r,        # 動態：由 TableGeometry 計算
         )
 
         if circles is None:

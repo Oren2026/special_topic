@@ -3,15 +3,14 @@ windows/control/vision_pipeline.py
 視覺 pipeline — Phase 1 整合層
 
 職責：
-- 整合 BallIdentifier + CalibrationControl
+- 整合 BallIdentifier + CalibrationControl + TableGeometry
 - 協調相機輸入 → 圓形偵測 → 顏色分類 → 策略排序
 - 為 COMPETE 模式提供乾淨的 API
 
-使用方式：
-1. set_calibration(calibration_control) — 注入校正矩陣
-2. set_frame(frame) — 餵入相機畫面
-3. run() — 執行完整 pipeline
-4. get_scene() — 取得策略-ready 的場景資料
+設計原則：
+- Camera 解析度無關（720p / 640x480 皆可）
+- 球徑 pixel 值由 TableGeometry 根據校正動態計算
+- 形狀（圓形）先於顏色偵測
 """
 
 import cv2
@@ -21,6 +20,7 @@ from typing import Optional, List
 
 from .ball_identifier import BallIdentifier, DetectedBall
 from .calibration_control import CalibrationControl
+from .table_geometry import TableGeometry
 
 
 @dataclass
@@ -55,16 +55,19 @@ class VisionPipeline:
     """
 
     def __init__(self):
-        self._identifier = BallIdentifier()
-        self._calibration: Optional[CalibrationControl] = None
+        self._calibration = CalibrationControl()
+        self._geometry = TableGeometry()
+        self._geometry.set_calibration(self._calibration)
+        self._identifier = BallIdentifier(table_geometry=self._geometry)
         self._scene: Optional[CompeteScene] = None
         self._frame: Optional[np.ndarray] = None
 
     # ── 注入依賴 ─────────────────────────────────────────────────────────────
 
     def set_calibration(self, calib: CalibrationControl):
-        """注入校正控制（提供 pixel↔mm 轉換）"""
+        """注入校正控制（提供 pixel↔mm 轉換，並同步到 TableGeometry）"""
         self._calibration = calib
+        self._geometry.set_calibration(calib)
 
     # ── 主要流程 ─────────────────────────────────────────────────────────────
 

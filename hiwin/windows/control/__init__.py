@@ -4,6 +4,7 @@ windows/control/__init__.py
 from .socket_client import SocketClient
 from .calibration import CalibrationHandler
 from .calibration_control import CalibrationControl
+from .table_geometry import TableGeometry
 from .ball_identifier import BallIdentifier, DetectedBall
 from .vision_pipeline import VisionPipeline, CompeteBall, CompeteScene
 from .shot_dispatcher import ShotDispatcher
@@ -14,6 +15,7 @@ __all__ = [
     "SocketClient",
     "CalibrationHandler",
     "CalibrationControl",
+    "TableGeometry",
     "BallIdentifier",
     "DetectedBall",
     "VisionPipeline",
