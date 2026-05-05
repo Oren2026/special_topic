@@ -17,11 +17,34 @@ windows/control/vision_bridge.py
 import cv2
 import numpy as np
 from typing import Optional, List, Tuple
+import sys, os
 
-from .vision_pipeline import VisionPipeline, CompeteBall
-from .calibration_control import CalibrationControl
-from .table_geometry import TableGeometry
-from .ball_identifier import BallIdentifier
+# ── 匯入策略：standalone（直接 python xxx.py）vs package（import 或 -m 執行）────
+# 判斷：__name__ 包含 '.' 表示已在前綴模組下 = package 模式
+#       否則為 standalone 模式（__name__ == "__main__" 但被直接執行）
+def _is_package_mode():
+    # 透過檢查模組路徑判斷是否為 package 成員
+    # 若頂層 import 能成功則為 package，失敗則為 standalone
+    try:
+        # 嘗試相對匯入（package 模式）
+        from . import vision_pipeline as _vp
+        return True
+    except ImportError:
+        return False
+
+if _is_package_mode():
+    from .vision_pipeline import VisionPipeline, CompeteBall
+    from .calibration_control import CalibrationControl
+    from .table_geometry import TableGeometry
+    from .ball_identifier import BallIdentifier
+else:
+    # standalone 模式：手動設定路徑後用絕對匯入
+    _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.insert(0, _ROOT)
+    from control.vision_pipeline import VisionPipeline, CompeteBall
+    from control.calibration_control import CalibrationControl
+    from control.table_geometry import TableGeometry
+    from control.ball_identifier import BallIdentifier
 
 
 # ─── Mock 球配置產生器 ────────────────────────────────────────────────────────
@@ -155,13 +178,18 @@ class VisionBridge:
         ox = (1280 - 1200 * scale) / 2
         oy = (720 - 630 * scale) / 2
 
+        # 球半徑 pixel：19mm × scale → 但 scale=0.788 時只有 ~15px
+        # HoughCircles 需要够大的圓才能穩定偵測（minRadius=13 邊緣）
+        # 用 20px 固定半徑（≈真實 38mm 球在 720p 的投影大小）
+        ball_radius_px = 20
+
         for ball in self._mock_scene:
             px = int(ball["x"] * scale + ox)
             py = int(ball["y"] * scale + oy)
-            r = int(19 * scale)
+            r = ball_radius_px
             color = color_map.get(ball["color"], (128, 128, 128))
-            cv2.circle(frame, (px, py), max(r, 3), color, -1)
-            cv2.circle(frame, (px, py), max(r, 3), (255, 255, 255), 1)
+            cv2.circle(frame, (px, py), r, color, -1)
+            cv2.circle(frame, (px, py), r, (255, 255, 255), 2)
 
         return frame
 
@@ -233,3 +261,41 @@ class VisionBridge:
 
     def is_mock(self) -> bool:
         return self._mock_mode
+
+
+# ── Standalone 測試 ──────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    print("=== VisionBridge Standalone Test ===")
+
+    bridge = VisionBridge(robot_brain=None)  # 不接 robot_brain，只測視覺 pipeline
+    bridge.start_mock()  # 使用預設 mock scene
+
+    print(f"Mode: {'MOCK' if bridge.is_mock() else 'CAMERA'}")
+    print(f"Mock scene: {bridge._mock_scene}")
+
+    # 執行一次 capture_and_process（不回傳 shot，只測視覺偵測）
+    result = bridge.capture_and_process()
+
+    if result:
+        balls = result.get("balls", [])
+        targets = result.get("targets", [])
+        cue = result.get("cue_ball")
+        print(f"\nDetected {len(balls)} balls:")
+        for b in balls:
+            print(f"  #{b.number} {b.color} ({b.x_mm:.0f}mm, {b.y_mm:.0f}mm) conf={b.confidence:.2f}")
+        if cue:
+            print(f"Cue ball: ({cue.x_mm:.0f}mm, {cue.y_mm:.0f}mm)")
+        if targets:
+            print(f"Top target: #{targets[0].number} {targets[0].color}")
+    else:
+        print("capture_and_process returned None")
+
+    # 顯示 mock frame
+    frame = bridge._make_mock_frame()
+    cv2.putText(frame, "VisionBridge Mock Frame (press any key to exit)",
+                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+    cv2.imshow("vision_bridge.py - Mock Frame", frame)
+    key = cv2.waitKey(0)
+    print(f"Key pressed: {key}")
+    cv2.destroyAllWindows()
+    print("Done.")

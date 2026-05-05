@@ -213,9 +213,10 @@ class BallIdentifier:
         回傳：(color_name, ball_number, is_stripe)
 
         邏輯：
-        1. 先用亮度區分：黑色球（V < 50）
-        2. 再用 Hue 對照顏色表
-        3. 條紋判斷：_is_stripe()
+        1. 先用亮度區分：白色球（S≈0, V極高 → 白球/0號）
+        2. 再用亮度區分：黑色球（V < 50）
+        3. 再用 Hue 對照顏色表
+        4. 條紋判斷：_is_stripe()
         """
         if self._hsv is None:
             return ("unknown", 0, False)
@@ -223,11 +224,15 @@ class BallIdentifier:
         # 取球心周圍一小區域的平均 Hue（避免單點噪聲）
         h, s, v_val = self._get_hsv_at(u, v)
 
-        # 步驟1：亮度極低 → 黑色球（8號）
+        # 步驟1：白球（S≈0 且 V 極高 → 白球當 cue ball）
+        if s < 15 and v_val > 180:
+            return ("white", 0, False)
+
+        # 步驟2：亮度極低 → 黑色球（8號）
         if v_val < 50:
             return ("black", 8, False)
 
-        # 步驟2：Hue 映射
+        # 步驟3：Hue 映射
         color = self._classify_hue(h)
 
         # 步驟3：條紋判斷（只對非黑球判斷）
@@ -406,3 +411,57 @@ class BallIdentifier:
             "yellow_stripe":(0, 255, 255),
         }
         return table.get(color, (128, 128, 128))
+
+
+# ── Standalone 測試 ──────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    # ball_identifier.py 無 sibling imports，直接執行即可
+    import sys, os, cv2, numpy as np
+
+    print("=== BallIdentifier Standalone Test ===")
+
+    # 建立測試 frame（720p，暗綠色背景模擬球桌 felt）
+    frame = np.zeros((720, 1280, 3), dtype=np.uint8)
+    frame[:, :] = (46, 139, 87)  # 深綠 felt 顏色
+
+    # 手動畫幾個測試球（彩色填充圓 + 白邊）
+    # (u, v, radius, color_bgr, label)
+    test_balls = [
+        (200, 300, 25, (0, 255, 255), "1-Yellow"),
+        (400, 250, 25, (255, 0, 0),   "2-Blue"),
+        (600, 400, 25, (0, 0, 255),   "3-Red"),
+        (800, 300, 25, (0, 255, 0),   "6-Green"),
+        (900, 500, 25, (128, 0, 128), "4-Purple"),
+        (300, 500, 25, (0, 165, 255),"5-Orange"),
+        (700, 150, 25, (0, 0, 0),     "8-Black"),
+    ]
+
+    for u, v, r, color, label in test_balls:
+        cv2.circle(frame, (u, v), r, color, -1)
+        cv2.circle(frame, (u, v), r, (255, 255, 255), 2)
+        cv2.putText(frame, label, (u - 25, v - r - 5),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
+    # 執行辨識
+    identifier = BallIdentifier()
+    identifier.set_frame(frame)
+    circles = identifier.detect_circles()
+    print(f"HoughCircles detected: {len(circles)} circles")
+    for c in circles:
+        print(f"  circle at ({c[0]:.1f}, {c[1]:.1f}) r={c[2]:.1f}")
+
+    detected = identifier.detect_all()
+    print(f"detect_all: {len(detected)} balls")
+    for b in detected:
+        print(f"  #{b.number} {b.color} stripe={b.is_stripe} conf={b.confidence:.2f} at ({b.u:.0f},{b.v:.0f})")
+
+    # 繪製辨識結果
+    result_frame = identifier.draw_balls(frame.copy(), detected)
+
+    cv2.putText(result_frame, "BallIdentifier Standalone Test (press any key to exit)",
+                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+    cv2.imshow("ball_identifier.py - Detection Result", result_frame)
+    key = cv2.waitKey(0)
+    print(f"Key pressed: {key}")
+    cv2.destroyAllWindows()
+    print("Done.")

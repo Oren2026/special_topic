@@ -134,19 +134,23 @@ class VisionPipeline:
     def _find_cue_ball(self, balls: List[CompeteBall]) -> Optional[CompeteBall]:
         """
         識別白球
-        
+
         方法：
-        - 白球極亮（V > 150）
-        - 無特定顏色（Hue 不在顏色帶內）
-        - 或者：如果只有一個極亮的球 → 白球
+        1. 先檢查是否已有球被 classify 為 number=0（白球在 classify_color 已回傳 0）
+        2. 再用亮度判斷：高亮度（Hue 任意, V > 150）→ 白球候選
+        3. Fallback：最亮的當白球
         """
         if not balls:
             return None
 
-        # 取最亮的球
+        # 優先：找已經被 classify 為白球的（number=0）
+        for b in balls:
+            if b.number == 0:
+                return b
+
+        # 其次：找最亮的球（高 V 值）
         bright_candidates = []
         for b in balls:
-            # 用 pixel 值估算亮度（白色 V 值高）
             if self._frame is not None:
                 try:
                     hsv = cv2.cvtColor(
@@ -155,7 +159,7 @@ class VisionPipeline:
                         cv2.COLOR_BGR2HSV
                     )[0, 0]
                     v = hsv[2]
-                    if v > 150:  # 高亮度 → 白球候選
+                    if v > 150:
                         bright_candidates.append((b, v))
                 except:
                     pass
@@ -164,7 +168,6 @@ class VisionPipeline:
             bright_candidates.sort(key=lambda x: x[1], reverse=True)
             return bright_candidates[0][0]
 
-        # fallback：最亮的當白球
         return None
 
     # ── 查詢 API ─────────────────────────────────────────────────────────────

@@ -167,3 +167,58 @@ class SimulationScene:
             {"type": b.type, "u": int(b.u), "v": int(b.v)}
             for b in self.balls.values()
         ]
+
+
+# ── Standalone 測試 ──────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    import cv2
+
+    print("=== SimulationScene Standalone Test ===")
+
+    # 建立模擬校正4角點（像素，1280x720 canvas）
+    # 順序：左上、右上、右下、左下（幾何左下角在左下）
+    calib_pts = [
+        [100, 100],   # 左上
+        [1180, 100],  # 右上
+        [1180, 580],  # 右下
+        [100, 580],   # 左下
+    ]
+
+    # 建立 scene
+    scene = SimulationScene()
+    scene.set_calibration_points(calib_pts)
+
+    # 設定口袋（6個，pixel座標）
+    # 與 strategy_module.POCKETS 對應：長邊在上下(1200mm)，側袋 x=600
+    canvas_w, canvas_h = 1280, 720
+    scale_x = canvas_w / 1200  # 1200mm → 1280px
+    scale_y = canvas_h / 630   # 630mm → 720px
+
+    pockets = {
+        "top_left":    [int(50 * scale_x),  int(580 * scale_y)],
+        "top_middle":  [int(600 * scale_x), int(580 * scale_y)],
+        "top_right":   [int(1150 * scale_x),int(580 * scale_y)],
+        "bot_left":    [int(50 * scale_x),  int(50  * scale_y)],
+        "bot_middle":  [int(600 * scale_x), int(50  * scale_y)],
+        "bot_right":   [int(1150 * scale_x),int(50  * scale_y)],
+    }
+    scene.set_pockets(pockets)
+
+    # 加入測試球
+    scene.add_or_update("CUE_BALL",    int(400), int(360))
+    scene.add_or_update("TARGET_BALL", int(800), int(200))
+
+    # 建立 canvas 並 render
+    canvas = np.zeros((canvas_h, canvas_w, 3), dtype=np.uint8)
+    canvas[:, :] = (40, 40, 40)  # 灰黑背景
+    scene.render_all(canvas)
+
+    # 標題
+    cv2.putText(canvas, "SimulationScene Standalone Test (press any key to exit)",
+                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 200), 1)
+
+    cv2.imshow("objects.py - SimulationScene", canvas)
+    key = cv2.waitKey(0)
+    print(f"Key pressed: {key}")
+    cv2.destroyAllWindows()
+    print("Done.")
