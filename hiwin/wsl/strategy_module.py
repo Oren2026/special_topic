@@ -25,15 +25,24 @@ class BilliardStrategy:
         self.max_stroke     = config.MAX_STROKE
         self.ROBOT_MAX_REACH = config.ROBOT_MAX_REACH
 
+        # 口袋座標（mm）— 位置需與實際球檯對齊
+        #
+        # ⚠️ 注意：TABLE_WIDTH/TABLE_HEIGHT 是球檯外框尺寸（包含庫邊）
+        # 口袋位於庫邊內側，實際座標需由「口袋直徑」與「庫邊夾角」推算
+        #
+        # 待確認項目（#2）：
+        #   - 口袋直徑（洞口 actual diameter）
+        #   - 口袋開口夾角（corner pocket 兩庫邊夾角 ≠ 90°）
+        # 實地測量後更新以下座標（目前假設口袋在檯面內側邊緣中心）
         self.POCKETS = {
-            # 4角袋
+            # 4角袋（庫邊轉角處）
             "top_left":   (-600,   0),
             "top_right":  ( 600,   0),
             "bot_left":   (-600, config.TABLE_HEIGHT),
             "bot_right":  ( 600, config.TABLE_HEIGHT),
-            # 2側袋（長邊中央）— 9-ball 第5/6袋
-            "side_left":  (   0,   0),
-            "side_right": (   0, config.TABLE_HEIGHT),
+            # 2側袋（長邊中央）
+            "side_left":  (   0,   0),    # ⚠️ 待驗證
+            "side_right": (   0, config.TABLE_HEIGHT),  # ⚠️ 待驗證
         }
 
     def get_all_pockets_mm(self):
