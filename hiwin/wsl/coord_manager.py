@@ -31,10 +31,10 @@ class CoordinateManager:
         計算正向與逆向透視矩陣
         """
         pts_dst = np.array([
-            [0,              0             ],
-            [self.TABLE_WIDTH, 0           ],
-            [self.TABLE_WIDTH, self.TABLE_HEIGHT],
-            [0,              self.TABLE_HEIGHT],
+            [-600,          0],
+            [self.TABLE_WIDTH / 2,  0],
+            [self.TABLE_WIDTH / 2,  self.TABLE_HEIGHT],
+            [-600,          self.TABLE_HEIGHT],
         ], dtype=np.float32)
 
         pts_src_arr = np.array(pts_src, dtype=np.float32)

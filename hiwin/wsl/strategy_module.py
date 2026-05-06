@@ -37,19 +37,19 @@ class BilliardStrategy:
         # 上排口袋：y = 580（距頂部邊緣約 50mm）
         # 下排口袋：y =  50（距底部邊緣約 50mm）
         # 左排：x =  50（距左側邊緣約 50mm）
-        # 中排：x = 600（長邊中點）
-        # 右排：x = 1150（距右側邊緣約 50mm）
-        #
-        # ⚠️ 注意：球檯外框 1200×630mm，口袋在內側，playable area 約 1100×530mm
+        # WSL 端已廢除左上角原點，改用 SimTable 長邊中點原點
+        # SimTable: X ∈ [-600, +600], Y ∈ [0, 630]
+        # 長邊（1200mm）在上下側，短邊（630mm）在左右側
+        # 角落口袋含倒角效應（cx_corner=pr×0.3=7.5mm），與 SimTable 同步
         self.POCKETS = {
-            # 上排（長邊上側）
-            "top_left":   (  50, 580),
-            "top_mid":    ( 600, 580),
-            "top_right":  (1150, 580),
-            # 下排（長邊下側）
-            "bot_left":   (  50,  50),
-            "bot_mid":    ( 600,  50),
-            "bot_right":  (1150,  50),
+            # 角落口袋（4個）：洞口徑 50mm，含倒角偏移
+            "top_left":   (-578.5,  53.5),
+            "top_right":  ( 578.5,  53.5),
+            "bot_left":   (-578.5, 576.5),
+            "bot_right":  ( 578.5, 576.5),
+            # 側邊口袋（2個）：長邊中點，洞口在 rail 邊緣
+            "side_left":  (-575.0, 315.0),
+            "side_right": ( 575.0, 315.0),
         }
 
     def get_all_pockets_mm(self):
