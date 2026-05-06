@@ -1,8 +1,8 @@
 # HIWIN RA605 9-Ball 撞球機器人
 
-> 版本：2026-05-07
-> 狀態：✅ Ghost Ball D 偏移（含） + Bank Shot Planner + 物理模組 + 71 tests
-> 測試：**71/71 PASS** ✅
+> 版本：2026-05-05
+> 狀態：✅ 校正 JSON 持久化 + 球桌 felt/rails 邊框繪圖
+> 測試：**46/46 PASS** ✅
 
 ---
 
@@ -13,12 +13,11 @@
 3. [模組關係圖](#模組關係圖)
 4. [Windows 端模組](#windows-端模組)
 5. [WSL 端模組](#wsl-端模組)
-6. [物理模組](#物理模組)
-7. [通訊協定](#通訊協定)
-8. [執行流程](#執行流程)
-9. [座標系定義](#座標系定義)
-10. [待辦追蹤](#待辦追蹤)
-11. [策略藍圖](#策略藍圖)
+6. [通訊協定](#通訊協定)
+7. [執行流程](#執行流程)
+8. [座標系定義](#座標系定義)
+9. [待辦追蹤](#待辦追蹤)
+10. [策略藍圖](#策略藍圖)
 
 ---
 
@@ -77,16 +76,9 @@
 │       │                                                              │
 │       ├─▶ coord_manager.py    (pixel↔mm 透視變換)                   │
 │       ├─▶ strategy_module.py  (Ghost Ball 演算法)                   │
-│       ├─▶ bank_shot_planner.py (庫邊反彈計算)                        │
-│       ├─▶ break_module.py     (Break 開球)                          │
+│       ├─▶ bank_shot_planner.py (庫邊反彈計算)                       │
+│       ├─▶ break_module.py     (Break 開球)                           │
 │       └─▶ striker_bridge.py  (→ Arduino，⚠️ MOCK)                  │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │  物理驗證工具鏈（獨立於決策流程）                                │   │
-│  │  physics/                                                      │   │
-│  │   ├─ collision.py  (BallState, 碰撞偵測, 彈性碰撞, 庫邊反射)   │   │
-│  │   └─ trajectory.py (軌跡預測, TrajectoryResult)                │   │
-│  └──────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -140,7 +132,7 @@
 │   calibration.py                                    vision_bridge.py         │
 │                                                     capture_and_process()     │
 │                                                     ↓                        │
-│   shot_dispatcher.py                                robot_brain.compute_shot()│
+│   shot_dispatcher.py                                robot_brain.compute_shot() │
 │   break_handler.py                                  (障礙球已接入)          │
 │                                                                             │
 │       ▼                                                                     │
@@ -158,7 +150,7 @@
 │        │                                                                   │
 │        ├─▶ strategy_module.py                                             │
 │        │      · get_best_shot() → Ghost Ball 瞄準點                        │
-│        │      · compute_shot() → 支援 obstacles 障礙球參數                  │
+│        │      · compute_shot() → 新：支援 obstacles 障礙球參數             │
 │        │                                                                   │
 │        ├─▶ bank_shot_planner.py                                           │
 │        │      · plan_bank_shot() → 鏡像法計算庫邊反彈                      │
@@ -168,13 +160,7 @@
 │        │      · compute_break() → 開球角度/力道                            │
 │        │                                                                   │
 │        └─▶ striker_bridge.py                                              │
-│               · execute() → ⚠️ MOCK（Arduino 待實作）                       │
-│                                                                             │
-│  物理驗證工具鏈（獨立模組，不參與決策）                                        │
-│  ═════════════════════════════════════════════                              │
-│   physics/collision.py     — BallState, collision_detect, resolve_elastic   │
-│   physics/trajectory.py   — simulate() → TrajectoryResult                  │
-│   physics/parameters.py   — RESTITUTION=0.95, DT_MS=10, BALL_RADIUS=19mm  │
+│               · execute() → ⚠️ MOCK（Arduino 待實作）                      │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -201,8 +187,8 @@ robot_brain.py (WSL)
     ├── TEST ─────▶ coord_manager.pixel_to_mm()
     │                   │
     │                   ▼
-    │              strategy_module.compute_shot(obstacles=[...])
-    │                   │
+    │              strategy_module.get_best_shot()
+    │                   │  or  compute_shot(obstacles=[...])
     │                   ▼
     │              bank_shot_planner.plan_bank_shot()
     │                   │
@@ -224,11 +210,6 @@ robot_brain.py (WSL)
                         │
                         ▼
                    robot_brain.compute_shot(obstacles=[...])
-
-物理驗證（獨立流程，不走 robot_brain）：
-physics.simulate(cue_pos, cue_dir, target_pos, pocket_pos, obstacles)
-    →
-    TrajectoryResult {cue_path, target_path, collision_events, wall_events, pocket_sunk}
 ```
 
 ---
@@ -274,49 +255,6 @@ physics.simulate(cue_pos, cue_dir, target_pos, pocket_pos, obstacles)
 | `wsl/break_module.py` | `BreakStrategy` | 開球計算（angle=固定, stroke=MAX） | `.compute_break(cue_ball_mm)` |
 | `wsl/striker_bridge.py` | `StrikerBridge` | → Arduino（⚠️ MOCK） | `.execute(robot_tcp, stroke_dist, angle)` |
 | `wsl/robot_brain.py` | `RobotBrain` | Socket Server + 模式分派 | `.start()` |
-
----
-
-## 物理模組
-
-獨立於決策流程的物理驗證工具鏈，用於軌跡預測、碰撞模擬、策略回測。
-
-### 檔案
-
-| 檔案 | 職責 |
-|------|------|
-| `physics/parameters.py` | 常數：`BALL_RADIUS=19mm`, `RESTITUTION=0.95`, `DT_MS=10`, `POCKET_RADIUS=25mm` |
-| `physics/collision.py` | `BallState`, `collision_detect`, `resolve_elastic`, `reflect_wall`, `is_in_pocket` |
-| `physics/trajectory.py` | `simulate()` → `TrajectoryResult`（完整軌跡 + 事件日誌）|
-
-### API 速查
-
-```python
-from physics import simulate, BallState, TrajectoryResult
-
-result = simulate(
-    cue_pos   = (200, 315),      # 白球 mm
-    cue_dir   = (1, 0),           # 瞄準方向單位向量
-    target_pos= (550, 315),      # 目標球 mm
-    pocket_pos= (575, 315),      # 口袋 mm
-    obstacles = [(400, 315)],    # 障礙球列表
-    speed     = 3000,            # 擊球初速 mm/s
-    dt_ms     = 10,              # 模擬步長
-)
-# result.cue_path / result.target_path    → [(x,y), ...]
-# result.collision_events                 → [CollisionEvent, ...]
-# result.wall_events                      → [WallEvent, ...]
-# result.pocket_sunk                     → bool
-# result.pocket_sunk_ball                → "cue" | "target" | None
-```
-
-### 設計原則
-
-- 速度單位：mm/s，長度單位：mm
-- `RESTITUTION = 0.95`（初始值，來自撞球檯文獻）
-- 未來透過 `shot_database` 實際數據回推修正
-- 不引入牆壁穿透修正——用「沿反彈路徑行走」概念
-- `dt = 10ms`：球速 1000mm/s 每步移動 10mm（不到一個球徑）
 
 ---
 
@@ -459,24 +397,23 @@ mm_to_pixel:  手臂mm (arm_x, arm_y) → 像素 (u,v)
 
 ## 待辦追蹤
 
-> 更新：2026-05-07｜71 tests ✅
+> 更新：2026-05-05｜46 tests ✅
 
 | # | 項目 | 優先級 | 說明 |
 |---|------|--------|------|
-| 1 | Ghost Ball D 偏移 | ✅ 已完成 | G = T + normalize(P-T) × D |
+| 1 | Ghost ball 口袋動態查詢 | ✅ 已完成 | `_find_nearest_pocket_name()` pixel→mm→比對6口袋 |
 | 2 | 擊球後多餘點擊修復 | ✅ 已完成 | `_shot_sent` flag + 球桌外重置 |
 | 3 | Bank Shot Planner | ✅ 已完成 | 鏡像法計算4條庫邊反彈點，32 tests ✅ |
 | 4 | 視覺 Phase 1 核心 | ✅ 已完成 | Hue/Orange/maroon 分類修復、confidence、VisionBridge |
 | 5 | Vision Unit Tests | ✅ 已完成 | 14/14 tests ✅ |
-| 6 | 物理模組 collision + trajectory | ✅ 已完成 | 25 tests ✅ |
-| 7 | COMPETE 模式狀態機整合 | 🔴 高 | `state_machine.py` + VisionBridge 串接 |
-| 8 | HMI 相機捕獲 | 🔴 高 | Tkinter 定時 polling 或事件驅動 |
-| 9 | 真實相機測試 | 🔴 高 | 720p USB camera 實測 |
-| 10 | 口袋真實 mm 座標 | 🔴 高 | `strategy_module.POCKETS` 硬編碼，需實地測量 |
-| 11 | WSL IP 更新 | 🔴 高 | `windows/config.py` 的 `SOCKET_HOST` 待確認 |
-| 12 | striker_bridge Arduino | 🟡 中 | 實機擊球控制（目前 MOCK 模式）|
-| 13 | 校正資料持久化 | 🟡 中 | 矩陣寫入 JSON，斷電重啟後無需重新校正 |
-| 14 | 策略學習層 | 🟢 低 | 貝氏估計 / 強化學習權重 |
+| 6 | COMPETE 模式狀態機整合 | 🔴 高 | `state_machine.py` + VisionBridge 串接 |
+| 7 | HMI 相機捕獲 | 🔴 高 | Tkinter 定時 polling 或事件驅動 |
+| 8 | 真實相機測試 | 🔴 高 | 720p USB camera 實測 |
+| 9 | 口袋真實 mm 座標 | 🔴 高 | `strategy_module.POCKETS` 硬編碼，需實地測量 |
+| 10 | WSL IP 更新 | 🔴 高 | `windows/config.py` 的 `SOCKET_HOST` 待確認 |
+| 11 | striker_bridge Arduino | 🟡 中 | 實機擊球控制（目前 MOCK 模式）|
+| 12 | 校正資料持久化 | 🟡 中 | 矩陣寫入 JSON，斷電重啟後無需重新校正 |
+| 13 | 策略學習層 | 🟢 低 | 貝氏估計 / 強化學習權重 |
 
 ---
 
@@ -494,10 +431,9 @@ mm_to_pixel:  手臂mm (arm_x, arm_y) → 像素 (u,v)
 目標：找到 Ghost Ball G 位置，驗證擊球路線
 
 1. 計算方向向量
-   dir = normalize(T - P)           # 從口袋指向目標球
-   gx = tx + dir.x × D              # D = 球徑 38mm
-   gy = ty + dir.y × D
-   G = T + normalize(P - T) × D     # G 在目標球前方（口袋方向）
+   dir = normalize(T - P)           # 從口袋指向目標球（不是 P-T！）
+   gx = tx + dir.x × BALL_DIAMETER
+   gy = ty + dir.y × BALL_DIAMETER   # G 在目標球「前方」（靠近口袋那一側）
 
 2. 驗證 T 在口袋範圍內
    dist(T, P) < POCKET_RADIUS + BALL_RADIUS   # 否則不可能進袋
@@ -526,7 +462,7 @@ mm_to_pixel:  手臂mm (arm_x, arm_y) → 像素 (u,v)
 
 7. 選擇最佳策略
    direct 可達 → direct
-   direct 被阻但 bank 可達 → bank（雙條件 trigger）
+   direct 被阻但 bank 可達 → bank
    兩者都不行 → 回傳失敗（is_reachable = false）
 ```
 
@@ -535,7 +471,6 @@ mm_to_pixel:  手臂mm (arm_x, arm_y) → 像素 (u,v)
 - 步驟 3 的 dot 不是禁止條件，只是用來區分 direct / bank shot
 - 步驟 4 的邏輯是「誰第一個被撞」，不是「垂直距離小於 threshold」
 - 障礙球半徑用 `×1.5` 緩衝（考慮球半徑疊加）
-- Bank shot 雙條件 trigger：Condition A (C→G blocked) OR Condition B (T→P blocked)
 
 ### Phase 2：多路徑展示
 
@@ -557,12 +492,9 @@ mm_to_pixel:  手臂mm (arm_x, arm_y) → 像素 (u,v)
 | 參數 | 值 | 說明 |
 |------|-----|------|
 | 球檯尺寸 | 1200×630 mm | |
-| 球徑 | 38 mm | D = BALL_DIAMETER |
+| 球徑 | 38 mm | |
 | 洞口徑 | 50 mm | |
 | 手臂 OFFSET_X | 600 mm | 長邊中點對齊 |
 | 手臂最大半徑 | 750 mm | |
 | 固定擊球長度 | 200 mm | |
 | 安全間隙 | 80 mm | |
-| Ghost Ball 偏移量 | D（38mm） | G = T + normalize(P-T) × D |
-| RESTITUTION | 0.95 | 彈性係數（初始值） |
-| 模擬步長 | 10 ms | dt_ms |

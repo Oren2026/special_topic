@@ -102,7 +102,7 @@ class BankShotPlanner:
     def _ghost_pos_direct(self, target_ball, pocket_name):
         """計算 Ghost Ball：在 target ball 表面外側（口袋方向），半徑處
 
-        G = T + normalize(P - T) × D
+        G = T + normalize(P - T) × (D/2)
         碰撞幾何：C→G 瞄點 = C→T 瞄點，C 撞擊 T 球面而非球心
         """
         pocket = self.strategy.POCKETS[pocket_name]
@@ -115,8 +115,8 @@ class BankShotPlanner:
         if dist == 0:
             return (tb_x, tb_y)
 
-        gx = tb_x + (dx / dist) * self.ball_d
-        gy = tb_y + (dy / dist) * self.ball_d
+        gx = tb_x + (dx / dist) * (self.ball_d / 2)
+        gy = tb_y + (dy / dist) * (self.ball_d / 2)
         return (round(gx, 2), round(gy, 2))
 
     def _ghost_pos_bank(self, target_ball, pocket_name, reflection_point, rail):

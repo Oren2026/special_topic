@@ -29,15 +29,18 @@ def make_planner():
 # ─── Ghost Ball ─────────────────────────────────────────────────────────────
 
 def test_ghost_along_target_to_pocket_direction():
-    """Ghost 在 target→pocket 方向，距離 D
-    G = T + normalize(P-T) × D"""
+    """Ghost 在 target→pocket 方向，距離 target 半徑（D/2）
+
+    Ghost Ball System：C 瞄準 G 撞擊 T 表面，T 沿 P→T 方向滾向口袋。
+    G 在 T 的球表面外側（口袋方向），球心距 = D/2。
+    """
     p = make_planner()
-    target = {"x": 100, "y": 100}
+    target = {"x": 300, "y": 200}
     ghost = p._ghost_pos_direct(target, "top_left")   # pocket (0, 0)
-    # G = T + normalize(P-T) × D → G 朝口袋方向移動，所以 ghost.x < target.x
+    # G = T + normalize(P-T) × (D/2) → G 朝口袋方向移動，所以 ghost.x < target.x
     assert ghost[0] < target["x"], f"ghost.x={ghost[0]} < target.x={target['x']}"
     dist = math.hypot(ghost[0] - target["x"], ghost[1] - target["y"])
-    assert eq(dist, config.BALL_DIAMETER), f"ghost距target={dist:.2f}mm，應為D={config.BALL_DIAMETER}mm"
+    assert eq(dist, config.BALL_DIAMETER / 2), f"ghost距target={dist:.2f}mm，應為D/2={config.BALL_DIAMETER/2}mm"
 
 
 def test_ghost_top_right():
@@ -45,10 +48,10 @@ def test_ghost_top_right():
     p = make_planner()
     target = {"x": 0, "y": 300}
     ghost = p._ghost_pos_direct(target, "top_right")
-    # G = T + normalize(P-T) × D → ghost 在 target 表面，朝口袋方向
+    # G = T + normalize(P-T) × (D/2) → ghost 在 target 表面，朝口袋方向
     assert ghost[0] > target["x"], f"ghost.x={ghost[0]} > target.x={target['x']}"
     dist = math.hypot(ghost[0] - target["x"], ghost[1] - target["y"])
-    assert eq(dist, config.BALL_DIAMETER)
+    assert eq(dist, config.BALL_DIAMETER / 2)
 
 
 def test_ghost_when_target_at_pocket():

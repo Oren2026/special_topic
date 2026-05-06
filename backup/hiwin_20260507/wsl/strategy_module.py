@@ -126,8 +126,8 @@ class BilliardStrategy:
         Ghost Ball System：想像 target ball 後方有一顆假想球，其中心與 target 中心
         連線對準口袋中心。C 瞄準 G 撞擊，碰撞後三點共線：C→T→P
 
-        G = T + normalize(P - T) × D
-        （G 的圓心在 target ball 表面外側，偏移量 = D）
+        G = T + normalize(P - T) × (D/2)
+        （不是整個直徑，是半徑——ghost ball 圓心在 target ball 表面外側）
         """
         tp = self.POCKETS[pocket_name]
         tb = (target_ball['x'], target_ball['y'])
@@ -136,8 +136,8 @@ class BilliardStrategy:
         dist = math.hypot(dx, dy)
         if dist == 0:
             return tb
-        gx = tb[0] + (dx / dist) * self.D
-        gy = tb[1] + (dy / dist) * self.D
+        gx = tb[0] + (dx / dist) * (self.D / 2)
+        gy = tb[1] + (dy / dist) * (self.D / 2)
         return round(gx, 2), round(gy, 2)
 
     def _calc_stroke(self, target_dist):
