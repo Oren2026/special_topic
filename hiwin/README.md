@@ -1,7 +1,7 @@
 # HIWIN RA605 9-Ball 撞球機器人
 
 > 版本：2026-05-07
-> 狀態：✅ Ghost Ball D 偏移（含） + Bank Shot Planner + 物理模組 + 71 tests
+> 狀態：✅ Ghost Ball D 偏移 + Bank Shot Planner + 物理模組 + 71 tests + 校正系統（顏色/球形 + VIEW）
 > 測試：**71/71 PASS** ✅
 
 ---
@@ -131,10 +131,10 @@
 │       │                                                                     │
 │       ▼                                                                     │
 │   state_machine.py  ◄─── 模式分派                                          │
-│   ┌────────┬─────────┬──────────┬──────────┐                               │
-│   ▼        ▼         ▼          ▼          ▼                               │
-│   INSTALL  TEST      BREAK    COMPETE    IDLE                              │
-│   (calib)  (shot)   (break)   (VisionBridge)                               │
+│   ┌────────┬─────────┬──────────┬──────────┬─────────────┬────────────────┐│
+│   ▼        ▼         ▼          ▼          ▼              ▼                │
+│   INSTALL  TEST      BREAK    COMPETE    COLOR_VIEW      SHAPE_VIEW        │
+│   (calib)  (shot)   (break)   (auto)     (顏色微調)      (球形微調)        │
 │       │                                                        │            │
 │       ▼                                                        ▼            │
 │   calibration.py                                    vision_bridge.py         │
@@ -256,8 +256,19 @@ physics.simulate(cue_pos, cue_dir, target_pos, pocket_pos, obstacles)
 | `control/calibration.py` | `CalibrationHandler` | INSTALL 模式：4點收集 | `.add_point(u, v)` / `.is_ready()` / `.get_packet()` |
 | `control/shot_dispatcher.py` | `ShotDispatcher` | TEST 模式：3球資料收集 | `.add(type, u, v)` / `.is_complete()` / `.get_packet()` |
 | `control/break_handler.py` | `BreakHandler` | BREAK 模式：白球座標收集 | `.add(u, v)` / `.get_packet()` |
-| `control/state_machine.py` | `StateMachine` | 模式分派（IDLE/INSTALL/TEST/BREAK/COMPETE） | `.set_mode()` / `.handle_click(u, v)` / `.handle_drag()` |
+| `control/state_machine.py` | `StateMachine` | 模式分派（9態）| `.set_mode()` / `.handle_click(u, v)` / `.handle_drag()` |
 | `control/hmi.py` | `HMI` | Tkinter UI + 事件 + 視覺更新迴圈 | `.run()` |
+| `control/color_calib_module.py` | `ColorCalibModule` | 顏色校正：點擊球 → HSV 取樣 → 數字鍵盤 → YAML | `run()` / `get_overlay()` |
+| `control/shape_calib_module.py` | `ShapeCalibModule` | 球形校正：點擊球 → HoughCircles → 半徑平均 → scale → YAML | `run()` / `get_overlay()` |
+| `control/color_view_module.py` | `ColorViewModule` | 顏色微調：YAML → 滑桿 → 即時 HSV 疊加預覽 → 自動儲存 | `run()` / `get_overlay()` |
+| `control/shape_view_module.py` | `ShapeViewModule` | 球形微調：YAML → 滑桿 → HoughCircles 覆寫預覽 → 自動儲存 | `run()` / `get_overlay()` |
+
+### 校正資料 Calibration Data
+
+| 檔案 | 內容 |
+|------|------|
+| `calib/color_ranges.yaml` | 各球 HSV 範圍（cue_ball, ball_1~9 + name） |
+| `calib/ball_geometry.yaml` | 球徑 38mm、scale_x/y、Hough 半徑範圍（13~35px）|
 
 ---
 
@@ -469,13 +480,13 @@ mm_to_pixel:  手臂mm (arm_x, arm_y) → 像素 (u,v)
 | 4 | 視覺 Phase 1 核心 | ✅ 已完成 | Hue/Orange/maroon 分類修復、confidence、VisionBridge |
 | 5 | Vision Unit Tests | ✅ 已完成 | 14/14 tests ✅ |
 | 6 | 物理模組 collision + trajectory | ✅ 已完成 | 25 tests ✅ |
-| 7 | COMPETE 模式狀態機整合 | 🔴 高 | `state_machine.py` + VisionBridge 串接 |
-| 8 | HMI 相機捕獲 | 🔴 高 | Tkinter 定時 polling 或事件驅動 |
-| 9 | 真實相機測試 | 🔴 高 | 720p USB camera 實測 |
-| 10 | 口袋真實 mm 座標 | 🔴 高 | `strategy_module.POCKETS` 硬編碼，需實地測量 |
-| 11 | WSL IP 更新 | 🔴 高 | `windows/config.py` 的 `SOCKET_HOST` 待確認 |
-| 12 | striker_bridge Arduino | 🟡 中 | 實機擊球控制（目前 MOCK 模式）|
-| 13 | 校正資料持久化 | 🟡 中 | 矩陣寫入 JSON，斷電重啟後無需重新校正 |
+| 7 | 校正系統（顏色/球形 + VIEW）| ✅ 已完成 | COLOR_CALIB + SHAPE_CALIB + COLOR_VIEW + SHAPE_VIEW，lazy import + 資源隔離，YAML 持久化 |
+| 8 | COMPETE 模式狀態機整合 | 🔴 高 | `state_machine.py` + VisionBridge 串接 |
+| 9 | HMI 相機捕獲 | 🔴 高 | Tkinter 定時 polling 或事件驅動 |
+| 10 | 真實相機測試 | 🔴 高 | 720p USB camera 實測 |
+| 11 | 口袋真實 mm 座標 | 🔴 高 | `strategy_module.POCKETS` 硬編碼，需實地測量 |
+| 12 | WSL IP 更新 | 🔴 高 | `windows/config.py` 的 `SOCKET_HOST` 待確認 |
+| 13 | striker_bridge Arduino | 🟡 中 | 實機擊球控制（目前 MOCK 模式）|
 | 14 | 策略學習層 | 🟢 低 | 貝氏估計 / 強化學習權重 |
 
 ---

@@ -276,7 +276,7 @@
 <body>
 
 <h1>🎱 HIWIN RA605 撞球機器人</h1>
-<p class="subtitle">進度追蹤 · 2026-05-05 · 複審截止：2026-05-22</p>
+<p class="subtitle">進度追蹤 · 2026-05-07 · 71 tests ✅ · 校正系統完成</p>
 
 <!-- Phase summary -->
 <div class="phase-grid">
@@ -287,8 +287,8 @@
   </div>
   <div class="card">
     <h2>Phase 1 — 影像辨識</h2>
-    <div class="big yellow">●●</div>
-    <div class="label">骨架完成 · 圓形+顏色 · COMPETE 串接待做</div>
+    <div class="big green">✓✓</div>
+    <div class="label">圓形+顏色 · COMPETE 串接待做 · 校正系統完成</div>
   </div>
   <div class="card">
     <h2>Phase 2 — 簡單策略</h2>
@@ -329,7 +329,7 @@
   </div>
 
   <div class="arch-row" style="margin-top:0.75rem; padding-top:0.75rem; border-top: 1px dashed var(--border);">
-    <span class="arch-label" style="color:var(--yellow);">NEW</span>
+    <span class="arch-label" style="color:var(--green);">DONE</span>
     <div class="arch-box new">calibration_control.py<br><small>4角校正+驗證</small></div>
     <span class="arch-arrow">→</span>
     <div class="arch-box new">table_geometry.py<br><small>比例尺計算</small></div>
@@ -337,6 +337,17 @@
     <div class="arch-box new">ball_identifier.py<br><small>圓形+顏色</small></div>
     <span class="arch-arrow">→</span>
     <div class="arch-box new">vision_pipeline.py<br><small>整合層</small></div>
+  </div>
+
+  <div class="arch-row" style="margin-top:0.5rem; padding-top:0.5rem; border-top: 1px dashed var(--border);">
+    <span class="arch-label" style="color:var(--green);">NEW</span>
+    <div class="arch-box new" style="background:#D4E8C4;border-color:#A8C8A0;">color_calib_module.py<br><small>HSV取樣→YAML</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box new" style="background:#D4E8C4;border-color:#A8C8A0;">shape_calib_module.py<br><small>HoughCircles→scale</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box new" style="background:#D4E8C4;border-color:#A8C8A0;">color_view_module.py<br><small>滑桿→即時預覽</small></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-box new" style="background:#D4E8C4;border-color:#A8C8A0;">shape_view_module.py<br><small>疊加→自動儲存</small></div>
   </div>
 </div>
 
@@ -376,11 +387,20 @@
     <div class="files">table_geometry.py, ball_identifier.py, vision_pipeline.py</div>
   </div>
 
-  <div class="timeline-item active">
+  <div class="timeline-item done">
     <span class="phase-tag phase1">Phase 1</span>
     <div class="timeline-title">SimTable 模擬球檯 + CalibrationPlus</div>
     <div class="timeline-desc">虛擬球檯模型（庫邊/倒角/洞口直徑），校正增強（預期口袋視覺化）</div>
+    <span class="commit-hash">284ccaf</span>
     <div class="files">sim_table.py, calibration_plus.py</div>
+  </div>
+
+  <div class="timeline-item done">
+    <span class="phase-tag phase1">Phase 1</span>
+    <div class="timeline-title">校正系統（顏色/球形 + VIEW）</div>
+    <div class="timeline-desc">COLOR_CALIB + SHAPE_CALIB + COLOR_VIEW + SHAPE_VIEW，YAML 持久化，lazy import 資源隔離</div>
+    <span class="commit-hash">ade3fed</span>
+    <div class="files">color_calib_module.py, shape_calib_module.py, color_view_module.py, shape_view_module.py, windows/calib/*.yaml, state_machine.py, hmi.py</div>
   </div>
 
   <div class="timeline-item pending">
@@ -463,9 +483,9 @@
     <span class="priority med" style="margin-left:auto;">med</span>
   </div>
   <div class="todo-row">
-    <div class="todo-check pending">○</div>
+    <div class="todo-check done">✓</div>
     <div class="todo-id">#6</div>
-    <span>校正資料持久化（JSON）</span>
+    <span>校正資料持久化（YAML ✅）</span>
     <span class="priority med" style="margin-left:auto;">med</span>
   </div>
   <div class="todo-row">
@@ -492,11 +512,17 @@
     <span>策略學習層（貝氏/強化學習）</span>
     <span class="priority low" style="margin-left:auto;">low</span>
   </div>
+  <div class="todo-row">
+    <div class="todo-check done">✓</div>
+    <div class="todo-id">#11</div>
+    <span>校正系統（顏色/球形 + VIEW）</span>
+    <span class="priority high" style="margin-left:auto;">high</span>
+  </div>
 </div>
 
 <div class="footer">
   HIWIN RA605 · Git: github.com/Oren2026/special_topic · 分支：main<br>
-  最新 commit：<span class="commit-hash">c17cbdd</span> · Push ✓ · 複審倒數 17 天
+  最新 commit：<span class="commit-hash">ade3fed</span> · Push ✓ · 71 tests ✅ · 校正系統完成
 </div>
 
 </body>
