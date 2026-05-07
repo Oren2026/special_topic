@@ -37,7 +37,7 @@ class HMI:
         self._socket.connect()
         self._socket.on_message(self._on_wsl_message)
 
-        self._state = StateMachine(self._socket)
+        self._state = StateMachine(self._socket, vision=self._vision, hmi=self)
         self._state.on_prediction(self._on_prediction)
 
         # ── Tkinter 視窗 ─────────────────────────────────────────────────
@@ -73,10 +73,18 @@ class HMI:
 
         tk.Button(self._ctrl, text="檯球桌位置確認", width=18, bg="#f0f0f0",
                  command=lambda: self._on_mode_set(State.TABLE_CALIB)).pack(pady=2)
-        tk.Button(self._ctrl, text="圓形校正", width=18, bg="#e8f5e9",
+        tk.Button(self._ctrl, text="球形校正", width=18, bg="#e8f5e9",
                  command=lambda: self._on_mode_set(State.CIRCLE_CALIB)).pack(pady=2)
         tk.Button(self._ctrl, text="顏色校正", width=18, bg="#e3f2fd",
                  command=lambda: self._on_mode_set(State.COLOR_CALIB)).pack(pady=2)
+
+        # ── 參數微調區（獨立按鈕）──────────────────────────────────────────────
+        tk.Label(self._ctrl, text="【參數微調】", font=('Arial', 11, 'bold')).pack(pady=(10, 0))
+
+        tk.Button(self._ctrl, text="球形調整", width=18, bg="#e8f5e9",
+                 command=lambda: self._on_mode_set(State.SHAPE_VIEW)).pack(pady=2)
+        tk.Button(self._ctrl, text="顏色調整", width=18, bg="#e3f2fd",
+                 command=lambda: self._on_mode_set(State.COLOR_VIEW)).pack(pady=2)
 
         # ── 測試區 ────────────────────────────────────────────────────────
         tk.Label(self._ctrl, text="【測試區】", font=('Arial', 11, 'bold')).pack(pady=(10, 0))
@@ -114,7 +122,8 @@ class HMI:
 
     def _on_mode_set(self, mode: str):
         # ── Guard 檢查 ─────────────────────────────────────────────────────
-        if mode == State.CIRCLE_CALIB or mode == State.COLOR_CALIB:
+        if mode in (State.CIRCLE_CALIB, State.COLOR_CALIB,
+                    State.COLOR_VIEW, State.SHAPE_VIEW):
             if not self._has_calibration_json():
                 messagebox.showwarning("尚無校正檔",
                     "請先執行「檯球桌位置確認」")
@@ -130,7 +139,8 @@ class HMI:
         self._state.set_mode(mode)
 
         # 非 CALIB 模式重建 Scene，CALIB 模式保留（用於輔助線繪製）
-        if mode not in (State.TABLE_CALIB, State.CIRCLE_CALIB, State.COLOR_CALIB):
+        if mode not in (State.TABLE_CALIB, State.CIRCLE_CALIB,
+                         State.COLOR_CALIB, State.COLOR_VIEW, State.SHAPE_VIEW):
             self._scene = SimulationScene()
 
         self._prediction_data = None
@@ -138,13 +148,31 @@ class HMI:
         # 模式初始化
         if mode == State.TABLE_CALIB:
             pass  # 直接進流程，4角收集完成後自動儲存
+        elif mode == State.COLOR_CALIB:
+            self._state._vision = self._vision  # 注入 vision（延遲 import 後需要）
+        elif mode == State.CIRCLE_CALIB:
+            self._state._vision = self._vision
+        elif mode == State.COLOR_VIEW:
+            # 開啟 COLOR_VIEW Toplevel 視窗（阻斷式）
+            view = self._state.get_color_view_module()
+            view.start_view()
+            self._state.set_mode(State.IDLE)  # VIEW 開窗後回到 IDLE
+            return
+        elif mode == State.SHAPE_VIEW:
+            # 開啟 SHAPE_VIEW Toplevel 視窗（阻斷式）
+            view = self._state.get_shape_view_module()
+            view.start_view()
+            self._state.set_mode(State.IDLE)
+            return
         elif mode == State.PLAY_TEST:
             self._load_calibration_for_test()
 
         labels = {
             State.TABLE_CALIB:  "檯球桌位置確認",
-            State.CIRCLE_CALIB: "圓形校正",
+            State.CIRCLE_CALIB: "球形校正",
             State.COLOR_CALIB:  "顏色校正",
+            State.COLOR_VIEW:   "顏色調整",
+            State.SHAPE_VIEW:   "球形調整",
             State.PLAY_TEST:    "打球測試",
             State.BREAK_TEST:   "開球測試",
             State.COMPETE:      "比賽模式",
@@ -155,12 +183,25 @@ class HMI:
         if mode == State.TABLE_CALIB:
             messagebox.showinfo("檯球桌位置確認",
                 "請在頂視畫面依序點擊球桌四個角：\n1. 左上 2. 右上 3. 右下 4. 左下")
+        elif mode == State.CIRCLE_CALIB:
+            messagebox.showinfo("球形校正",
+                "請點擊檯面上任意一顆球（建議白球）\n"
+                "系統會量測半徑並計算 pixel↔mm 比例\n"
+                "至少取 3 個不同球後自動完成")
+        elif mode == State.COLOR_CALIB:
+            messagebox.showinfo("顏色校正",
+                "請依序點擊檯面上的球：\n"
+                "點球後，選擇該球的號碼（1-9）\n"
+                "系統會取樣 HSV 範圍\n"
+                "完成後自動寫入 YAML")
 
     def _get_mode_hint(self, mode) -> str:
         hints = {
             State.TABLE_CALIB:  "請依序點擊：左上 → 右上 → 右下 → 左下",
-            State.CIRCLE_CALIB: "點擊球面中心，確認半徑比例",
-            State.COLOR_CALIB:  "點擊球體取樣顏色",
+            State.CIRCLE_CALIB: "點擊球取樣（至少3球），自動計算比例尺",
+            State.COLOR_CALIB:  "點擊球後選擇球號（0-9），完成後自動寫入YAML",
+            State.COLOR_VIEW:   "拖曳滑桿微調，關閉視窗自動儲存",
+            State.SHAPE_VIEW:   "拖曳滑桿微調，關閉視窗自動儲存",
             State.PLAY_TEST:    "請先完成設定區項目",
             State.BREAK_TEST:   "點擊白球位置（將以最大力朝球堆方向擊出）",
             State.COMPETE:      "自動辨識模式（待實作）",
@@ -268,6 +309,16 @@ class HMI:
             if ball_type and ball_type != "已完成" and ball_type not in self._scene.balls:
                 self._scene.add_or_update(ball_type, u, v)
 
+            # ── COLOR_CALIB：顯示數字鍵盤 ───────────────────────────────────
+            if result.get("pending"):
+                self._show_number_keypad(
+                    h=result.get("h"), s=result.get("s"), v=result.get("v"),
+                    u=result.get("u"), v_pos=result.get("v"),
+                    already_sampled=result.get("already_sampled", [])
+                )
+                self._info_lbl.config(text=result.get("label", ""))
+                return
+
             # PLAY_TEST 模式：檢查是否點在球桌範圍外（空白處）
             if self._state.current_mode() == State.PLAY_TEST and result.get("ready"):
                 is_off_table = not self._is_on_table(u, v)
@@ -323,6 +374,86 @@ class HMI:
         pts = [tuple(map(int, p)) for p in points]
         # cv2.pointPolygonTest 回傳：>0 在內部，=0 在邊界，<0 在外部
         return cv2.pointPolygonTest(np.array(pts, dtype=np.int32), (float(u), float(v))) >= 0
+
+    # ── 數字鍵盤（COLOR_CALIB 用）────────────────────────────────────────────
+
+    def _show_number_keypad(self, h, s, v, u, v_pos, already_sampled: list):
+        """
+        彈出 Toplevel 數字鍵盤，選擇球號（0=白球, 1-9=有色球）
+        選擇後呼叫 confirm_color_number
+        """
+        win = tk.Toplevel(self._root)
+        win.title("選擇球號")
+        win.geometry("320x420")
+        win.resizable(False, False)
+        win.transient(self._root)
+        win.grab_set()
+
+        # HSV 資訊標題
+        tk.Label(win, text=f"HSV=({h},{s},{v})",
+                 font=("Arial", 12, "bold"), fg="#333").pack(pady=(15, 5))
+        tk.Label(win, text="這是幾號球？", font=("Arial", 13)).pack(pady=(0, 15))
+
+        # 已取樣的球（顯示為灰色）
+        sampled_set = set(already_sampled)
+
+        def on_number(num: int):
+            win.destroy()
+            result = self._state.confirm_color_number(num)
+            if result.get("ready"):
+                self._info_lbl.config(text=result.get("label", ""))
+                messagebox.showinfo("完成", result.get("label", ""))
+            elif result.get("error"):
+                self._info_lbl.config(text=f"錯誤: {result['error']}")
+            else:
+                self._info_lbl.config(text=result.get("label", ""))
+
+        # 數字按鈕 0-9（3x3 + 0）
+        btn_frame = tk.Frame(win)
+        btn_frame.pack()
+
+        _BALL_COLORS = {
+            0: "#cccccc", 1: "#e6cc00", 2: "#0066cc", 3: "#cc0000",
+            4: "#660099", 5: "#ff6600", 6: "#009933", 7: "#800000",
+            8: "#333333", 9: "#e6cc00",
+        }
+        _BALL_NAMES = {
+            0: "白球", 1: "1號黃", 2: "2號藍", 3: "3號紅",
+            4: "4號紫", 5: "5號橙", 6: "6號綠", 7: "7號褐",
+            8: "8號黑", 9: "9號條紋",
+        }
+
+        for i in range(1, 10):
+            row = (i - 1) // 3
+            col = (i - 1) % 3
+            already = i in sampled_set
+            bg = "#aaaaaa" if already else _BALL_COLORS[i]
+            fg = "white"
+            label = f"{i}號" if not already else f"{i}號✓"
+            b = tk.Button(btn_frame, text=label, width=8, height=2,
+                          bg=bg, fg=fg,
+                          state=tk.DISABLED if already else tk.NORMAL,
+                          command=lambda n=i: on_number(n))
+            b.grid(row=row, column=col, padx=4, pady=4)
+
+        # 0號按鈕（白球）置中
+        row0 = tk.Frame(btn_frame)
+        row0.grid(row=3, column=0, columnspan=3, pady=(4, 0))
+        already_0 = 0 in sampled_set
+        bg0 = "#aaaaaa" if already_0 else _BALL_COLORS[0]
+        b0 = tk.Button(row0, text="白球(0)", width=22, height=2,
+                       bg=bg0, fg="black",
+                       state=tk.DISABLED if already_0 else tk.NORMAL,
+                       command=lambda: on_number(0))
+        b0.pack()
+
+        # 取消
+        tk.Button(win, text="取消", width=20, bg="#ffdddd",
+                  command=win.destroy).pack(pady=(10, 5))
+
+        # 提示
+        tk.Label(win, text="✓ 表示已完成取樣",
+                 fg="gray", font=("Arial", 9)).pack()
 
     def _reset_test_scene(self):
         """
@@ -395,6 +526,22 @@ class HMI:
         # 校正模式：繪製校正點輔助線
         if self._state.current_mode() == State.TABLE_CALIB:
             self._draw_calibration_helper(img)
+
+        # COLOR_VIEW：繪製 HSV 符合範圍的球 Preview
+        if self._state.current_mode() == State.COLOR_VIEW:
+            try:
+                view = self._state.get_color_view_module()
+                img = view.get_overlay(img)
+            except Exception:
+                pass
+
+        # SHAPE_VIEW：繪製 HoughCircles 偵測範圍 Preview
+        if self._state.current_mode() == State.SHAPE_VIEW:
+            try:
+                view = self._state.get_shape_view_module()
+                img = view.get_overlay(img)
+            except Exception:
+                pass
 
         # 預測線路繪圖（僅 PLAY_TEST + BREAK_TEST）
         if self._prediction_data:

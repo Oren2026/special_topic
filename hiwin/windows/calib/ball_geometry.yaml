@@ -1,0 +1,32 @@
+# ball_geometry.yaml
+# HIWIN RA605 球形幾何參數
+# 由 CIRCLE_CALIB 模式自動計算寫入，或由 SHAPE_VIEW 拖曳微調
+# 由 TABLE_CALIB（4角校正）計算視角 scale，再由 CIRCLE_CALIB 計算球徑 scale
+
+version: "1.0"
+updated_at: null  # ISO timestamp，每次寫入自動更新
+
+# ── 球徑參數（物理尺寸）─────────────────────────────
+ball_diameter_mm: 38
+ball_radius_mm: 19
+
+# ── 透視校正（由 TABLE_CALIB 4角計算）───────────────
+# 以下值由 TABLE_CALIB 完成後寫入
+# 若尚未執行 TABLE_CALIB，scale_x/scale_y 為 null
+scale_x: null   # mm per pixel (X方向)
+scale_y: null   # mm per pixel (Y方向)
+
+# ── HoughCircles 偵測範圍（pixel，動態由 scale 計算）───
+# 由 CIRCLE_CALIB 完成後計算寫入
+hough_min_radius: null   # pixel
+hough_max_radius: null   # pixel
+
+# ── 預設 fallback（校正前使用）─────────────────────
+fallback:
+  hough_min_radius: 13
+  hough_max_radius: 35
+
+# ── 取樣參數（CIRCLE_CALIB / COLOR_CALIB）───────────
+sample:
+  roi_size: 11        # 取樣 ROI 半徑（pixel），11 = 11x11 正方形
+  min_confidence: 0.4  # 最低 confidence 門檻（低於此值不放進 YAML）

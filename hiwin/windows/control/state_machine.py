@@ -5,7 +5,14 @@ windows/control/state_machine.py
 依賴：CalibrationHandler, ShotDispatcher, SocketClient
 輸出：set_mode(str) / handle_click(u,v) / handle_drag(type,u,v)
       on_prediction(callback) / 狀態標籤文字
+
+資源隔離原則：
+- COLOR_CALIB / CIRCLE_CALIB / COLOR_VIEW / SHAPE_VIEW 模組
+  只在對應模式由 StateMachine 動態 import，PLAY_TEST / COMPETE 不會載入。
+- 正常運行時，只依賴：CalibrationHandler, ShotDispatcher, BreakHandler
+  + 純資料的 YAML dict（windows/calib/*.yaml）
 """
+
 from typing import Optional
 import os
 from .calibration import CalibrationHandler
@@ -16,8 +23,10 @@ from .break_handler import BreakHandler
 class State:
     IDLE         = "IDLE"
     TABLE_CALIB  = "TABLE_CALIB"   # 檯球桌位置確認（4角校正）
-    CIRCLE_CALIB = "CIRCLE_CALIB"  # 圓形校正
-    COLOR_CALIB  = "COLOR_CALIB"   # 顏色校正
+    CIRCLE_CALIB = "CIRCLE_CALIB"  # 球形校正（點球取樣→YAML）
+    COLOR_CALIB  = "COLOR_CALIB"   # 顏色校正（點球取樣→YAML）
+    COLOR_VIEW   = "COLOR_VIEW"    # 顏色調整（拖曳 UI → YAML）
+    SHAPE_VIEW   = "SHAPE_VIEW"    # 球形調整（拖曳 UI → YAML）
     PLAY_TEST    = "PLAY_TEST"     # 打球測試
     BREAK_TEST   = "BREAK_TEST"    # 開球測試
     COMPETE      = "COMPETE"       # 比賽模式（自動辨識）
@@ -28,26 +37,57 @@ class StateMachine:
     狀態協調器
     接收 HMI 的點擊事件，根據當前模式分派至 CalibrationHandler 或 ShotDispatcher，
     並透過 SocketClient 發送最終封包
+
+    資源隔離：COLOR_CALIB / CIRCLE_CALIB / COLOR_VIEW / SHAPE_VIEW 模組
+    只在對應 mode 才 import，PLAY_TEST / COMPETE 的 import chain 不包含這些模組。
     """
 
-    def __init__(self, socket_client):
+    # 校正模組（延遲載入，只在 CALIB / VIEW 模式实例化）
+    _color_calib: Optional[object] = None
+    _shape_calib: Optional[object] = None
+    _color_view: Optional[object] = None
+    _shape_view: Optional[object] = None
+
+    def __init__(self, socket_client, vision=None, hmi=None):
+        """
+        vision: BilliardVision 實例（用於 COLOR_CALIB / CIRCLE_CALIB 取樣）
+        hmi: HMI 實例（用於 COLOR_VIEW / SHAPE_VIEW 開啟 Toplevel 視窗）
+        """
         self._mode = State.IDLE
         self._socket = socket_client
+        self._vision = vision
+        self._hmi = hmi
         self._cal = CalibrationHandler()
         self._shot = ShotDispatcher()
         self._break = BreakHandler()
         self._prediction_cb = None
         self._shot_sent = False  # True：初始擊球封包已發送（區分「剛完成」vs「已完成」）
 
+    def set_vision(self, vision):
+        """注入 vision 實例（供 CALIB 模組取樣用）"""
+        self._vision = vision
+
+    def set_hmi(self, hmi):
+        """注入 hmi 實例（供 VIEW 模組開窗用）"""
+        self._hmi = hmi
+
     # ── 模式控制 ─────────────────────────────────────────────────────────────
 
     def set_mode(self, mode: str):
-        """切換模式（INSTALL / TEST / BREAK / COMPETE）"""
+        """切換模式"""
+        # 卸載舊的 CALIB / VIEW 模組（釋放記憶體）
+        if mode not in (State.COLOR_CALIB, State.CIRCLE_CALIB,
+                        State.COLOR_VIEW, State.SHAPE_VIEW):
+            self._color_calib = None
+            self._shape_calib = None
+            self._color_view = None
+            self._shape_view = None
+
         self._mode = mode
         self._cal.reset()
         self._shot.reset()
         self._break.reset()
-        self._shot_sent = False  # 重置
+        self._shot_sent = False
         print(f"[StateMachine] 模式切換 → {mode}")
 
     def set_pocket(self, u: int, v: int):
@@ -93,6 +133,36 @@ class StateMachine:
         packet["task_id"] = 9999
         self._socket.send(packet)
 
+    # ── 校正模式處理 ─────────────────────────────────────────────────────────
+
+    def _lazy_color_calib(self):
+        """延遲載入 COLOR_CALIB 模組"""
+        if self._color_calib is None:
+            from .color_calib_module import ColorCalibModule
+            self._color_calib = ColorCalibModule(self._vision)
+        return self._color_calib
+
+    def _lazy_shape_calib(self):
+        """延遲載入 SHAPE_CALIB 模組"""
+        if self._shape_calib is None:
+            from .shape_calib_module import ShapeCalibModule
+            self._shape_calib = ShapeCalibModule(self._vision)
+        return self._shape_calib
+
+    def _lazy_color_view(self):
+        """延遲載入 COLOR_VIEW 模組"""
+        if self._color_view is None:
+            from .color_view_module import ColorViewModule
+            self._color_view = ColorViewModule(self._vision, self._hmi)
+        return self._color_view
+
+    def _lazy_shape_view(self):
+        """延遲載入 SHAPE_VIEW 模組"""
+        if self._shape_view is None:
+            from .shape_view_module import ShapeViewModule
+            self._shape_view = ShapeViewModule(self._vision, self._hmi)
+        return self._shape_view
+
     # ── 內部 ─────────────────────────────────────────────────────────────────
 
     def _handle_table_calib(self, u, v) -> dict:
@@ -111,12 +181,44 @@ class StateMachine:
         return {"label": label, "ready": complete, "count": self._cal.point_count()}
 
     def _handle_circle_calib(self, u, v) -> dict:
-        """圓形校正（待實作）"""
-        return {"label": "圓形校正：點擊球中心確認半徑", "ready": False, "count": 0}
+        """球形校正（CIRCLE_CALIB）：點球取樣，計算 scale，寫入 YAML"""
+        mod = self._lazy_shape_calib()
+        result = mod.handle_click(u, v)
+        if result.get("complete"):
+            return {"label": "球形校正完成", "ready": True, "message": result.get("message")}
+        if result.get("error"):
+            return {"label": f"取樣失敗: {result['error']}", "ready": False,
+                    "count": result.get("count", 0)}
+        return {
+            "label": f"半徑: {result.get('radius_pixel', 0):.1f}px  "
+                     f"平均: {result.get('avg_radius', 0):.1f}px  "
+                     f"scale={result.get('scale_mm_per_pixel', 0):.4f}mm/px",
+            "ready": False,
+            "count": result.get("count", 0),
+        }
 
     def _handle_color_calib(self, u, v) -> dict:
-        """顏色校正（待實作）"""
-        return {"label": "顏色校正：點擊球體取樣", "ready": False, "count": 0}
+        """顏色校正（COLOR_CALIB）：點球取樣 HSV，彈出數字鍵盤"""
+        mod = self._lazy_color_calib()
+        result = mod.handle_click(u, v)
+        if result.get("pending"):
+            # 回傳時攜帶 hsv 資訊，HMI 據此彈出數字鍵盤
+            return {
+                "label": f"請選擇球號  HSV=({result['h']},{result['s']},{result['v']})",
+                "pending": True,
+                "h": result["h"], "s": result["s"], "v": result["v"],
+                "u": result["u"], "v": result["v"],
+                "already_sampled": result.get("already_sampled", []),
+            }
+        if result.get("error"):
+            return {"label": f"錯誤: {result['error']}", "ready": False}
+        if result.get("complete"):
+            return {"label": f"顏色校正完成（{result.get('samples_count', 0)}球）",
+                    "ready": True, "message": result.get("message")}
+        return {
+            "label": f"已記錄 #{result.get('number')}（{result.get('samples_count', 0)}球）",
+            "ready": False,
+        }
 
     def _handle_test(self, u, v) -> dict:
         # 自動從 shot sequence 取下一個類型
@@ -139,6 +241,36 @@ class StateMachine:
         self._socket.send(self._break.get_packet())
         self._shot_sent = True
         return {"label": "已完成", "ready": True, "already_sent": False}
+
+    # ── 顏色校正確認（數字鍵盤回調）────────────────────────────────────────────
+
+    def confirm_color_number(self, number: int) -> dict:
+        """
+        由 HMI 數字鍵盤確認後呼叫（COLOR_CALIB 模式）
+        number: 球號（0=白球, 1-9=有色球）
+        """
+        if self._mode != State.COLOR_CALIB:
+            return {"error": "不在顏色校正模式"}
+        mod = self._lazy_color_calib()
+        result = mod.confirm_number(number)
+        if result.get("complete"):
+            return {"label": f"顏色校正完成（{len(result.get('samples', {}))}球）",
+                    "ready": True, "message": result.get("message")}
+        return {
+            "label": f"已記錄 #{number}（{result.get('samples_count', 0)}球）"
+                      f"  剩餘: {result.get('remaining', [])}",
+            "ready": False,
+        }
+
+    # ── VIEW 模組存取（供 HMI 呼叫）───────────────────────────────────────────
+
+    def get_color_view_module(self):
+        """取得 COLOR_VIEW 模組（延遲創建）"""
+        return self._lazy_color_view()
+
+    def get_shape_view_module(self):
+        """取得 SHAPE_VIEW 模組（延遲創建）"""
+        return self._lazy_shape_view()
 
     # ── 預測回調 ─────────────────────────────────────────────────────────────
 

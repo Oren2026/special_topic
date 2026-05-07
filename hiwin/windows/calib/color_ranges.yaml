@@ -1,0 +1,116 @@
+# color_ranges.yaml
+# HIWIN RA605 9-Ball 顏色 HSV 範圍
+# 由 COLOR_CALIB 模式自動寫入，或由 COLOR_VIEW 拖曳微調
+# 格式：HSV (H: 0-180, S: 0-255, V: 0-255) — OpenCV HSV
+
+version: "1.0"
+updated_at: null  # ISO timestamp，每次寫入自動更新
+
+balls:
+  cue_ball:
+    number: 0
+    name: "cue_ball"
+    # 白球不靠 Hue 判斷，而是靠 S < 15 且 V > 180
+    # 以下為預設值（墊用）
+    hue_low: 0
+    hue_high: 180
+    sat_low: 0
+    sat_high: 30
+    val_low: 180
+    val_high: 255
+
+  ball_1:
+    number: 1
+    name: "yellow"
+    hue_low: 25
+    hue_high: 35
+    sat_low: 80
+    sat_high: 255
+    val_low: 150
+    val_high: 255
+
+  ball_2:
+    number: 2
+    name: "blue"
+    hue_low: 100
+    hue_high: 130
+    sat_low: 80
+    sat_high: 255
+    val_low: 80
+    val_high: 255
+
+  ball_3:
+    number: 3
+    name: "red"
+    # Hue 跨 0 邊界：0-10 或 170-180
+    hue_low: 0
+    hue_high: 10
+    hue_low_2: 170   # 第二段（跨 0 邊界）
+    hue_high_2: 180
+    sat_low: 80
+    sat_high: 255
+    val_low: 100
+    val_high: 255
+
+  ball_4:
+    number: 4
+    name: "purple"
+    hue_low: 130
+    hue_high: 160
+    sat_low: 80
+    sat_high: 255
+    val_low: 80
+    val_high: 255
+
+  ball_5:
+    number: 5
+    name: "orange"
+    hue_low: 11
+    hue_high: 25
+    sat_low: 80
+    sat_high: 255
+    val_low: 150
+    val_high: 255
+
+  ball_6:
+    number: 6
+    name: "green"
+    hue_low: 45
+    hue_high: 75
+    sat_low: 80
+    sat_high: 255
+    val_low: 80
+    val_high: 255
+
+  ball_7:
+    number: 7
+    name: "maroon"
+    # 褐紅球由 red 處理（Hue 0-10 跨邊界）
+    hue_low: 0
+    hue_high: 10
+    sat_low: 60
+    sat_high: 255
+    val_low: 60
+    val_high: 180
+
+  ball_8:
+    number: 8
+    name: "black"
+    # 黑色不靠 Hue，靠亮度判斷
+    hue_low: 0
+    hue_high: 180
+    sat_low: 0
+    sat_high: 255
+    val_low: 0
+    val_high: 50
+
+  ball_9:
+    number: 9
+    name: "stripe_yellow"
+    base_hue_low: 25
+    base_hue_high: 35
+    stripe_threshold: 30  # 邊緣 vs 中心 V channel 亮度差 > 此值 = 條紋
+    sat_low: 80
+    sat_high: 255
+    val_low: 150
+    val_high: 255
