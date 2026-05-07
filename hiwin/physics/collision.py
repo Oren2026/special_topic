@@ -107,41 +107,42 @@ def collision_detect(s1: BallState, s2: BallState) -> Optional[CollisionInfo]:
 
 # ── 彈性碰撞速度結算 ──────────────────────────────────────────────────────
 
-def resolve_elastic(s1: BallState, s2: BallState, collision: CollisionInfo) -> tuple[BallState, BallState]:
+def resolve_elastic(
+    s1: BallState,
+    s2: BallState,
+    collision: CollisionInfo,
+    restitution: float = 1.0,
+) -> tuple[BallState, BallState]:
     """
-    等質量二維彈性碰撞速度結算（動量守恆 + 能量守恆）。
+    等質量二維彈性碰撞速度結算（動量守恆）。
 
-    公式：
-        v1' = v1 - (v1 · n - v2 · n) n
-        v2' = v2 + (v1 · n - v2 · n) n
+    當 restitution < 1.0 時，法向分量產生能量損耗。
 
-    當 v2 = 0（目標球靜止）：
-        v1' = v1 - (v1 · n) n   →  白球失去法向分量
-        v2' = (v1 · n) n        →  目標球獲得白球法向分量
+    公式（動量守恆 + 恢復係數）：
+        v1n' = e * v1n
+        v2n' = e * v2n
 
     參數：
         s1:        球1（通常為白球）
         s2:        球2（通常為目標球，v2 可以是零）
-        collision:  collision_detect() 回傳的碰撞資訊
+        collision: collision_detect() 回傳的碰撞資訊
+        restitution: 恢復係數 e（0~1），1.0 = 完全彈性（無損耗）
+                    撞球球-球約 0.90~0.97
 
     回傳：(new_s1, new_s2)
     """
     nx, ny = collision.normal
 
-    # 法向量分量（純量投影）
+    # 法向分量（純量投影）
     v1_dot_n = s1.vx * nx + s1.vy * ny
     v2_dot_n = s2.vx * nx + s2.vy * ny
 
-    # ── 相對速度在碰撞法向量上的投影 ────────────────────────────────
-    # n = normalize(s1.pos - s2.pos) = 從 s2 指向 s1 的單位向量
-    # 當 s1 接近 s2 時，(s2.pos - s1.pos) 方向與 (s1 - s2) 方向相反
-    # 所以用 (s2 - s1) · n：> 0 表示 s1 接近 s2，< 0 表示 s1 離開 s2
     rel_v_n = (s2.vx - s1.vx) * nx + (s2.vy - s1.vy) * ny
     if rel_v_n <= 0:
         return s1, s2
 
-    # 等質量：兩球交換法向分量
-    delta = v1_dot_n - v2_dot_n  # 相對速度在法向量上的投影
+    # 等質量：兩球交換法向分量（並乘以恢復係數）
+    delta = (v1_dot_n - v2_dot_n) * restitution
 
     new_s1_vx = s1.vx - delta * nx
     new_s1_vy = s1.vy - delta * ny

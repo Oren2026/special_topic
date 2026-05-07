@@ -25,6 +25,7 @@ from .parameters import (
     TABLE_WIDTH,
     TABLE_HEIGHT,
     BALL_RADIUS,
+    ROLLING_FRICTION,
     DT_MS,
     MAX_STEPS,
 )
@@ -90,7 +91,8 @@ def simulate(
     obstacles: list[tuple[float, float]] = [],  # 障礙球位置列表（僅位置）
     speed: float = 3000.0,                # 擊球初速 mm/s
     dt_ms: int = DT_MS,
-    restitution: float = None,            # None → 使用預設 RESTITUTION
+    ball_restitution: float = 1.0,        # 球-球碰撞恢復係數（<1 有損耗）
+    restitution: float = None,            # 庫邊碰撞（None → 用 RESTITUTION）
     max_steps: int = MAX_STEPS,
     pocket_name: str = "",
 ) -> TrajectoryResult:
@@ -165,7 +167,7 @@ def simulate(
         if ci is not None:
             c_before = (cue.vx, cue.vy)
             t_before = (target.vx, target.vy)
-            cue, target = resolve_elastic(cue, target, ci)
+            cue, target = resolve_elastic(cue, target, ci, ball_restitution)
             result.collision_events.append(CollisionEvent(
                 step=step,
                 ball1_id="cue",
@@ -184,7 +186,7 @@ def simulate(
             if ci is not None:
                 c_before = (cue.vx, cue.vy)
                 o_before = (obs.vx, obs.vy)
-                cue, obs = resolve_elastic(cue, obs, ci)
+                cue, obs = resolve_elastic(cue, obs, ci, ball_restitution)
                 obstacle_balls[i] = obs
                 result.collision_events.append(CollisionEvent(
                     step=step,
@@ -204,7 +206,7 @@ def simulate(
             if ci is not None:
                 t_before = (target.vx, target.vy)
                 o_before = (obs.vx, obs.vy)
-                target, obs = resolve_elastic(target, obs, ci)
+                target, obs = resolve_elastic(target, obs, ci, ball_restitution)
                 obstacle_balls[i] = obs
                 result.collision_events.append(CollisionEvent(
                     step=step,
@@ -263,9 +265,16 @@ def simulate(
 
 def _advance(ball: BallState, dt: float) -> None:
     """
-    位置積分（in-place）。
+    位置積分（in-place）+ 滾動摩擦損耗。
+
     速度為 mm/s，dt 為秒，結果為 mm。
     """
+    speed = math.hypot(ball.vx, ball.vy)
+    if speed > 0.5:
+        new_speed = max(0, speed - ROLLING_FRICTION * dt)
+        factor = new_speed / speed
+        ball.vx *= factor
+        ball.vy *= factor
     ball.x += ball.vx * dt
     ball.y += ball.vy * dt
 
