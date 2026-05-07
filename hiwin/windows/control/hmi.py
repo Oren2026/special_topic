@@ -33,6 +33,8 @@ class HMI:
         self._selected_ball = None
 
         # ── 底層元件 ──────────────────────────────────────────────────────
+        self._scene = SimulationScene()
+        self._vision = BilliardVision()
         self._socket = SocketClient()
         self._socket.connect()
         self._socket.on_message(self._on_wsl_message)
@@ -43,9 +45,6 @@ class HMI:
         # ── Tkinter 視窗 ─────────────────────────────────────────────────
         self._root = tk.Tk()
         self._root.title("HIWIN RA605 9-Ball Robot Control System")
-
-        self._scene = SimulationScene()
-        self._vision = BilliardVision()
 
         # ── 建立 UI ───────────────────────────────────────────────────────
         self._setup_ui()
