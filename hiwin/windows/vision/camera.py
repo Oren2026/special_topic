@@ -53,8 +53,8 @@ class BilliardVision:
         回傳：(ret_t, frame_t), (ret_s, frame_s)
         若鏡頭未開啟，回傳 (False, None)
         """
-        ret_t, frame_t = (False, None), (False, None)
-        ret_s, frame_s = (False, None), (False, None)
+        ret_t, frame_t = False, None
+        ret_s, frame_s = False, None
         if self.cap_top is not None:
             ret_t, frame_t = self.cap_top.read()
         if self.cap_side is not None:
