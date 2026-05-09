@@ -423,8 +423,26 @@
           <div class="module brain">
             <span class="module-name">RobotBrain</span>
             <span class="module-file">robot_brain.py</span>
-            <span class="module-role">Socket Server + 模式分派</span>
-            <span class="module-api">.start()</span>
+            <span class="module-role">Socket Server + 模式分派 + 物理驗證</span>
+            <span class="module-api">.start() · _validate_cue_hits_target()</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="module-group">
+        <div class="module-group-title">⚡ 物理 Physics</div>
+        <div class="modules">
+          <div class="module brain">
+            <span class="module-name">simulate()</span>
+            <span class="module-file">physics/trajectory.py</span>
+            <span class="module-role">軌跡模擬（衝突/庫邊/進袋）</span>
+            <span class="module-api">.collision_events / .wall_events</span>
+          </div>
+          <div class="module brain">
+            <span class="module-name">Calibrator</span>
+            <span class="module-file">physics/calibrator.py</span>
+            <span class="module-role">參數回推（RESTITUTION / RF）</span>
+            <span class="module-api">.fit_shot() / .fit_multi_shot()</span>
           </div>
         </div>
       </div>
@@ -523,7 +541,9 @@
       <span class="flow-arrow">→</span>
       <div class="flow-step wsl">bank_shot_planner.plan_bank_shot()</div>
       <span class="flow-arrow">→</span>
-      <div class="flow-step done">PREDICTION {ghost, robot, angle}</div>
+      <div class="flow-step wsl">robot_brain._validate_cue_hits_target()</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step done">PREDICTION {ghost, robot, angle, physics_validated}</div>
     </div>
     <div class="flow-row">
       <span class="flow-label">TCP :5005</span>
@@ -602,6 +622,24 @@
         <td>Vision Unit Tests</td>
         <td>tests/test_vision.py</td>
         <td>14/14 tests ✅</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-done">✅ 完成</span></td>
+        <td>Phase 2b — 物理驗證（白球撞擊）</td>
+        <td>robot_brain._validate_cue_hits_target()</td>
+        <td>94 tests ✅ · 隨機障礙球測試中（寫死 obstacles=[] 可接受）</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-done">✅ 完成</span></td>
+        <td>Phase 2b — 物理輸入產生器</td>
+        <td>strategy_module.get_shot_physics_input()</td>
+        <td>Ghost Ball → physics.simulate() 所需格式轉換</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-done">✅ 完成</span></td>
+        <td>物理 RESTITUTION 參數化</td>
+        <td>physics/trajectory.py</td>
+        <td>wall bounce 用 RESTITUTION 而非硬編碼 0.95</td>
       </tr>
       <tr>
         <td><span class="tag tag-todo">🔴 高</span></td>

@@ -118,6 +118,61 @@ class BilliardStrategy:
         planner = BankShotPlanner(self)
         return planner.compute_shot(cue_ball, target_ball, pocket_name, obstacles)
 
+    def get_shot_physics_input(self, cue_ball, target_ball, pocket_name, obstacles=None):
+        """
+        Phase 2b: 產生 physics.simulate() 所需的完整輸入。
+
+        這個方法不是策略決策，而是將策略決策的結果轉換為物理模擬所需的格式。
+
+        回傳：
+            dict {
+                "cue_pos": (cx, cy),
+                "aim_dir": (dx, dy),      # 瞄準方向單位向量（從 C 指向 G）
+                "target_pos": (tx, ty),
+                "pocket_pos": (px, py),
+                "obstacles": [(ox, oy), ...],
+                "speed": float,
+                "ghost": (gx, gy),        # 碰撞點（debug 用）
+                "cue_to_ghost_dist": float,
+            }
+
+            None if shot 無法計算
+        """
+        result = self.compute_shot(cue_ball, target_ball, pocket_name, obstacles)
+        if result is None:
+            return None
+
+        gx, gy = result["ghost"]
+        cx, cy = cue_ball["x"], cue_ball["y"]
+
+        # 瞄準方向：從白球指向 ghost ball
+        dx = gx - cx
+        dy = gy - cy
+        dist = math.hypot(dx, dy)
+        if dist < 0.1:
+            return None
+
+        aim_dir = (dx / dist, dy / dist)
+
+        # 障礙球（dict → tuple）
+        obs_tuples = [(o["x"], o["y"]) for o in (obstacles or [])]
+
+        # 口袋座標
+        pocket_pos = self.POCKETS.get(pocket_name)
+        if pocket_pos is None:
+            return None
+
+        return {
+            "cue_pos": (cx, cy),
+            "aim_dir": aim_dir,
+            "target_pos": (target_ball["x"], target_ball["y"]),
+            "pocket_pos": pocket_pos,
+            "obstacles": obs_tuples,
+            "speed": 3000.0,   # 預設初速（未來由力道模型決定）
+            "ghost": (gx, gy),
+            "cue_to_ghost_dist": dist,
+        }
+
     # ── 內部 ────────────────────────────────────────────────────────────────
 
     def _ghost_pos(self, target_ball, pocket_name):

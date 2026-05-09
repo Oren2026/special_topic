@@ -26,6 +26,7 @@ from .parameters import (
     TABLE_HEIGHT,
     BALL_RADIUS,
     ROLLING_FRICTION,
+    RESTITUTION,
     DT_MS,
     MAX_STEPS,
 )
@@ -299,20 +300,20 @@ def _resolve_wall(
 
     if ball.x < bounds["left"]:
         ball.x = bounds["left"]
-        ball.vx = -ball.vx * 0.95  # RESTITUTION 已在 reflect_wall，這裡直接寫死
+        ball.vx = -ball.vx * RESTITUTION
         hit_rail = "left"
     elif ball.x > bounds["right"]:
         ball.x = bounds["right"]
-        ball.vx = -ball.vx * 0.95
+        ball.vx = -ball.vx * RESTITUTION
         hit_rail = "right"
 
     if ball.y < bounds["top"]:
         ball.y = bounds["top"]
-        ball.vy = -ball.vy * 0.95
+        ball.vy = -ball.vy * RESTITUTION
         hit_rail = "top"
     elif ball.y > bounds["bottom"]:
         ball.y = bounds["bottom"]
-        ball.vy = -ball.vy * 0.95
+        ball.vy = -ball.vy * RESTITUTION
         hit_rail = "bottom"
 
     if hit_rail is not None:

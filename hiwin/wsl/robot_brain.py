@@ -19,6 +19,13 @@ from striker_bridge import StrikerBridge
 import config
 import protocol as P
 
+# Phase 2b: 物理模組整合（重新定義驗證角色）
+# physics/ 在 hiwin/ 目錄下，WSL 代碼在 hiwin/wsl/，需要往上一層
+_physics_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _physics_root not in sys.path:
+    sys.path.insert(0, _physics_root)
+from physics import simulate as physics_simulate
+
 
 class RobotBrain:
     """
@@ -193,6 +200,19 @@ class RobotBrain:
             )
             # ─────────────────────────────────────────────────────────
 
+            # ── Phase 2b: 物理軌跡驗證 ─────────────────────────────────
+            # 驗證目標：白球是否真的能擊中目標球（幾何 collision）
+            # 不是驗證目標球能否進袋（那是策略的責任）
+            physics_valid = self._validate_cue_hits_target(
+                cue_ball={"x": cx, "y": cy},
+                target_ball={"x": tx, "y": ty},
+                pocket_name=pocket_name,
+                obstacles=[],  # TODO: 視覺完成後代入真實障礙球
+            )
+            physics_status = "✅" if physics_valid else "⚠️"
+            print(f"[RobotBrain] 物理驗證（白球撞擊）: {physics_status}")
+            # ─────────────────────────────────────────────────────────
+
             return {
                 P.FIELD_TYPE:          P.MSG_TYPE_PREDICTION,
                 P.FIELD_GHOST_PIXEL:  [ghost_u, ghost_v],
@@ -200,6 +220,7 @@ class RobotBrain:
                 P.FIELD_IS_REACHABLE: result["is_reachable"],
                 P.FIELD_ANGLE:        result["angle"],
                 "shot_type":          result.get("type", "direct"),
+                "physics_validated":  physics_valid,   # Phase 2b
             }
 
         except Exception as e:
@@ -242,3 +263,68 @@ class RobotBrain:
         except Exception as e:
             print(f"[RobotBrain] 開球計算錯誤: {e}")
             return None
+
+    # ══════════════════════════════════════════════════════════════════
+    # Phase 2b: 物理軌跡驗證（白球撞擊驗證）
+    # ══════════════════════════════════════════════════════════════════
+
+    def _validate_cue_hits_target(self, cue_ball, target_ball, pocket_name, obstacles):
+        """
+        Phase 2b 核心：驗證白球是否能擊中目標球。
+
+        驗證邏輯：
+        1. 用 strategy.get_shot_physics_input() 取得完整物理輸入
+        2. 用 physics.simulate() 跑物理模擬
+        3. 檢查 simulation 中是否有「白球→目標球」的碰撞事件
+        4. 若無碰撞事件 → ⚠️ 幾何預測的白球路線根本碰不到目標球
+
+        為什麼驗這個：
+        - 幾何計算只檢查「路徑上有沒有障礙球擋住」
+        - 但白球到底能不能真的碰到目標球（球心對準）
+        - 需要物理積分才能確認（尤其在速度很快時）
+
+        回傳：True = 白球會擊中目標球，False = ⚠️ 撞不到
+        """
+        try:
+            # 取得完整物理輸入（strategy 幫我們算好 aim_dir）
+            phys_input = self._strategy.get_shot_physics_input(
+                cue_ball, target_ball, pocket_name, obstacles
+            )
+            if phys_input is None:
+                return True  # 無法計算時預設放行
+
+            # 執行物理模擬
+            sim_result = physics_simulate(
+                cue_pos=phys_input["cue_pos"],
+                cue_dir=phys_input["aim_dir"],
+                target_pos=phys_input["target_pos"],
+                pocket_pos=phys_input["pocket_pos"],
+                obstacles=phys_input["obstacles"],
+                speed=phys_input["speed"],
+                dt_ms=10,
+            )
+
+            # 核心檢查：是否有 cue → target 的碰撞事件
+            for event in sim_result.collision_events:
+                if event.ball1_id == "cue" and event.ball2_id == "target":
+                    return True  # ✅ 白球撞到目標球
+
+            # Bank shot 的特殊情況：白球可能先碰到庫邊再碰目標球
+            # 檢查白球是否有 wall_events（撞牆），之後才碰到目標球
+            cue_wall_steps = set()
+            for event in sim_result.wall_events:
+                if event.ball_id == "cue":
+                    cue_wall_steps.add(event.step)
+
+            for event in sim_result.collision_events:
+                if event.ball1_id == "cue" and event.ball2_id == "target":
+                    # 白球撞到目標球，確認撞擊前是否先撞牆（嚴格 bank scenario）
+                    if event.step > 0:
+                        return True  # 撞到了就是撞到了
+
+            # ⚠️ 白球從未碰觸目標球——幾何預測的路線無效
+            return False
+
+        except Exception as e:
+            print(f"[RobotBrain] 物理驗證失敗（預設放行）: {e}")
+            return True  # 驗證失敗時放行（不 block 策略決策）

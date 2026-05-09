@@ -276,7 +276,7 @@
 <body>
 
 <h1>🎱 HIWIN RA605 撞球機器人</h1>
-<p class="subtitle">進度追蹤 · 2026-05-07 · 71 tests ✅ · 校正系統完成</p>
+<p class="subtitle">進度追蹤 · 2026-05-09 · 94 tests ✅ · Phase 2b 物理驗證完成</p>
 
 <!-- Phase summary -->
 <div class="phase-grid">
@@ -291,9 +291,9 @@
     <div class="label">圓形+顏色 · COMPETE 串接待做 · 校正系統完成</div>
   </div>
   <div class="card">
-    <h2>Phase 2 — 簡單策略</h2>
-    <div class="big red">○</div>
-    <div class="label">單一擊打 · 障礙判斷</div>
+    <h2>Phase 2 — 策略+物理驗證</h2>
+    <div class="big yellow">●●</div>
+    <div class="label">Ghost Ball + Bank Shot + 物理撞擊驗證 ✅ · 隨機障礙球測試中</div>
   </div>
   <div class="card">
     <h2>Phase 3 — 參數空間</h2>
@@ -410,10 +410,11 @@
     <div class="files">需修改 hmi.py + state_machine.py</div>
   </div>
 
-  <div class="timeline-item pending">
+  <div class="timeline-item done">
     <span class="phase-tag phase2">Phase 2</span>
-    <div class="timeline-title">簡單策略（單一擊打）</div>
-    <div class="timeline-desc">白球→目標球→口袋夾角最小，考慮障礙球遮蔽</div>
+    <div class="timeline-title">策略 + 物理驗證 ✅</div>
+    <div class="timeline-desc">Ghost Ball + Bank Shot + _validate_cue_hits_target()（白球撞擊驗證）94 tests ✅ · 隨機障礙球測試中（obstacles=[] 可接受）</div>
+    <div class="files">robot_brain.py, strategy_module.get_shot_physics_input(), physics/trajectory.py RESTITUTION 參數化</div>
   </div>
 
   <div class="timeline-item pending">
@@ -465,9 +466,9 @@
     <span class="priority high" style="margin-left:auto;">high</span>
   </div>
   <div class="todo-row">
-    <div class="todo-check pending">○</div>
+    <div class="todo-check done">✓</div>
     <div class="todo-id">#4b</div>
-    <span>Phase 2：簡單策略（單一擊打）</span>
+    <span>Phase 2：Ghost Ball + Bank Shot + 物理撞擊驗證 ✅（94 tests）</span>
     <span class="priority med" style="margin-left:auto;">med</span>
   </div>
   <div class="todo-row">

@@ -136,8 +136,8 @@ class BankShotPlanner:
         if dist == 0:
             return (tb_x, tb_y)
 
-        gx = tb_x + (dx / dist) * (self.ball_d / 2)
-        gy = tb_y + (dy / dist) * (self.ball_d / 2)
+        gx = tb_x + (dx / dist) * self.ball_d   # 與 _ghost_pos_direct 一致（偏移量 = 球徑）
+        gy = tb_y + (dy / dist) * self.ball_d
 
         return (round(gx, 2), round(gy, 2))
 

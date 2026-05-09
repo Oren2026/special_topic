@@ -1,8 +1,7 @@
 # HIWIN RA605 9-Ball 撞球機器人
 
-> 版本：2026-05-07
-> 狀態：✅ Ghost Ball D 偏移 + Bank Shot Planner + 物理模組 + 71 tests + 校正系統（顏色/球形 + VIEW）
-> 測試：**71/71 PASS** ✅
+> 版本：2026-05-08
+> 狀態：✅ Phase 2b 完成（G1+P1 已修復）｜94 tests ✅｜物理驗證（白球撞擊）+ Ghost Ball + Bank Shot + 物理模組 + 校正系統
 
 ---
 
@@ -331,6 +330,37 @@ result = simulate(
 
 ---
 
+## 物理模組缺口與整合規劃
+
+> 更新：2026-05-08｜物理模組獨立驗證 ✅，整合 Phase 2 待啟動
+
+### 🔴 準確度缺口（影響擊球精度的已知問題）
+
+| # | 缺口 | 位置 | 說明 | 影響 |
+|---|------|------|------|------|
+| G1 | Bank Shot Ghost Ball 偏移量錯誤 | `bank_shot_planner.py:139` | `_ghost_pos_bank` 用 `ball_d/2`，direct 用 `ball_d`，不一致 | Bank shot G 位置錯誤，導致瞄點偏移 |
+| P2 | 口袋座標未驗證 | `strategy_module.py` 的 `POCKETS` | 6個口袋座標是假設值（硬編碼），未實地測量 | 目標球→口袋方向計算錯誤 |
+| P3 | 物理模組尚未整合進決策層 | WSL 全站 | `robot_brain` / `strategy_module` 不 import physics | Ghost Ball 無物理軌跡二次驗證 |
+| P4 | Bank Shot 無物理二次驗證 | `bank_shot_planner.py` | 鏡像法是理想假設，實際撞球檯彈性非完美鏡像 | Bank shot 預測偏樂觀 |
+| P5 | Calibrator 是空框架 | `physics/calibrator.py` | 只有 mock 驗證，沒有真实 shot 資料餵進來 | RESTITUTION / ROLLING_FRICTION 無法閉環修正 |
+
+### 🟡 整合 Phase 2 規劃（物理 → 決策層）
+
+| 階段 | 任務 | 預期產出 |
+|------|------|----------|
+| **Phase 2a** | 物理整合進決策層 | ⚠️ 第一次整合嘗試已撤銷 — physics.simulate() 輸入（瞄準方向）與 Ghost Ball 輸出（碰撞點幾何）物理模型不一致 |
+| **G1 已修復** | Bank Shot Ghost Ball 偏移量 | ✅ `bank_shot_planner.py:139` — `_ghost_pos_bank` 偏移量 `ball_d/2` → `ball_d` |
+| **Phase 2b** | 重新定義物理驗證角色 | ✅ `robot_brain._validate_cue_hits_target()` — 驗證「白球能否擊中目標球」而非「能否進袋」，94 tests ✅ |
+| **Phase 2c** | 口袋座標校正接入 | 校正系統量到的口袋 pixel 座標 → 存入 `strategy_module.POCKETS` |
+| **Phase 2d** | Calibrator 接入真實資料 | 每桿事後寫入 `ShotRecord`，閉環修正 RESTITUTION / ROLLING_FRICTION |
+
+### ⚠️ 已知不一致（代辦事項）
+
+- `trajectory.py` 的 `_resolve_wall()` 與 `collision.reflect_wall()` 的 RESTITUTION 実装不一致
+- `ROLLING_FRICTION` 目前用文獻值（150 mm/s²），未來需空杆實驗驗證
+
+---
+
 ## 通訊協定
 
 **Port**: `5005` | **格式**: JSON + `\n` 結尾（防粘包）
@@ -470,24 +500,29 @@ mm_to_pixel:  手臂mm (arm_x, arm_y) → 像素 (u,v)
 
 ## 待辦追蹤
 
-> 更新：2026-05-07｜71 tests ✅
+> 更新：2026-05-08｜71 tests ✅ + 物理缺口已列入
 
-| # | 項目 | 優先級 | 說明 |
+|| # | 項目 | 優先級 | 說明 |
 |---|------|--------|------|
-| 1 | Ghost Ball D 偏移 | ✅ 已完成 | G = T + normalize(P-T) × D |
-| 2 | 擊球後多餘點擊修復 | ✅ 已完成 | `_shot_sent` flag + 球桌外重置 |
-| 3 | Bank Shot Planner | ✅ 已完成 | 鏡像法計算4條庫邊反彈點，32 tests ✅ |
-| 4 | 視覺 Phase 1 核心 | ✅ 已完成 | Hue/Orange/maroon 分類修復、confidence、VisionBridge |
-| 5 | Vision Unit Tests | ✅ 已完成 | 14/14 tests ✅ |
-| 6 | 物理模組 collision + trajectory | ✅ 已完成 | 25 tests ✅ |
-| 7 | 校正系統（顏色/球形 + VIEW）| ✅ 已完成 | COLOR_CALIB + SHAPE_CALIB + COLOR_VIEW + SHAPE_VIEW，lazy import + 資源隔離，YAML 持久化 |
-| 8 | COMPETE 模式狀態機整合 | 🔴 高 | `state_machine.py` + VisionBridge 串接 |
-| 9 | HMI 相機捕獲 | 🔴 高 | Tkinter 定時 polling 或事件驅動 |
-| 10 | 真實相機測試 | 🔴 高 | 720p USB camera 實測 |
-| 11 | 口袋真實 mm 座標 | 🔴 高 | `strategy_module.POCKETS` 硬編碼，需實地測量 |
-| 12 | WSL IP 更新 | 🔴 高 | `windows/config.py` 的 `SOCKET_HOST` 待確認 |
-| 13 | striker_bridge Arduino | 🟡 中 | 實機擊球控制（目前 MOCK 模式）|
-| 14 | 策略學習層 | 🟢 低 | 貝氏估計 / 強化學習權重 |
+|| 1 | Ghost Ball D 偏移 | ✅ 已完成 | G = T + normalize(P-T) × D |
+|| 2 | 擊球後多餘點擊修復 | ✅ 已完成 | `_shot_sent` flag + 球桌外重置 |
+|| 3 | Bank Shot Planner | ✅ 已完成 | 鏡像法計算4條庫邊反彈點，32 tests ✅ |
+|| 4 | 視覺 Phase 1 核心 | ✅ 已完成 | Hue/Orange/maroon 分類修復、confidence、VisionBridge |
+|| 5 | Vision Unit Tests | ✅ 已完成 | 14/14 tests ✅ |
+|| 6 | 物理模組 collision + trajectory | ✅ 已完成 | 25 tests ✅ |
+|| 7 | 校正系統（顏色/球形 + VIEW）| ✅ 已完成 | COLOR_CALIB + SHAPE_CALIB + COLOR_VIEW + SHAPE_VIEW，lazy import + 資源隔離，YAML 持久化 |
+|| 8 | COMPETE 模式狀態機整合 | 🔴 高 | `state_machine.py` + VisionBridge 串接 |
+|| 9 | HMI 相機捕獲 | 🔴 高 | Tkinter 定時 polling 或事件驅動 |
+|| 10 | 真實相機測試 | 🔴 高 | 720p USB camera 實測 |
+|| 11 | 口袋真實 mm 座標 | 🔴 高 | `strategy_module.POCKETS` 硬編碼，需實地測量 |
+|| 12 | WSL IP 更新 | 🔴 高 | `windows/config.py` 的 `SOCKET_HOST` 待確認 |
+|| 13 | striker_bridge Arduino | 🟡 中 | 實機擊球控制（目前 MOCK 模式）|
+|| 14 | 策略學習層 | 🟢 低 | 貝氏估計 / 強化學習權重 |
+|| P1 | RESTITUTION 寫死不一致 | ✅ 已修復 | `trajectory.py:302` `_resolve_wall()` 改用 `RESTITUTION` 常數（從 parameters.py import）|
+|| P2 | 口袋座標未驗證 | 🔴 高 | `strategy_module.POCKETS` 硬編碼，需校正系統實測 |
+|| P3 | 物理模組尚未整合進決策層 | 🔴 高 | WSL 端不 import physics，Ghost Ball 無軌跡驗證 |
+|| P4 | Bank Shot 無物理二次驗證 | 🟡 中 | 鏡像法 → `physics.simulate()` 取代 |
+|| P5 | Calibrator 空框架 | 🟡 中 | 接入真實 ShotRecord，閉環修正參數 |
 
 ---
 
