@@ -83,7 +83,7 @@ def collision_detect(s1: BallState, s2: BallState) -> Optional[CollisionInfo]:
     dist = math.hypot(dx, dy)
     min_dist = s1.radius + s2.radius
 
-    if dist >= min_dist:
+    if dist > min_dist:
         return None
 
     # 法向量（從 s2 指向 s1）
