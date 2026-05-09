@@ -310,9 +310,9 @@ class RobotBrain:
                     return True  # ✅ 白球撞到目標球
 
             # Bank shot 的特殊情況：白球可能先碰到庫邊再碰目標球
-            # 檢查白球是否有 wall_events（撞牆），之後才碰到目標球
+            # 檢查白球是否有 wall_hits（撞牆），之後才碰到目標球
             cue_wall_steps = set()
-            for event in sim_result.wall_events:
+            for event in sim_result.wall_hits:
                 if event.ball_id == "cue":
                     cue_wall_steps.add(event.step)
 

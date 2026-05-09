@@ -4,7 +4,7 @@ physics/
 
 子模組：
     collision  — 純物理計算（stateless）
-    trajectory — 軌跡預測
+    trajectory — 軌跡預測（逐步模擬 + 單球停止預測）
 """
 
 from .collision import (
@@ -16,9 +16,17 @@ from .collision import (
     table_bounds,
     is_in_pocket,
 )
-from .trajectory import simulate, TrajectoryResult, CollisionEvent, WallEvent
+from .trajectory import (
+    simulate,
+    predict_single,
+    TrajectoryResult,
+    StopPrediction,
+    CollisionEvent,
+    WallHit,
+)
 
 __all__ = [
+    # collision
     "BallState",
     "CollisionInfo",
     "collision_detect",
@@ -26,8 +34,11 @@ __all__ = [
     "reflect_wall",
     "table_bounds",
     "is_in_pocket",
-    "simulate",
+    # trajectory
+    "simulate",           # 完整擊球模擬（Cue+Target+多球）
+    "predict_single",      # 單球停止預測
     "TrajectoryResult",
+    "StopPrediction",
     "CollisionEvent",
-    "WallEvent",
+    "WallHit",
 ]
