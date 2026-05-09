@@ -519,3 +519,218 @@ def _resolve_wall(
             v_before=v_before,
             v_after=(ball.vx, ball.vy),
         ))
+
+
+# ── Chain Simulator ──────────────────────────────────────────────────────────
+
+@dataclass
+class ChainResult:
+    """
+    鏈式碰撞模擬結果。
+
+    用途：
+        目標球被撞後 → chain_simulate() → 目標球停在哪？
+        中間有沒有碰到障礙球？碰到幾次庫邊？有沒有進袋？
+    """
+    primary_stop: tuple[float, float]           # 主球最終位置
+    primary_distance: float                    # 主球總路程 mm
+    primary_wall_bounces: int                   # 主球庫邊反彈次數
+    primary_pocketed: bool                      # 主球是否進袋
+    primary_pocketed_at: Optional[tuple[float, float]] = None
+
+    collision_chain: list[CollisionEvent] = field(default_factory=list)
+    wall_bounces: int = 0                        # 全部球庫邊反彈總次數
+    all_wall_hits: list[WallHit] = field(default_factory=list)
+    primary_path: list[tuple[float, float]] = field(default_factory=list)
+
+    # 各障礙球狀態
+    obstacle_final: dict[int, tuple[float, float]] = field(default_factory=dict)
+    # obstacle_final[i] = (x, y)，未進袋的障礙球最終位置
+
+
+def chain_simulate(
+    primary_x: float,
+    primary_y: float,
+    primary_vx: float,
+    primary_vy: float,
+    obstacles: list[tuple[float, float]] = [],
+    friction: float = ROLLING_FRICTION,
+    restitution: float = RESTITUTION,
+    dt_ms: int = DT_MS,
+    max_steps: int = 5000,
+    pocket_pos: Optional[tuple[float, float]] = None,
+) -> ChainResult:
+    """
+    鏈式碰撞模擬：追蹤一個主球（通常是被撞後的目標球）
+    與多個靜態障礙球的多次碰撞，直到所有球停止或主球進袋。
+
+    與 simulate() 的區別：
+        simulate() — 固定 Cue+Target+多障礙球，白球有固定瞄準方向
+        chain_simulate() — 主球從任意初始速度出發，所有球都可能因為碰撞移動，
+                          持續模擬直到自然停止（無口袋終止，或主球進袋終止）
+
+    流程（每步）：
+        1. advance 所有球（摩擦 + 前進）
+        2. 庫邊碰撞偵測與反射
+        3. 球-球碰撞偵測與結算（所有組合）
+        4. 主球進袋 → 終止
+        5. 所有球速度 < threshold → 終止
+
+    參數：
+        primary_x/y/vx/vy: 主球初始狀態
+        obstacles: 障礙球位置列表（初始靜止）
+        friction, restitution, dt_ms, max_steps
+        pocket_pos: 口袋位置（None = 不模擬進袋）
+
+    回傳：ChainResult
+    """
+    dt = dt_ms / 1000.0
+    bounds = table_bounds()
+
+    # 初始化所有球
+    primary = BallState(primary_x, primary_y, primary_vx, primary_vy, BALL_RADIUS)
+    balls: list[BallState] = [primary]
+    ball_ids: list[str] = ["primary"]
+    ball_stopped: list[bool] = [False]
+
+    for ox, oy in obstacles:
+        balls.append(BallState(ox, oy, 0.0, 0.0, BALL_RADIUS))
+        ball_ids.append(f"obstacle_{len(ball_ids)}")
+        ball_stopped.append(False)
+
+    # 結果容器
+    result = ChainResult(primary_stop=(0.0, 0.0), primary_distance=0.0,
+                         primary_wall_bounces=0, primary_pocketed=False,
+                         collision_chain=[], wall_bounces=0,
+                         all_wall_hits=[], primary_path=[])
+    result.primary_path.append((primary_x, primary_y))
+
+    total_dist = {0: 0.0}  # ball index → 總路程
+    for i in range(1, len(balls)):
+        total_dist[i] = 0.0
+
+    prev_pos = {0: (primary_x, primary_y)}
+    for i in range(1, len(balls)):
+        prev_pos[i] = balls[i].pos()
+
+    done = False
+    step = 0
+
+    while step < max_steps and not done:
+        step += 1
+
+        # ── 1. advance 所有球 ─────────────────────────────────────────────
+        any_moving = False
+        for i, ball in enumerate(balls):
+            if ball_stopped[i]:
+                continue
+            any_moving = True  # 假設會 advance（與 predict_single 一致：advance 做完了才檢查停止）
+            spd = math.hypot(ball.vx, ball.vy)
+            if spd < 0.5:
+                ball_stopped[i] = True
+                any_moving = False  # 但速度不夠，這 step 不算 advance
+                continue
+            new_spd = max(0.0, spd - friction * dt)
+            factor = new_spd / spd if spd > 0 else 0.0
+            ball.vx *= factor
+            ball.vy *= factor
+            ball.x += ball.vx * dt
+            ball.y += ball.vy * dt
+
+        # 所有球都停了 → 終止
+        if not any_moving:
+            done = True
+            break
+
+        # ── 2. 庫邊碰撞 ───────────────────────────────────────────────────
+        for i, ball in enumerate(balls):
+            if ball_stopped[i]:
+                continue
+            v_before = (ball.vx, ball.vy)
+            hit = False
+            if ball.x < bounds["left"]:
+                ball.x = bounds["left"]
+                ball.vx = -ball.vx * restitution
+                hit = True
+            elif ball.x > bounds["right"]:
+                ball.x = bounds["right"]
+                ball.vx = -ball.vx * restitution
+                hit = True
+            if ball.y < bounds["top"]:
+                ball.y = bounds["top"]
+                ball.vy = -ball.vy * restitution
+                hit = True
+            elif ball.y > bounds["bottom"]:
+                ball.y = bounds["bottom"]
+                ball.vy = -ball.vy * restitution
+                hit = True
+            if hit:
+                result.wall_bounces += 1
+                if i == 0:
+                    result.primary_wall_bounces += 1
+                result.all_wall_hits.append(WallHit(
+                    step=step,
+                    ball_id=ball_ids[i],
+                    rail="left" if ball.x <= bounds["left"] else
+                         "right" if ball.x >= bounds["right"] else
+                         "top" if ball.y <= bounds["top"] else "bottom",
+                    pos=ball.pos(),
+                    v_before=v_before,
+                    v_after=(ball.vx, ball.vy),
+                ))
+
+        # ── 3. 球-球碰撞（所有組合） ────────────────────────────────────
+        checked = set()
+        for i in range(len(balls)):
+            for j in range(i + 1, len(balls)):
+                if ball_stopped[i] and ball_stopped[j]:
+                    continue
+                ci = collision_detect(balls[i], balls[j])
+                if ci is not None:
+                    v1b = (balls[i].vx, balls[i].vy)
+                    v2b = (balls[j].vx, balls[j].vy)
+                    balls[i], balls[j] = resolve_elastic(balls[i], balls[j], ci)
+                    result.collision_chain.append(CollisionEvent(
+                        step=step,
+                        ball1_id=ball_ids[i],
+                        ball2_id=ball_ids[j],
+                        point=ci.point,
+                        normal=ci.normal,
+                        v1_before=v1b,
+                        v2_before=v2b,
+                        v1_after=(balls[i].vx, balls[i].vy),
+                        v2_after=(balls[j].vx, balls[j].vy),
+                    ))
+                    # 任一球本來是靜止的，碰撞後不再是靜止
+                    if math.hypot(v1b[0], v1b[1]) < 0.5:
+                        ball_stopped[i] = False
+                    if math.hypot(v2b[0], v2b[1]) < 0.5:
+                        ball_stopped[j] = False
+
+        # ── 4. 主球進袋偵測 ────────────────────────────────────────────────
+        if pocket_pos is not None:
+            if is_in_pocket(primary, pocket_pos):
+                result.primary_pocketed = True
+                result.primary_pocketed_at = primary.pos()
+                result.primary_stop = primary.pos()
+                done = True
+                break
+
+        # ── 5. 路徑累加 ─────────────────────────────────────────────────
+        for i, ball in enumerate(balls):
+            if not ball_stopped[i]:
+                seg = math.hypot(ball.x - prev_pos[i][0], ball.y - prev_pos[i][1])
+                total_dist[i] += seg
+                prev_pos[i] = ball.pos()
+                if i == 0:
+                    result.primary_path.append(ball.pos())
+
+    # 終止後更新最終狀態
+    result.primary_stop = primary.pos()
+    result.primary_distance = round(total_dist[0], 2)
+    result.obstacle_final = {
+        i: balls[i].pos()
+        for i in range(1, len(balls))
+    }
+
+    return result

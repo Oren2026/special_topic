@@ -19,8 +19,10 @@ from .collision import (
 from .trajectory import (
     simulate,
     predict_single,
+    chain_simulate,
     TrajectoryResult,
     StopPrediction,
+    ChainResult,
     CollisionEvent,
     WallHit,
 )
@@ -37,8 +39,10 @@ __all__ = [
     # trajectory
     "simulate",           # 完整擊球模擬（Cue+Target+多球）
     "predict_single",      # 單球停止預測
+    "chain_simulate",      # 鏈式碰撞模擬（多球多次碰撞）
     "TrajectoryResult",
     "StopPrediction",
+    "ChainResult",
     "CollisionEvent",
     "WallHit",
 ]
