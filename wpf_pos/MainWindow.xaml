@@ -1,0 +1,288 @@
+<Window x:Class="WPF_POS.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:WPF_POS.ViewModels"
+        Title="快餐POS系統" Height="700" Width="1100"
+        MinHeight="600" MinWidth="900"
+        WindowStartupLocation="CenterScreen"
+        Background="#1E1E1E">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
+    <Grid>
+        <!-- 主POS視圖 -->
+        <Grid x:Name="POSView">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+
+            <!-- 標題欄 -->
+            <Border Grid.Row="0" Background="#2D2D30" Padding="20,0">
+                <Grid>
+                    <TextBlock Text="🍔 快餐POS系統"
+                               FontSize="24" FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               MouseLeftButtonDown="Title_MouseLeftButtonDown"
+                               Cursor="Hand"/>
+                    <Button Content="✕ 取消交易"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource DangerButton}"
+                            Click="CancelTransaction_Click"/>
+                </Grid>
+            </Border>
+
+            <!-- 種類 + 標籤 篩選列 -->
+            <Border Grid.Row="1" Background="#2D2D30" Padding="20,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 種類篩選 -->
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="全部"
+                                Tag="{x:Null}"
+                                Click="KindFilter_Click"
+                                Style="{StaticResource TagButton}"/>
+                        <ItemsControl x:Name="KindFilters" ItemsSource="{Binding Kinds}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding Name}"
+                                            Tag="{Binding Id}"
+                                            Click="KindFilter_Click"
+                                            Style="{StaticResource TagButton}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- 標籤篩選 -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBlock Text="標籤：" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#9E9E9E"/>
+                        <ItemsControl x:Name="TagFilters" ItemsSource="{Binding Tags}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding Name}"
+                                            Tag="{Binding Id}"
+                                            Click="TagFilter_Click"
+                                            Style="{StaticResource TagButton}"
+                                            Margin="4,0"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 主要內容：商品展示 + 購物車 -->
+            <Grid Grid.Row="2" Margin="20,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="320"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 商品網格 -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="ProductGrid" ItemsSource="{Binding FilteredProducts}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Width="130" Height="110" Margin="8"
+                                        Click="Product_Click"
+                                        Tag="{Binding}"
+                                        Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="#3E3E42" CornerRadius="8" Padding="10">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <!-- 商品名 -->
+                                                    <TextBlock Grid.Row="0" Text="{Binding Name}"
+                                                               FontSize="14" FontWeight="Bold"
+                                                               TextWrapping="Wrap" TextAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+
+                                                    <!-- 標籤顯示 -->
+                                                    <ItemsControl Grid.Row="1" Margin="0,4,0,0">
+                                                        <ItemsControl.ItemsSource>
+                                                            <Binding Path="TagIds"/>
+                                                        </ItemsControl.ItemsSource>
+                                                    </ItemsControl>
+
+                                                    <!-- 價格 -->
+                                                    <TextBlock Grid.Row="2"
+                                                               FontSize="16" FontWeight="Bold"
+                                                               Foreground="#4CAF50"
+                                                               TextAlignment="Center">
+                                                        <Run Text="$"/><Run Text="{Binding Price, StringFormat=N0}"/>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- 購物車面板 -->
+                <Border Grid.Column="1" Background="#2D2D30" CornerRadius="8" Padding="16" Margin="10,0,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- 購物車標題 -->
+                        <TextBlock Grid.Row="0" Text="🛒 購物車" FontSize="18" FontWeight="Bold" Margin="0,0,0,12"/>
+
+                        <!-- 購物車項目 -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="CartItemsControl" ItemsSource="{Binding CartItems}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#3E3E42" CornerRadius="4" Padding="10" Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding Product.Name}" FontWeight="Bold"/>
+                                                    <TextBlock Foreground="#9E9E9E" FontSize="12">
+                                                        <Run Text="$"/><Run Text="{Binding Product.Price, StringFormat=N0}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <Button Content="-" Width="28" Height="28" Click="Decrease_Click" Tag="{Binding}"/>
+                                                    <TextBlock Text="{Binding Quantity}" Width="30" TextAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
+                                                    <Button Content="+" Width="28" Height="28" Click="Increase_Click" Tag="{Binding}"/>
+                                                    <Button Content="✕" Width="28" Height="28" Margin="8,0,0,0" Click="Remove_Click" Tag="{Binding}"
+                                                            Background="#F44336"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <!-- 總計 + 結帳 -->
+                        <StackPanel Grid.Row="2">
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="小計" FontSize="14"/>
+                                <TextBlock Grid.Column="1" FontSize="14">
+                                    <Run Text="$"/><Run Text="{Binding CartSubtotal, StringFormat=N0}"/>
+                                </TextBlock>
+                            </Grid>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="稅 (10%)" FontSize="14" Foreground="#9E9E9E"/>
+                                <TextBlock Grid.Column="1" FontSize="14" Foreground="#9E9E9E">
+                                    <Run Text="$"/><Run Text="{Binding CartTax, StringFormat=N0}"/>
+                                </TextBlock>
+                            </Grid>
+                            <Border BorderThickness="0,1,0,0" BorderBrush="#555" Padding="0,8,0,0" Margin="0,0,0,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="總計" FontSize="18" FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="1" FontSize="18" FontWeight="Bold" Foreground="#4CAF50">
+                                        <Run Text="$"/><Run Text="{Binding CartTotal, StringFormat=N0}"/>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                            <Button Content="💳 結帳" Style="{StaticResource PrimaryButton}" Click="Checkout_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- 狀態列 -->
+            <Border Grid.Row="3" Background="#2D2D30" Padding="20,0">
+                <TextBlock x:Name="StatusText" Text="Ready" VerticalAlignment="Center" Foreground="#9E9E9E"/>
+            </Border>
+        </Grid>
+
+        <!-- 後台視圖（初始隱藏） -->
+        <Grid x:Name="AdminView" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 後台標題欄 -->
+            <Border Grid.Row="0" Background="#1A1A1A" Padding="20,0">
+                <Grid>
+                    <TextBlock Text="⚙️ 後台管理系統" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Button Content="← 返回POS" HorizontalAlignment="Right"
+                            Style="{StaticResource TagButton}"
+                            Click="BackToPOS_Click"/>
+                </Grid>
+            </Border>
+
+            <!-- 後台內容 -->
+            <Grid Grid.Row="1" Margin="20,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 後台導航 -->
+                <StackPanel Grid.Column="0" Background="#2D2D30" Margin="0,0,10,0">
+                    <Button Content="📦 商品管理" Style="{StaticResource TagButton}" Margin="8"
+                            HorizontalAlignment="Stretch" Click="ShowProductManagement_Click"/>
+                    <Button Content="📁 種類管理" Style="{StaticResource TagButton}" Margin="8"
+                            HorizontalAlignment="Stretch" Click="ShowKindManagement_Click"/>
+                    <Button Content="🏷️ 標籤管理" Style="{StaticResource TagButton}" Margin="8"
+                            HorizontalAlignment="Stretch" Click="ShowTagManagement_Click"/>
+                </StackPanel>
+
+                <!-- 後台內容區 -->
+                <Border Grid.Column="1" Background="#2D2D30" CornerRadius="8" Padding="20">
+                    <Grid x:Name="AdminContent">
+                        <!-- 預設显示商品管理 -->
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
