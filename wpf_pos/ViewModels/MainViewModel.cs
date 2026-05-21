@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using WPF_POS.Models;
@@ -16,17 +17,17 @@ public class MainViewModel : INotifyPropertyChanged
     {
         _data = data;
         _data.Load();
-        Kinds = [_data.Kinds.First(k => k.Id == _data.Products.First().KindId)];
+        Kinds = new ObservableCollection<Kind>(_data.Kinds.Where(k => k.Id == _data.Products.First().KindId));
         UpdateFilteredProducts();
     }
 
     // ========== Properties ==========
 
-    public ObservableCollection<Kind> Kinds { get; } = [];
-    public ObservableCollection<Tag> Tags { get; } = [];
-    public ObservableCollection<Product> FilteredProducts { get; } = [];
-    public ObservableCollection<OrderItem> CartItems { get; } = [];
-    public ObservableCollection<Product> AllProducts => [_data.Products];
+    public ObservableCollection<Kind> Kinds { get; } = new();
+    public ObservableCollection<Tag> Tags { get; } = new();
+    public ObservableCollection<Product> FilteredProducts { get; } = new();
+    public ObservableCollection<OrderItem> CartItems { get; } = new();
+    public ObservableCollection<Product> AllProducts => new(_data.Products);
 
     private int? _selectedKindId;
     public int? SelectedKindId
@@ -81,7 +82,7 @@ public class MainViewModel : INotifyPropertyChanged
         RefreshCart();
     }
 
-    private void RefreshCart()
+    internal void RefreshCart()
     {
         OnPropertyChanged(nameof(CartSubtotal));
         OnPropertyChanged(nameof(CartTax));

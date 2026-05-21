@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
+using WPF_POS.Models;
 
 namespace WPF_POS.Services;
 
@@ -13,7 +16,7 @@ public class DataService
     public List<Tag> Tags { get; private set; } = [];
     public List<Product> Products { get; private set; } = [];
 
-    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new()
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
         PropertyNameCaseInsensitive = true
@@ -29,7 +32,7 @@ public class DataService
         }
 
         var json = File.ReadAllText(DataFile);
-        var data = System.Text.Json.JsonSerializer.Deserialize<StoreData>(json, JsonOptions) ?? new StoreData();
+        var data = JsonSerializer.Deserialize<StoreData>(json, JsonOptions) ?? new StoreData();
         Kinds = data.Kinds;
         Tags = data.Tags;
         Products = data.Products;
@@ -39,42 +42,42 @@ public class DataService
     {
         Directory.CreateDirectory(DataFolder);
         var data = new StoreData { Kinds = Kinds, Tags = Tags, Products = Products };
-        var json = System.Text.Json.JsonSerializer.Serialize(data, JsonOptions);
+        var json = JsonSerializer.Serialize(data, JsonOptions);
         File.WriteAllText(DataFile, json);
     }
 
     private void InitializeDefaultData()
     {
-        Kinds =
-        [
+        Kinds = new List<Kind>
+        {
             new() { Id = 1, Name = "漢堡", DisplayOrder = 1 },
             new() { Id = 2, Name = "副食", DisplayOrder = 2 },
             new() { Id = 3, Name = "飲料", DisplayOrder = 3 },
             new() { Id = 4, Name = "套餐", DisplayOrder = 4 }
-        ];
+        };
 
-        Tags =
-        [
+        Tags = new List<Tag>
+        {
             new() { Id = 1, Name = "新品", Color = "#4CAF50" },
             new() { Id = 2, Name = "熱銷", Color = "#FF9800" },
             new() { Id = 3, Name = "限時", Color = "#F44336" }
-        ];
+        };
 
-        Products =
-        [
-            new() { Id = 1, Name = "牛肉堡", Price = 70, KindId = 1, TagIds = [1] },
-            new() { Id = 2, Name = "雞腿堡", Price = 65, KindId = 1, TagIds = [2] },
-            new() { Id = 3, Name = "素食堡", Price = 60, KindId = 1, TagIds = [] },
-            new() { Id = 4, Name = "薯條(大)", Price = 50, KindId = 2, TagIds = [] },
-            new() { Id = 5, Name = "薯條(小)", Price = 35, KindId = 2, TagIds = [] },
-            new() { Id = 6, Name = "雞塊", Price = 45, KindId = 2, TagIds = [2] },
-            new() { Id = 7, Name = "可樂", Price = 30, KindId = 3, TagIds = [] },
-            new() { Id = 8, Name = "雪碧", Price = 30, KindId = 3, TagIds = [] },
-            new() { Id = 9, Name = "奶茶", Price = 40, KindId = 3, TagIds = [1] },
-            new() { Id = 10, Name = "牛肉套餐", Price = 110, KindId = 4, TagIds = [2] },
-            new() { Id = 11, Name = "雞腿套餐", Price = 105, KindId = 4, TagIds = [] },
-            new() { Id = 12, Name = "素食套餐", Price = 95, KindId = 4, TagIds = [] }
-        ];
+        Products = new List<Product>
+        {
+            new() { Id = 1, Name = "牛肉堡", Price = 70, KindId = 1, TagIds = new List<int> { 1 } },
+            new() { Id = 2, Name = "雞腿堡", Price = 65, KindId = 1, TagIds = new List<int> { 2 } },
+            new() { Id = 3, Name = "素食堡", Price = 60, KindId = 1, TagIds = new List<int>() },
+            new() { Id = 4, Name = "薯條(大)", Price = 50, KindId = 2, TagIds = new List<int>() },
+            new() { Id = 5, Name = "薯條(小)", Price = 35, KindId = 2, TagIds = new List<int>() },
+            new() { Id = 6, Name = "雞塊", Price = 45, KindId = 2, TagIds = new List<int> { 2 } },
+            new() { Id = 7, Name = "可樂", Price = 30, KindId = 3, TagIds = new List<int>() },
+            new() { Id = 8, Name = "雪碧", Price = 30, KindId = 3, TagIds = new List<int>() },
+            new() { Id = 9, Name = "奶茶", Price = 40, KindId = 3, TagIds = new List<int> { 1 } },
+            new() { Id = 10, Name = "牛肉套餐", Price = 110, KindId = 4, TagIds = new List<int> { 2 } },
+            new() { Id = 11, Name = "雞腿套餐", Price = 105, KindId = 4, TagIds = new List<int>() },
+            new() { Id = 12, Name = "素食套餐", Price = 95, KindId = 4, TagIds = new List<int>() }
+        };
     }
 
     // Kind CRUD
@@ -95,7 +98,7 @@ public class DataService
 
 public class StoreData
 {
-    public List<Kind> Kinds { get; set; } = [];
-    public List<Tag> Tags { get; set; } = [];
-    public List<Product> Products { get; set; } = [];
+    public List<Kind> Kinds { get; set; } = new();
+    public List<Tag> Tags { get; set; } = new();
+    public List<Product> Products { get; set; } = new();
 }

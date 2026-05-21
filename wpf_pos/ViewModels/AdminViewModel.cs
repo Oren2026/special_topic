@@ -15,9 +15,9 @@ public class AdminViewModel : INotifyPropertyChanged
     public AdminViewModel(DataService data)
     {
         _data = data;
-        Products = [_data.Products];
-        Kinds = [_data.Kinds];
-        Tags = [_data.Tags];
+        Products = new ObservableCollection<Product>(_data.Products);
+        Kinds = new ObservableCollection<Kind>(_data.Kinds);
+        Tags = new ObservableCollection<Tag>(_data.Tags);
     }
 
     // ========== Products ==========
@@ -45,7 +45,7 @@ public class AdminViewModel : INotifyPropertyChanged
         }
     }
 
-    public ObservableCollection<Product> FilteredProducts { get; } = [];
+    public ObservableCollection<Product> FilteredProducts { get; } = new();
 
     private void FilterProducts()
     {
@@ -90,7 +90,7 @@ public class AdminViewModel : INotifyPropertyChanged
         set { _selectedKind = value; OnPropertyChanged(); }
     }
 
-    public ObservableCollection<Kind> FilteredKinds { get; } = [];
+    public ObservableCollection<Kind> FilteredKinds { get; } = new();
 
     public void LoadKinds()
     {
@@ -133,7 +133,7 @@ public class AdminViewModel : INotifyPropertyChanged
         set { _selectedTag = value; OnPropertyChanged(); }
     }
 
-    public ObservableCollection<Tag> FilteredTags { get; } = [];
+    public ObservableCollection<Tag> FilteredTags { get; } = new();
 
     public void LoadTags()
     {

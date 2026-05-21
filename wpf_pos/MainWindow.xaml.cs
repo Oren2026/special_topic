@@ -1,8 +1,10 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using WPF_POS.Models;
 using WPF_POS.Services;
+using WPF_POS.ViewModels;
 using WPF_POS.Views;
 
 namespace WPF_POS;
@@ -20,7 +22,7 @@ public partial class MainWindow : Window
         LoadFilters();
     }
 
-    // ========== 載入篩選按鈕 ==========
+    // ========== Load Filters ==========
 
     private void LoadFilters()
     {
@@ -28,7 +30,7 @@ public partial class MainWindow : Window
         TagFilters.ItemsSource = App.DataService.Tags;
     }
 
-    // ========== 種類 / 標籤 篩選 ==========
+    // ========== Kind / Tag Filter ==========
 
     private void KindFilter_Click(object sender, RoutedEventArgs e)
     {
@@ -52,32 +54,28 @@ public partial class MainWindow : Window
 
     private void UpdateKindButtonStyles()
     {
-        // 找出所有 KindFilter 按鈕並更新選中狀態
-        foreach (var child in ((StackPanel)KindFilters.Parent).Children)
+        if (KindFilters.Parent is Panel panel)
         {
-            if (child is Button btn && btn != KindFilters as ItemsControl)
+            foreach (var child in panel.Children)
             {
-                var isSelected = btn.Tag == null && App.MainViewModel.SelectedKindId == null
-                    || btn.Tag is int id && App.MainViewModel.SelectedKindId == id;
-                btn.Background = isSelected
-                    ? (System.Windows.Media.Brush)FindResource("AccentBrush")
-                    : (System.Windows.Media.Brush)FindResource("SecondaryBrush");
+                if (child is Button btn)
+                {
+                    var isSelected = btn.Tag == null && App.MainViewModel.SelectedKindId == null
+                        || btn.Tag is int id && App.MainViewModel.SelectedKindId == id;
+                    btn.Background = isSelected
+                        ? (System.Windows.Media.Brush)FindResource("AccentBrush")
+                        : (System.Windows.Media.Brush)FindResource("SecondaryBrush");
+                }
             }
         }
     }
 
     private void UpdateTagButtonStyles()
     {
-        foreach (var child in ((StackPanel)TagFilters.Parent).Children)
-        {
-            if (child is Button btn && btn.Name == "") // 跳過 TextBlock
-            {
-                // Tag 按鈕的选中状态
-            }
-        }
+        // Tag button style update logic
     }
 
-    // ========== 商品點擊 ==========
+    // ========== Product Click ==========
 
     private void Product_Click(object sender, RoutedEventArgs e)
     {
@@ -88,7 +86,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // ========== 購物車操作 ==========
+    // ========== Cart Operations ==========
 
     private void Increase_Click(object sender, RoutedEventArgs e)
     {
@@ -123,7 +121,7 @@ public partial class MainWindow : Window
         App.MainViewModel.RefreshCart();
     }
 
-    // ========== 結帳 ==========
+    // ========== Checkout ==========
 
     private void Checkout_Click(object sender, RoutedEventArgs e)
     {
@@ -146,7 +144,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // ========== 取消交易 ==========
+    // ========== Cancel Transaction ==========
 
     private void CancelTransaction_Click(object sender, RoutedEventArgs e)
     {
@@ -160,7 +158,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // ========== 5 下點擊進入後台 ==========
+    // ========== 5-Click to Admin ==========
 
     private void Title_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -182,7 +180,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // ========== 後台切換 ==========
+    // ========== Admin View ==========
 
     private void ShowAdminView()
     {

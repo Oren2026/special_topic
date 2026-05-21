@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 using WPF_POS.Models;
@@ -9,7 +10,7 @@ public partial class ProductEditDialog : Window
     public string ProductName { get; private set; } = "";
     public decimal ProductPrice { get; private set; }
     public int SelectedKindId { get; private set; }
-    public List<int> SelectedTagIds { get; private set; } = [];
+    public List<int> SelectedTagIds { get; private set; } = new();
 
     public ProductEditDialog(ObservableCollection<Kind> kinds, ObservableCollection<Tag> tags, Product? editProduct = null)
     {
@@ -24,9 +25,9 @@ public partial class ProductEditDialog : Window
             NameBox.Text = editProduct.Name;
             PriceBox.Text = editProduct.Price.ToString();
             SelectedKindId = editProduct.KindId;
-            SelectedTagIds = editProduct.TagIds;
+            SelectedTagIds = new List<int>(editProduct.TagIds);
 
-            // 選中種類
+            // Select kind
             for (int i = 0; i < kinds.Count; i++)
             {
                 if (kinds[i].Id == editProduct.KindId)
@@ -36,7 +37,7 @@ public partial class ProductEditDialog : Window
                 }
             }
 
-            // 選中標籤
+            // Select tags
             foreach (var item in TagList.Items)
             {
                 if (item is Tag tag && editProduct.TagIds.Contains(tag.Id))
