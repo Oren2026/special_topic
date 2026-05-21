@@ -24,11 +24,11 @@ public class MainViewModel : INotifyPropertyChanged
 
     // ========== Properties ==========
 
-    public ObservableCollection<Kind> Kinds { get; } = new();
-    public ObservableCollection<Tag> Tags { get; } = new();
-    public ObservableCollection<Product> FilteredProducts { get; } = new();
-    public ObservableCollection<OrderItem> CartItems { get; } = new();
-    public ObservableCollection<Product> AllProducts => new(_data.Products);
+    public ObservableCollection<Kind> Kinds { get; } = new ObservableCollection<Kind>();
+    public ObservableCollection<Tag> Tags { get; } = new ObservableCollection<Tag>();
+    public ObservableCollection<Product> FilteredProducts { get; } = new ObservableCollection<Product>();
+    public ObservableCollection<OrderItem> CartItems { get; } = new ObservableCollection<OrderItem>();
+    public ObservableCollection<Product> AllProducts => new ObservableCollection<Product>(_data.Products);
 
     private int? _selectedKindId;
     public int? SelectedKindId
@@ -168,5 +168,5 @@ public class RelayCommand<T> : ICommand
 #pragma warning restore CS0067
 
     public bool CanExecute(object? parameter) => _canExecute?.Invoke() ?? true;
-    public void Execute(object? parameter) => _execute(parameter);
+    public void Execute(object? parameter) => _execute(parameter != null ? (T)parameter : default);
 }

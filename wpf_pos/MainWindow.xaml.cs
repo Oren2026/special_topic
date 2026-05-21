@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,7 +13,7 @@ namespace WPF_POS;
 
 public partial class MainWindow : Window
 {
-    private int _titleClickCount = 0;
+    private int _clickCount = 0;
     private System.Windows.Threading.DispatcherTimer? _clickTimer;
     private AdminViewModel? _adminVm;
 
@@ -26,8 +28,8 @@ public partial class MainWindow : Window
 
     private void LoadFilters()
     {
-        KindFilters.ItemsSource = App.DataService.Kinds.OrderBy(k => k.DisplayOrder);
-        TagFilters.ItemsSource = App.DataService.Tags;
+        KindFilters.ItemsSource = App.DataService.Kinds.OrderBy(k => k.DisplayOrder).ToList();
+        TagFilters.ItemsSource = App.DataService.Tags.ToList();
     }
 
     // ========== Kind / Tag Filter ==========
@@ -167,7 +169,7 @@ public partial class MainWindow : Window
         _clickTimer.Tick += (s, ev) =>
         {
             _clickCount = 0;
-            _clickTimer.Stop();
+            _clickTimer!.Stop();
         };
         _clickTimer.Start();
 
@@ -187,7 +189,7 @@ public partial class MainWindow : Window
         POSView.Visibility = Visibility.Collapsed;
         AdminView.Visibility = Visibility.Visible;
         _adminVm ??= new AdminViewModel(App.DataService);
-        AdminContent.Content = new ProductManagementControl(_adminVm);
+        ShowProductManagement_Click(null!, null!);
     }
 
     private void BackToPOS_Click(object sender, RoutedEventArgs e)
@@ -199,18 +201,21 @@ public partial class MainWindow : Window
     private void ShowProductManagement_Click(object sender, RoutedEventArgs e)
     {
         if (_adminVm != null)
-            AdminContent.Content = new ProductManagementControl(_adminVm);
+            AdminContent.Children.Clear();
+            AdminContent.Children.Add(new ProductManagementControl(_adminVm));
     }
 
     private void ShowKindManagement_Click(object sender, RoutedEventArgs e)
     {
         if (_adminVm != null)
-            AdminContent.Content = new KindManagementControl(_adminVm);
+            AdminContent.Children.Clear();
+            AdminContent.Children.Add(new KindManagementControl(_adminVm));
     }
 
     private void ShowTagManagement_Click(object sender, RoutedEventArgs e)
     {
         if (_adminVm != null)
-            AdminContent.Content = new TagManagementControl(_adminVm);
+            AdminContent.Children.Clear();
+            AdminContent.Children.Add(new TagManagementControl(_adminVm));
     }
 }

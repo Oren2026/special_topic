@@ -46,7 +46,7 @@ public class AdminViewModel : INotifyPropertyChanged
         }
     }
 
-    public ObservableCollection<Product> FilteredProducts { get; } = new();
+    public ObservableCollection<Product> FilteredProducts { get; } = new ObservableCollection<Product>();
 
     private void FilterProducts()
     {
@@ -78,8 +78,8 @@ public class AdminViewModel : INotifyPropertyChanged
     public void DeleteProduct(int id)
     {
         _data.DeleteProduct(id);
-        Products.RemoveAll(p => p.Id == id);
-        FilteredProducts.RemoveAll(p => p.Id == id);
+        Products.Remove(Products.FirstOrDefault(p => p.Id == id)!);
+        FilteredProducts.Remove(FilteredProducts.FirstOrDefault(p => p.Id == id)!);
     }
 
     // ========== Kinds ==========
@@ -91,7 +91,7 @@ public class AdminViewModel : INotifyPropertyChanged
         set { _selectedKind = value; OnPropertyChanged(); }
     }
 
-    public ObservableCollection<Kind> FilteredKinds { get; } = new();
+    public ObservableCollection<Kind> FilteredKinds { get; } = new ObservableCollection<Kind>();
 
     public void LoadKinds()
     {
@@ -121,8 +121,10 @@ public class AdminViewModel : INotifyPropertyChanged
     public void DeleteKind(int id)
     {
         _data.DeleteKind(id);
-        Kinds.RemoveAll(k => k.Id == id);
-        FilteredKinds.RemoveAll(k => k.Id == id);
+        var item = Kinds.FirstOrDefault(k => k.Id == id);
+        if (item != null) Kinds.Remove(item);
+        var filteredItem = FilteredKinds.FirstOrDefault(k => k.Id == id);
+        if (filteredItem != null) FilteredKinds.Remove(filteredItem);
     }
 
     // ========== Tags ==========
@@ -134,7 +136,7 @@ public class AdminViewModel : INotifyPropertyChanged
         set { _selectedTag = value; OnPropertyChanged(); }
     }
 
-    public ObservableCollection<Tag> FilteredTags { get; } = new();
+    public ObservableCollection<Tag> FilteredTags { get; } = new ObservableCollection<Tag>();
 
     public void LoadTags()
     {
@@ -163,8 +165,10 @@ public class AdminViewModel : INotifyPropertyChanged
     public void DeleteTag(int id)
     {
         _data.DeleteTag(id);
-        Tags.RemoveAll(t => t.Id == id);
-        FilteredTags.RemoveAll(t => t.Id == id);
+        var item = Tags.FirstOrDefault(t => t.Id == id);
+        if (item != null) Tags.Remove(item);
+        var filteredItem = FilteredTags.FirstOrDefault(t => t.Id == id);
+        if (filteredItem != null) FilteredTags.Remove(filteredItem);
     }
 
     // ========== Helpers ==========
