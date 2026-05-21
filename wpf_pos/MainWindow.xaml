@@ -183,10 +183,10 @@
                                                 </StackPanel>
 
                                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <Button Content="-" Width="28" Height="28" Click="Decrease_Click" Tag="{Binding}" Foreground="White" Background="#555"/>
+                                                    <Button Content="-" Width="28" Height="28" Click="Decrease_Click" Tag="{Binding}" Style="{x:Null}" Background="#555555" Foreground="White" FontWeight="Bold" FontSize="14"/>
                                                     <TextBlock Text="{Binding Quantity}" Width="30" TextAlignment="Center" VerticalAlignment="Center" FontSize="16" Foreground="White"/>
-                                                    <Button Content="+" Width="28" Height="28" Click="Increase_Click" Tag="{Binding}" Foreground="White" Background="#555"/>
-                                                    <Button Content="X" Width="28" Height="28" Margin="8,0,0,0" Click="Remove_Click" Tag="{Binding}" Foreground="White" Background="#F44336"/>
+                                                    <Button Content="+" Width="28" Height="28" Click="Increase_Click" Tag="{Binding}" Style="{x:Null}" Background="#555555" Foreground="White" FontWeight="Bold" FontSize="14"/>
+                                                    <Button Content="X" Width="28" Height="28" Margin="8,0,0,0" Click="Remove_Click" Tag="{Binding}" Style="{x:Null}" Background="#F44336" Foreground="White" FontWeight="Bold" FontSize="14"/>
                                                 </StackPanel>
                                             </Grid>
                                         </Border>

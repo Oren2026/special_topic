@@ -18,7 +18,15 @@ public class MainViewModel : INotifyPropertyChanged
     {
         _data = data;
         _data.Load();
-        Kinds = new ObservableCollection<Kind>(_data.Kinds.Where(k => k.Id == _data.Products.First().KindId));
+
+        // 種類：全部種類都載入（不是只取第一個商品的）
+        foreach (var k in _data.Kinds.OrderBy(k => k.DisplayOrder))
+            Kinds.Add(k);
+
+        // 標籤：全部標籤都載入
+        foreach (var t in _data.Tags)
+            Tags.Add(t);
+
         UpdateFilteredProducts();
     }
 
@@ -28,7 +36,6 @@ public class MainViewModel : INotifyPropertyChanged
     public ObservableCollection<Tag> Tags { get; } = new ObservableCollection<Tag>();
     public ObservableCollection<Product> FilteredProducts { get; } = new ObservableCollection<Product>();
     public ObservableCollection<OrderItem> CartItems { get; } = new ObservableCollection<OrderItem>();
-    public ObservableCollection<Product> AllProducts => new ObservableCollection<Product>(_data.Products);
 
     private int? _selectedKindId;
     public int? SelectedKindId
@@ -67,10 +74,10 @@ public class MainViewModel : INotifyPropertyChanged
     // ========== Commands ==========
 
     public ICommand AddToCartCommand => new RelayCommand<Product>(p => AddToCart(p));
-    public ICommand IncreaseCommand => new RelayCommand<OrderItem>(i => { i.Quantity++; OnPropertyChanged(nameof(CartItems)); RefreshCart(); });
-    public ICommand DecreaseCommand => new RelayCommand<OrderItem>(i => { if (i.Quantity > 1) i.Quantity--; else CartItems.Remove(i); RefreshCart(); });
-    public ICommand RemoveFromCartCommand => new RelayCommand<OrderItem>(i => { CartItems.Remove(i); RefreshCart(); });
-    public ICommand ClearCartCommand => new RelayCommand(() => { CartItems.Clear(); RefreshCart(); });
+    public ICommand IncreaseCommand => new RelayCommand<OrderItem>(i => { i.Quantity++; RefreshCartTotals(); });
+    public ICommand DecreaseCommand => new RelayCommand<OrderItem>(i => { if (i.Quantity > 1) i.Quantity--; else CartItems.Remove(i); RefreshCartTotals(); });
+    public ICommand RemoveFromCartCommand => new RelayCommand<OrderItem>(i => { CartItems.Remove(i); RefreshCartTotals(); });
+    public ICommand ClearCartCommand => new RelayCommand(() => { CartItems.Clear(); RefreshCartTotals(); });
     public ICommand CheckoutCommand => new RelayCommand(() => { }, () => CartItems.Count > 0);
 
     // ========== Methods ==========
@@ -80,14 +87,20 @@ public class MainViewModel : INotifyPropertyChanged
         var existing = CartItems.FirstOrDefault(x => x.Product.Id == product.Id);
         if (existing != null) existing.Quantity++;
         else CartItems.Add(new OrderItem { Product = product, Quantity = 1 });
-        RefreshCart();
+        RefreshCartTotals();
     }
 
     internal void RefreshCart()
     {
+        RefreshCartTotals();
+    }
+
+    private void RefreshCartTotals()
+    {
         OnPropertyChanged(nameof(CartSubtotal));
         OnPropertyChanged(nameof(CartTax));
         OnPropertyChanged(nameof(CartTotal));
+        OnPropertyChanged(nameof(CartItems));
     }
 
     private void UpdateFilteredProducts()
@@ -110,12 +123,12 @@ public class MainViewModel : INotifyPropertyChanged
 
     public void SelectKind(int? id)
     {
-        SelectedKindId = id == SelectedKindId ? null : id;
+        SelectedKindId = _selectedKindId == id ? null : id;
     }
 
     public void SelectTag(int? id)
     {
-        SelectedTagId = id == SelectedTagId ? null : id;
+        SelectedTagId = _selectedTagId == id ? null : id;
     }
 
     // ========== INotifyPropertyChanged ==========
