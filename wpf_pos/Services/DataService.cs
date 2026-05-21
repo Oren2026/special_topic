@@ -1,5 +1,6 @@
-using System.Text.Json;
-using WPF_POS.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace WPF_POS.Services;
 
@@ -12,7 +13,7 @@ public class DataService
     public List<Tag> Tags { get; private set; } = [];
     public List<Product> Products { get; private set; } = [];
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
         PropertyNameCaseInsensitive = true
@@ -28,7 +29,7 @@ public class DataService
         }
 
         var json = File.ReadAllText(DataFile);
-        var data = JsonSerializer.Deserialize<StoreData>(json, JsonOptions) ?? new StoreData();
+        var data = System.Text.Json.JsonSerializer.Deserialize<StoreData>(json, JsonOptions) ?? new StoreData();
         Kinds = data.Kinds;
         Tags = data.Tags;
         Products = data.Products;
@@ -38,7 +39,7 @@ public class DataService
     {
         Directory.CreateDirectory(DataFolder);
         var data = new StoreData { Kinds = Kinds, Tags = Tags, Products = Products };
-        var json = JsonSerializer.Serialize(data, JsonOptions);
+        var json = System.Text.Json.JsonSerializer.Serialize(data, JsonOptions);
         File.WriteAllText(DataFile, json);
     }
 

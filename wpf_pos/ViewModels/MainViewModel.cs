@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -10,8 +11,6 @@ namespace WPF_POS.ViewModels;
 public class MainViewModel : INotifyPropertyChanged
 {
     private readonly DataService _data;
-    private int? _selectedKindId;
-    private int? _selectedTagId;
 
     public MainViewModel(DataService data)
     {
@@ -135,11 +134,13 @@ public class RelayCommand : ICommand
         _canExecute = canExecute;
     }
 
+#pragma warning disable CS0067
     public event EventHandler? CanExecuteChanged
     {
         add => CommandManager.RequerySuggested += value;
         remove => CommandManager.RequerySuggested -= value;
     }
+#pragma warning restore CS0067
 
     public bool CanExecute(object? parameter) => _canExecute?.Invoke() ?? true;
     public void Execute(object? parameter) => _execute();
@@ -156,11 +157,13 @@ public class RelayCommand<T> : ICommand
         _canExecute = canExecute;
     }
 
+#pragma warning disable CS0067
     public event EventHandler? CanExecuteChanged
     {
         add => CommandManager.RequerySuggested += value;
         remove => CommandManager.RequerySuggested -= value;
     }
+#pragma warning restore CS0067
 
     public bool CanExecute(object? parameter) => _canExecute?.Invoke() ?? true;
     public void Execute(object? parameter) => _execute(parameter);

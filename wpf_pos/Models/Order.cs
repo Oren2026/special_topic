@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace WPF_POS.Models;
 
 public class Order
