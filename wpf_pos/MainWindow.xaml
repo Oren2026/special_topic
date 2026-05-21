@@ -205,7 +205,7 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="小計" FontSize="14"/>
                                 <TextBlock Grid.Column="1" FontSize="14">
-                                    <Run Text="$"/><Run Text="{Binding CartSubtotal, StringFormat=N0}"/>
+                                    <Run Text="$"/><Run Text="{Binding CartSubtotal, StringFormat=N0, Mode=OneWay}"/>
                                 </TextBlock>
                             </Grid>
                             <Grid Margin="0,0,0,8">
@@ -215,7 +215,7 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="稅 (10%)" FontSize="14" Foreground="#9E9E9E"/>
                                 <TextBlock Grid.Column="1" FontSize="14" Foreground="#9E9E9E">
-                                    <Run Text="$"/><Run Text="{Binding CartTax, StringFormat=N0}"/>
+                                    <Run Text="$"/><Run Text="{Binding CartTax, StringFormat=N0, Mode=OneWay}"/>
                                 </TextBlock>
                             </Grid>
                             <Border BorderThickness="0,1,0,0" BorderBrush="#555" Padding="0,8,0,0" Margin="0,0,0,12">
@@ -226,7 +226,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="總計" FontSize="18" FontWeight="Bold"/>
                                     <TextBlock Grid.Column="1" FontSize="18" FontWeight="Bold" Foreground="#4CAF50">
-                                        <Run Text="$"/><Run Text="{Binding CartTotal, StringFormat=N0}"/>
+                                        <Run Text="$"/><Run Text="{Binding CartTotal, StringFormat=N0, Mode=OneWay}"/>
                                     </TextBlock>
                                 </Grid>
                             </Border>
