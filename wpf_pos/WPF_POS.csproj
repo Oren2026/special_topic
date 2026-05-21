@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon></ApplicationIcon>
+    <StartupObject>WPF_POS.App</StartupObject>
+    <AssemblyName>WPF_POS</AssemblyName>
+    <RootNamespace>WPF_POS</RootNamespace>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- CommunityToolkit.Mvvm 可選，已用手動實作 MVVM -->
+  <!-- <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" /> -->
+
+</Project>
