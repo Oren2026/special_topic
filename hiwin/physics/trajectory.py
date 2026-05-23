@@ -624,12 +624,12 @@ def chain_simulate(
         for i, ball in enumerate(balls):
             if ball_stopped[i]:
                 continue
-            any_moving = True  # 假設會 advance（與 predict_single 一致：advance 做完了才檢查停止）
             spd = math.hypot(ball.vx, ball.vy)
             if spd < 0.5:
                 ball_stopped[i] = True
-                any_moving = False  # 但速度不夠，這 step 不算 advance
                 continue
+            # advance
+            any_moving = True
             new_spd = max(0.0, spd - friction * dt)
             factor = new_spd / spd if spd > 0 else 0.0
             ball.vx *= factor

@@ -45,6 +45,7 @@ FIELD_ANGLE        = "angle"
 TYPE_POCKET       = "POCKET"
 TYPE_TARGET_BALL  = "TARGET_BALL"
 TYPE_CUE_BALL     = "CUE_BALL"
+TYPE_OTHER_BALL   = "OTHER_BALL"   # 障礙球（傳給 compute_shot obstacles）
 
 # =============================================================================
 # striker_config 預設值（由 config.py 同步）

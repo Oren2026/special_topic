@@ -174,13 +174,19 @@ class RobotBrain:
             # 動態查詢口袋名稱（pixel → mm → 找最近已知口袋）
             pocket_name = self._find_nearest_pocket_name(p_pocket["u"], p_pocket["v"])
 
+            # 解析障礙球（OTHER_BALL → compute_shot obstacles）
+            obstacles = []
+            for p in vision_data:
+                if p[P.FIELD_TYPE] == P.TYPE_OTHER_BALL:
+                    ox, oy, _ = self._coord.pixel_to_mm(p["u"], p["v"])
+                    obstacles.append({"x": ox, "y": oy})
+
             # 策略計算（自動選擇 direct 或 bank shot）
-            # obstacles 留空：待視覺辨識完成後再接入
             result = self._strategy.compute_shot(
                 cue_ball={"x": cx, "y": cy},
                 target_ball={"x": tx, "y": ty},
                 pocket_name=pocket_name,
-                obstacles=[],      # TODO: 視覺辨識完成後代入所有非目標球
+                obstacles=obstacles,
             )
 
             # 毫米 → 像素（供 UI 繪圖）
@@ -207,7 +213,7 @@ class RobotBrain:
                 cue_ball={"x": cx, "y": cy},
                 target_ball={"x": tx, "y": ty},
                 pocket_name=pocket_name,
-                obstacles=[],  # TODO: 視覺完成後代入真實障礙球
+                obstacles=obstacles,
             )
             physics_status = "✅" if physics_valid else "⚠️"
             print(f"[RobotBrain] 物理驗證（白球撞擊）: {physics_status}")
