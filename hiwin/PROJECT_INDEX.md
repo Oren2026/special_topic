@@ -30,10 +30,20 @@ node_vision ──→ node_strategy ──→ node_hardware
 | Node | 模組 | 狀態 | 輸出 |
 |------|------|------|------|
 | node_vision | `windows/control/ball_identifier.py` + `vision_pipeline.py` | ✅ 完成 | `balls`, `obstacles` |
-| node_strategy | `windows/brain/strategy_module.py` + `bank_shot_planner.py` | ✅ 已整合（2026-05-23） | `ghost`, `robot_tcp`, `type` |
-| node_physics | `physics/trajectory.py` + `collision.py` | ✅ 已修復（2026-05-23） | `TrajectoryResult`, `chain_simulate` |
-| node_hardware | `windows/brain/hiwin_arm.py` + `striker_bridge.py` | ⏳ 待實作 | `execute_shot()` |
-| node_integration | `windows/brain/robot_brain.py` | 🔄 進行中 | `compute_and_execute_shot()` |
+| node_strategy | `windows/brain/strategy_module.py` + `bank_shot_planner.py` | ✅ 完成 | `ghost`, `robot_tcp`, `type` |
+| node_physics | `physics/trajectory.py` + `collision.py` | ✅ 完成 | `TrajectoryResult`, `chain_simulate` |
+| node_hardware | `windows/brain/hiwin_arm.py` + `striker_bridge.py` | 🔍 檢查中 | `execute_shot()` |
+| node_integration | `windows/main.py` + `hmi.py` + `state_machine.py` | 🔄 遷移中 | 單一進程架構 |
+
+## 今日目標（2026-05-23）：Windows-Only 重構
+
+**目標**：移除 WSL 依賴，`windows/main.py` 同時啟動 HMI + RobotBrain
+
+### node_integration 工作清單
+1. ✅ `windows/main.py` — 新增 RobotBrain 啟動
+2. ⏳ `hmi.py` — 接收 brain injection，移除 socket_client
+3. ⏳ `state_machine.py` — 直接 call brain API
+4. ⏳ `socket_client.py` — 移除
 
 ---
 
