@@ -15,10 +15,9 @@ import random
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-sys.path.insert(0, os.path.join(ROOT, "wsl"))
 
 from physics.trajectory import simulate
-from wsl.robot_brain import RobotBrain
+from windows.brain.robot_brain import RobotBrain
 
 
 def eq(a, b, tol=1.0):

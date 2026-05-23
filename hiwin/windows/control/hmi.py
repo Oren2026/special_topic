@@ -2,7 +2,7 @@
 windows/control/hmi.py
 Tkinter 人機介面
 
-依賴：tkinter, cv2, PIL, StateMachine, SocketClient, BilliardVision, SimulationScene
+依賴：tkinter, cv2, PIL, StateMachine, BilliardVision, SimulationScene
 輸出：Tkinter 視窗
 """
 import tkinter as tk
@@ -466,30 +466,6 @@ class HMI:
             pu, pv = int(first_uv[0]), int(first_uv[1])
             self._scene.add_or_update("POCKET", pu, pv)
             self._state.set_pocket(pu, pv)
-
-    # ── Socket 回應 ──────────────────────────────────────────────────────────
-
-    def _on_wsl_message(self, data: dict):
-        msg_type = data.get("type")
-        if msg_type == "PREDICTION":
-            self._prediction_data = data
-        elif msg_type == "BREAK_RESULT":
-            self._prediction_data = data
-        elif msg_type == "CALIBRATION_COMPLETE":
-            pockets = data.get("pockets", {})
-            self._on_mode_set(State.PLAY_TEST)
-            self._scene.set_pockets(pockets)
-            # 預設使用第一個口袋，讓 TEST 流程只需 TARGET + CUE（2步）
-            first_pocket = next(iter(pockets.values()), None)
-            if first_pocket:
-                pu, pv = int(first_pocket[0]), int(first_pocket[1])
-                self._scene.add_or_update("POCKET", pu, pv)
-                self._state.set_pocket(pu, pv)
-            self._info_lbl.config(text=f"口袋已設定（{len(pockets)}個）\n請點擊：目標球 → 白球")
-            self._root.after(100, lambda: messagebox.showinfo(
-                "校正完成",
-                f"已辨識 {len(pockets)} 個口袋。\n"
-                "請依序點擊：①目標球 ②白球\n（口袋可直接點擊重新選擇）"))
 
     def _on_prediction(self, data: dict):
         self._prediction_data = data

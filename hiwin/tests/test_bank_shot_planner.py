@@ -11,10 +11,9 @@ import sys, os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-sys.path.insert(0, os.path.join(ROOT, "wsl"))
 
-from wsl.strategy_module import BilliardStrategy
-from wsl.bank_shot_planner import BankShotPlanner
+from windows.brain.strategy_module import BilliardStrategy
+from windows.brain.bank_shot_planner import BankShotPlanner
 import config
 
 
