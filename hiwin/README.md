@@ -11,7 +11,7 @@
 2. [系統架構圖](#系統架構圖)
 3. [模組關係圖](#模組關係圖)
 4. [Windows 端模組](#windows-端模組)
-5. [WSL 端模組](#wsl-端模組)
+5. [Brain 端模組](#brain-端模組)
 6. [物理模組](#物理模組)
 7. [通訊協定](#通訊協定)
 8. [執行流程](#執行流程)
@@ -25,10 +25,9 @@
 
 | 端 | Python | 專案路徑 | 備註 |
 |----|--------|----------|------|
-| WSL | 3.12.3 (.venv) | `~/projects/hiwin_robot/wsl/` | 需設定 WSL IP 至 `windows/config.py` |
-| Windows | 3.14.2 | `c:\hiwin_win_project\windows\` | 需設定 `WSL_IP` 環境變數或修改 `config.py` |
+| Windows | 3.14.2 | `c:\hiwin_win_project\windows\` | 執行 `python windows/main.py` 即可 |
 
-> Python 版本：Windows / WSL 兩端皆使用 `Optional[...]`（Python 3.9+ 相容），`dict | None` 語法（Python 3.10+）僅用於 WSL 內部模組。
+> Python 版本：所有模組使用 `Optional[...]`（Python 3.9+ 相容），`dict | None` 語法（Python 3.10+）在 Windows 環境完全支援。
 
 ---
 
@@ -36,7 +35,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  Windows 端（感知層 / UI）                                            │
+│  Windows 端（感知層 / UI / 決策層 / 執行層）                            │
 │                                                                     │
 │  ┌──────────────┐      ┌─────────────────────────────────────────┐  │
 │  │  USB Camera  │─────▶│  vision/camera.py  (雙鏡頭擷取)          │  │
@@ -44,48 +43,45 @@
 │                        └──────────────────┬──────────────────────┘  │
 │                                             │                       │
 │                        ┌────────────────────▼──────────────────────┐  │
-│                        │     windows/control/                      │  │
-│                        │                                         │  │
-│                        │  hmi.py ────── Tkinter 主視窗             │  │
-│                        │      │                                   │  │
-│                        │      ├─▶ state_machine.py  (模式分派)     │  │
-│                        │      │       │                            │  │
-│                        │      │       ├─▶ calibration.py  (INSTALL) │  │
+│                        │     windows/control/                       │  │
+│                        │                                            │  │
+│                        │  hmi.py ────── Tkinter 主視窗              │  │
+│                        │      │                                    │  │
+│                        │      ├─▶ state_machine.py  (模式分派)    │  │
+│                        │      │       │                             │  │
+│                        │      │       ├─▶ calibration.py  (INSTALL)│  │
 │                        │      │       ├─▶ shot_dispatcher.py(TEST) │  │
 │                        │      │       ├─▶ break_handler.py(BREAK)  │  │
 │                        │      │       └─▶ [COMPETE] → VisionBridge │  │
-│                        │      │                                   │  │
-│                        │      └─▶ socket_client.py  (TCP 收发)    │  │
-│                        │                                         │  │
+│                        │      │                                    │  │
 │                        │  ── Vision 視覺模組 ──────────────────── │  │
 │                        │      ├─▶ vision_bridge.py   (相機/mock)  │  │
-│                        │      ├─▶ vision_pipeline.py (整合 pipeline)│  │
+│                        │      ├─▶ vision_pipeline.py (整合 pipeline)│ │
 │                        │      ├─▶ ball_identifier.py (HoughCircles│  │
 │                        │      │              + HSV 顏色分類)        │  │
 │                        │      ├─▶ calibration_control.py (4角校正)│  │
 │                        │      ├─▶ table_geometry.py  (幾何計算)   │  │
 │                        │      └─▶ sim_table.py      (模擬球檯)   │  │
-│                        └─────────────────────────────────────────┘  │
-│                                    │ :5005 TCP                      │
-└────────────────────────────────────┼────────────────────────────────┘
-                                     ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  WSL 端（決策層 / Brain）                                            │
-│                                                                     │
-│  robot_brain.py ──── 模式分派                                        │
-│       │                                                              │
-│       ├─▶ coord_manager.py    (pixel↔mm 透視變換)                   │
-│       ├─▶ strategy_module.py  (Ghost Ball 演算法)                   │
-│       ├─▶ bank_shot_planner.py (庫邊反彈計算)                        │
-│       ├─▶ break_module.py     (Break 開球)                          │
-│       └─▶ striker_bridge.py  (→ Arduino，⚠️ MOCK)                  │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │  物理驗證工具鏈（獨立於決策流程）                                │   │
-│  │  physics/                                                      │   │
-│  │   ├─ collision.py  (BallState, 碰撞偵測, 彈性碰撞, 庫邊反射)   │   │
-│  │   └─ trajectory.py (軌跡預測, TrajectoryResult)                │   │
-│  └──────────────────────────────────────────────────────────────┘   │
+│                        └──────────────────────────────────────────┘  │
+│                                             │                        │
+│                        ┌────────────────────▼───────────────────────┐ │
+│                        │  windows/brain/                            │ │
+│                        │                                            │ │
+│                        │  RobotBrain ──── 模式分派                   │ │
+│                        │       │                                     │ │
+│                        │       ├─▶ coord_manager.py   (pixel↔mm)  │ │
+│                        │       ├─▶ strategy_module.py (Ghost Ball) │ │
+│                        │       ├─▶ bank_shot_planner.py(庫邊反彈)  │ │
+│                        │       ├─▶ break_module.py    (Break 開球) │ │
+│                        │       └─▶ striker_bridge.py (→ Arduino)  │ │
+│                        │                                            │ │
+│                        │  ┌──────────────────────────────────────┐ │ │
+│                        │  │  物理驗證工具鏈（獨立於決策流程）        │ │ │
+│                        │  │  physics/                            │ │ │
+│                        │  │   ├─ collision.py (BallState,碰撞)   │ │ │
+│                        │  │   └─ trajectory.py (軌跡預測)        │ │ │
+│                        │  └──────────────────────────────────────┘ │ │
+│                        └───────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -140,16 +136,16 @@
 │                                                     capture_and_process()     │
 │                                                     ↓                        │
 │   shot_dispatcher.py                                robot_brain.compute_shot()│
-│   break_handler.py                                  (障礙球已接入)          │
+│   break_handler.py                                  (障礙球已接入)            │
 │                                                                             │
 │       ▼                                                                     │
-│   socket_client.py  ──── TCP :5005 ──────────────────────────────▶ WSL     │
+│   RobotBrain._handle_manual()  ──── 同進程直接呼叫（不經網路）              │
 │                                                                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  WSL 端                                                                     │
-│  ═════                                                                  │
+│  Brain 端（windows/brain/）                                                │
+│  ══════════════════════════════                                              │
 │                                                                             │
-│   robot_brain.py  ◄───── 接收 Windows 封包，模式分派                         │
+│   robot_brain.py  ◄───── HMI 同進程直接呼叫（不經 TCP）                      │
 │        │                                                                   │
 │        ├─▶ coord_manager.py                                               │
 │        │      · update_calibration(pts) → 建立 Homography                  │
@@ -167,7 +163,7 @@
 │        │      · compute_break() → 開球角度/力道                            │
 │        │                                                                   │
 │        └─▶ striker_bridge.py                                              │
-│               · execute() → ⚠️ MOCK（Arduino 待實作）                       │
+│               · execute() → Arduino 直連                                  │
 │                                                                             │
 │  物理驗證工具鏈（獨立模組，不參與決策）                                        │
 │  ═════════════════════════════════════════════                              │
@@ -190,41 +186,38 @@ hmi.py handle_click()
 state_machine.py ──▶ INSTALL / TEST / BREAK / COMPETE
     │
     ▼
-socket_client.send(json)
+RobotBrain._handle_manual()  ← 同進程直接呼叫（無網路）
     │
-    ▼  TCP :5005
-robot_brain.py (WSL)
+    ├── INSTALL ──▶ CoordManager.update_calibration()
     │
-    ├── INSTALL ──▶ coord_manager.update_calibration()
-    │
-    ├── TEST ─────▶ coord_manager.pixel_to_mm()
+    ├── TEST ─────▶ CoordManager.pixel_to_mm()
     │                   │
     │                   ▼
-    │              strategy_module.compute_shot(obstacles=[...])
+    │              StrategyModule.compute_shot(obstacles=[...])
     │                   │
     │                   ▼
-    │              bank_shot_planner.plan_bank_shot()
+    │              BankShotPlanner.plan_bank_shot()
     │                   │
     │                   ▼
     │              PREDICTION {ghost_pixel, robot_pixel, angle}
     │
-    ├── BREAK ─────▶ break_module.compute_break()
+    ├── BREAK ─────▶ BreakModule.compute_break()
     │                   │
     │                   ▼
     │              BREAK_RESULT {robot_pixel, angle, stroke_dist}
     │
-    └── COMPETE ───▶ vision_bridge.capture_and_process()
+    └── COMPETE ───▶ VisionBridge.capture_and_process()
                         │
                         ▼
-                   vision_pipeline.run()
+                   VisionPipeline.run()
                         │
                         ▼
-                   vision_pipeline.get_obstacles()
+                   VisionPipeline.get_obstacles()
                         │
                         ▼
-                   robot_brain.compute_shot(obstacles=[...])
+                   RobotBrain.compute_shot(obstacles=[...])
 
-物理驗證（獨立流程，不走 robot_brain）：
+物理驗證（獨立流程，不走 RobotBrain）：
 physics.simulate(cue_pos, cue_dir, target_pos, pocket_pos, obstacles)
     →
     TrajectoryResult {cue_path, target_path, collision_events, wall_events, pocket_sunk}
@@ -251,7 +244,7 @@ physics.simulate(cue_pos, cue_dir, target_pos, pocket_pos, obstacles)
 
 | 檔案 | 模組 | 職責 | 主要 API |
 |------|------|------|---------|
-| `control/socket_client.py` | `SocketClient` | TCP 收發 + 粘包處理 | `.connect()` / `.send(dict)` / `.on_message(cb)` |
+| `control/socket_client.py` | `SocketClient` | ~~TCP 收發~~ 廢除（Brain 同進程） | ~~`.connect()` / `.send(dict)` / `.on_message(cb)`~~ |
 | `control/calibration.py` | `CalibrationHandler` | INSTALL 模式：4點收集 | `.add_point(u, v)` / `.is_ready()` / `.get_packet()` |
 | `control/shot_dispatcher.py` | `ShotDispatcher` | TEST 模式：3球資料收集 | `.add(type, u, v)` / `.is_complete()` / `.get_packet()` |
 | `control/break_handler.py` | `BreakHandler` | BREAK 模式：白球座標收集 | `.add(u, v)` / `.get_packet()` |
@@ -271,19 +264,19 @@ physics.simulate(cue_pos, cue_dir, target_pos, pocket_pos, obstacles)
 
 ---
 
-## WSL 端模組
+## Brain 端模組
 
 | 檔案 | 模組 | 職責 | 主要 API |
 |------|------|------|---------|
-| `wsl/main.py` | — | 啟動入口 | `RobotBrain()` → `.start()` |
-| `wsl/config.py` | — | WSL 端參數（與 windows/config.py 同步） | `TABLE_WIDTH`, `ROBOT_MAX_REACH`, ... |
-| `wsl/protocol.py` | — | 通訊格式唯一事實來源 | 欄位常數 + 封包範例 |
-| `wsl/coord_manager.py` | `CoordinateManager` | 透視變換 + 座標系轉換 | `.update_calibration(pts)` / `.pixel_to_mm(u,v)` / `.mm_to_pixel(x,y)` |
-| `wsl/strategy_module.py` | `BilliardStrategy` | Ghost Ball + 可達性判斷 | `.get_best_shot()` / `.compute_shot(obstacles=[])` |
-| `wsl/bank_shot_planner.py` | `BankShotPlanner` | 庫邊反彈計算（鏡像法） | `.plan_bank_shot()` / `.direct_vs_bank()` |
-| `wsl/break_module.py` | `BreakStrategy` | 開球計算（angle=固定, stroke=MAX） | `.compute_break(cue_ball_mm)` |
-| `wsl/striker_bridge.py` | `StrikerBridge` | → Arduino（⚠️ MOCK） | `.execute(robot_tcp, stroke_dist, angle)` |
-| `wsl/robot_brain.py` | `RobotBrain` | Socket Server + 模式分派 | `.start()` |
+| `brain/__init__.py` | — | 啟動入口 | `RobotBrain()` → `.start()` |
+| `brain/config.py` | — | 決策層參數 | `TABLE_WIDTH`, `ROBOT_MAX_REACH`, ... |
+| `brain/protocol.py` | — | 通訊格式唯一事實來源 | 欄位常數 + 封包範例 |
+| `brain/coord_manager.py` | `CoordinateManager` | 透視變換 + 座標系轉換 | `.update_calibration(pts)` / `.pixel_to_mm(u,v)` / `.mm_to_pixel(x,y)` |
+| `brain/strategy_module.py` | `BilliardStrategy` | Ghost Ball + 可達性判斷 | `.get_best_shot()` / `.compute_shot(obstacles=[])` |
+| `brain/bank_shot_planner.py` | `BankShotPlanner` | 庫邊反彈計算（鏡像法） | `.plan_bank_shot()` / `.direct_vs_bank()` |
+| `brain/break_module.py` | `BreakStrategy` | 開球計算（angle=固定, stroke=MAX） | `.compute_break(cue_ball_mm)` |
+| `brain/striker_bridge.py` | `StrikerBridge` | Arduino 直連 | `.execute(robot_tcp, stroke_dist, angle)` |
+| `brain/robot_brain.py` | `RobotBrain` | 模式分派（與 HMI 同進程） | `.start()` |
 
 ---
 
@@ -340,7 +333,7 @@ result = simulate(
 |---|------|------|------|------|
 | G1 | Bank Shot Ghost Ball 偏移量錯誤 | `bank_shot_planner.py:139` | `_ghost_pos_bank` 用 `ball_d/2`，direct 用 `ball_d`，不一致 | Bank shot G 位置錯誤，導致瞄點偏移 |
 | P2 | 口袋座標未驗證 | `strategy_module.py` 的 `POCKETS` | 6個口袋座標是假設值（硬編碼），未實地測量 | 目標球→口袋方向計算錯誤 |
-| P3 | 物理模組尚未整合進決策層 | WSL 全站 | `robot_brain` / `strategy_module` 不 import physics | Ghost Ball 無物理軌跡二次驗證 |
+| P3 | 物理模組尚未整合進決策層 | Brain 全站 | `robot_brain` / `strategy_module` 不 import physics | Ghost Ball 無物理軌跡二次驗證 |
 | P4 | Bank Shot 無物理二次驗證 | `bank_shot_planner.py` | 鏡像法是理想假設，實際撞球檯彈性非完美鏡像 | Bank shot 預測偏樂觀 |
 | P5 | Calibrator 是空框架 | `physics/calibrator.py` | 只有 mock 驗證，沒有真实 shot 資料餵進來 | RESTITUTION / ROLLING_FRICTION 無法閉環修正 |
 
@@ -361,19 +354,21 @@ result = simulate(
 
 ---
 
-## 通訊協定
+## 通訊協定（內部 API）
 
-**Port**: `5005` | **格式**: JSON + `\n` 結尾（防粘包）
+> 以下 JSON 格式現為 HMI → Brain 同進程呼叫的資料格式，不再經過網路。
 
-### Windows → WSL
+**格式**: JSON + `\n` 結尾（防粘包）
 
-#### 校正（INSTALL 模式）
+### HMI → Brain（校正 INSTALL）
+
 ```json
 {"calibration_points": [[x1,y1], [x2,y2], [x3,y3], [x4,y4]]}
 ```
 順序：左上 → 右上 → 右下 → 左下（像素）
 
-#### 擊球預測（TEST 模式）
+### HMI → Brain（擊球預測 TEST）
+
 ```json
 {
   "task_id": 1001,
@@ -392,7 +387,8 @@ result = simulate(
 }
 ```
 
-#### 開球（BREAK 模式）
+### HMI → Brain（開球 BREAK）
+
 ```json
 {
   "task_id": 2001,
@@ -403,9 +399,8 @@ result = simulate(
 }
 ```
 
-### WSL → Windows
+### Brain → HMI（預測結果）
 
-#### 預測結果
 ```json
 {
   "type": "PREDICTION",
@@ -416,7 +411,8 @@ result = simulate(
 }
 ```
 
-#### 開球結果
+### Brain → HMI（開球結果）
+
 ```json
 {
   "type": "BREAK_RESULT",
@@ -431,53 +427,48 @@ result = simulate(
 
 ## 執行流程
 
-```
-1. WSL: python wsl/main.py
-   └─▶ RobotBrain.start() 監聽 :5005
-
-2. Windows: python windows/main.py
+```bash
+# Windows only
+python windows/main.py
    └─▶ HMI() → .run()
-   └─▶ SocketClient.connect() → 嘗試連線 WSL
-
-3. INSTALL 模式（四角校正）
-   使用者點擊4點（左上→右上→右下→左下）
-     → CalibrationHandler.add_point()
-     → StateMachine.handle_click() → .get_packet()
-     → SocketClient.send()
-     → WSL: coord_manager.update_calibration()
-     → 模式重置 IDLE，自動進入 TEST
-
-4. BREAK 模式（開球）
-   使用者點擊白球位置
-     → BreakHandler.add(u, v)
-     → SocketClient.send()
-     → WSL: break_module.compute_break()
-     → striker.execute(angle=90°, stroke=MAX)
-     → 回應 BREAK_RESULT
-
-5. TEST 模式（模擬擊球）
-   使用者依序點擊：TARGET_BALL → CUE_BALL
-     → ShotDispatcher.add()
-     → SocketClient.send()
-     → WSL: robot_brain._handle_manual()
-         → _find_nearest_pocket_name() 動態比對6口袋
-         → coord_manager.pixel_to_mm() × 3
-         → strategy_module.compute_shot(obstacles=[...])
-         → bank_shot_planner.plan_bank_shot()
-     → 回應 PREDICTION
-     → HMI._draw_prediction() 繪製 ghost ball + 擊球線
-
-   互動：
-     · 點擊口袋 → 重新試算
-     · 拖曳任一球 → 即時更新路線（task_id=9999）
-
-6. COMPETE 模式（自動視覺）
-   VisionBridge 接入狀態機
-     → vision_bridge.capture_and_process()
-     → vision_pipeline.get_obstacles()
-     → robot_brain.compute_shot(obstacles=[...])
-     → 自動擊球（待實作）
+   └─▶ RobotBrain 初始化的決策實例（與 HMI 同進程）
 ```
+
+### INSTALL 模式（四角校正）
+使用者點擊4點（左上→右上→右下→左下）
+  → `CalibrationHandler.add_point()`
+  → `StateMachine.handle_click()` → `.get_packet()`
+  → `RobotBrain._handle_install()`（同進程直接呼叫）
+  → 模式重置 IDLE，自動進入 TEST
+
+### BREAK 模式（開球）
+使用者點擊白球位置
+  → `BreakHandler.add(u, v)`
+  → `RobotBrain._handle_break()`
+  → `StrikerBridge.execute(angle=90°, stroke=MAX)`
+  → 回應 BREAK_RESULT
+
+### TEST 模式（模擬擊球）
+使用者依序點擊：TARGET_BALL → CUE_BALL
+  → `ShotDispatcher.add()`
+  → `RobotBrain._handle_manual()`
+      → `_find_nearest_pocket_name()` 動態比對6口袋
+      → `CoordManager.pixel_to_mm()` × 3
+      → `StrategyModule.compute_shot(obstacles=[...])`
+      → `BankShotPlanner.plan_bank_shot()`
+  → 回應 PREDICTION
+  → `HMI._draw_prediction()` 繪製 ghost ball + 擊球線
+
+互動：
+  · 點擊口袋 → 重新試算
+  · 拖曳任一球 → 即時更新路線（task_id=9999）
+
+### COMPETE 模式（自動視覺）
+`VisionBridge` 接入狀態機
+  → `VisionBridge.capture_and_process()`
+  → `VisionPipeline.get_obstacles()`
+  → `RobotBrain.compute_shot(obstacles=[...])`
+  → 自動擊球（待實作）
 
 ---
 
@@ -514,13 +505,12 @@ mm_to_pixel:  手臂mm (arm_x, arm_y) → 像素 (u,v)
 || 8 | COMPETE 模式狀態機整合 | 🔴 高 | `state_machine.py` + VisionBridge 串接 |
 || 9 | HMI 相機捕獲 | 🔴 高 | Tkinter 定時 polling 或事件驅動 |
 || 10 | 真實相機測試 | 🔴 高 | 720p USB camera 實測 |
-|| 11 | 口袋真實 mm 座標 | 🔴 高 | `strategy_module.POCKETS` 硬編碼，需實地測量 |
-|| 12 | WSL IP 更新 | 🔴 高 | `windows/config.py` 的 `SOCKET_HOST` 待確認 |
-|| 13 | striker_bridge Arduino | 🟡 中 | 實機擊球控制（目前 MOCK 模式）|
+||| 11 | 口袋真實 mm 座標 | 🔴 高 | `strategy_module.POCKETS` 硬編碼，需實地測量 |
+||| 12 | striker_bridge Arduino | 🟡 中 | 實機擊球控制（目前 MOCK 模式）|
 || 14 | 策略學習層 | 🟢 低 | 貝氏估計 / 強化學習權重 |
 || P1 | RESTITUTION 寫死不一致 | ✅ 已修復 | `trajectory.py:302` `_resolve_wall()` 改用 `RESTITUTION` 常數（從 parameters.py import）|
 || P2 | 口袋座標未驗證 | 🔴 高 | `strategy_module.POCKETS` 硬編碼，需校正系統實測 |
-|| P3 | 物理模組尚未整合進決策層 | 🔴 高 | WSL 端不 import physics，Ghost Ball 無軌跡驗證 |
+||| P3 | 物理模組尚未整合進決策層 | 🔴 高 | 決策層不 import physics，Ghost Ball 無軌跡驗證 |
 || P4 | Bank Shot 無物理二次驗證 | 🟡 中 | 鏡像法 → `physics.simulate()` 取代 |
 || P5 | Calibrator 空框架 | 🟡 中 | 接入真實 ShotRecord，閉環修正參數 |
 

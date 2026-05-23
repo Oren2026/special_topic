@@ -103,7 +103,7 @@
       border-bottom: 2px solid var(--border);
     }
     .panel-header.windows { background: var(--win-bg); color: #1565C0; }
-    .panel-header.wsl     { background: var(--wsl-bg); color: #E65100; }
+    .panel-header.brain { background: var(--wsl-bg); color: #E65100; }
 
     .panel-body { padding: 1.25rem; }
 
@@ -412,9 +412,9 @@
     </div>
   </div>
 
-  <!-- WSL 端 -->
+  <!-- Brain 端 -->
   <div class="panel">
-    <div class="panel-header wsl">🧠 WSL 端（決策層 / Brain）</div>
+    <div class="panel-header brain">🧠 Brain 端（決策層 / RobotBrain）</div>
     <div class="panel-body">
 
       <div class="module-group">
@@ -423,7 +423,7 @@
           <div class="module brain">
             <span class="module-name">RobotBrain</span>
             <span class="module-file">robot_brain.py</span>
-            <span class="module-role">Socket Server + 模式分派 + 物理驗證</span>
+            <span class="module-role">模式分派 + 物理驗證（同進程）</span>
             <span class="module-api">.start() · _validate_cue_hits_target()</span>
           </div>
         </div>
@@ -515,29 +515,24 @@
       <span class="flow-arrow">→</span>
       <div class="flow-step win">StateMachine.handle_click()</div>
       <span class="flow-arrow">→</span>
-      <div class="flow-step win">SocketClient.send(json)</div>
+      <div class="flow-step win">RobotBrain._handle_manual()</div>
     </div>
     <div class="flow-row">
-      <span class="flow-label">TCP :5005</span>
+      <span class="flow-label">同進程</span>
       <span class="flow-arrow">↓</span>
-      <div class="flow-step wsl">robot_brain._handle_manual()</div>
-    </div>
-    <div class="flow-row">
-      <div class="flow-step wsl">coord_manager.pixel_to_mm() × 3</div>
+      <div class="flow-step win">coord_manager.pixel_to_mm() × 3</div>
       <span class="flow-arrow">→</span>
-      <div class="flow-step wsl">strategy_module.compute_shot()</div>
+      <div class="flow-step win">StrategyModule.compute_shot()</div>
       <span class="flow-arrow">→</span>
-      <div class="flow-step wsl">bank_shot_planner.plan_bank_shot()</div>
+      <div class="flow-step win">BankShotPlanner.plan_bank_shot()</div>
       <span class="flow-arrow">→</span>
-      <div class="flow-step wsl">robot_brain._validate_cue_hits_target()</div>
+      <div class="flow-step win">RobotBrain._validate_cue_hits_target()</div>
       <span class="flow-arrow">→</span>
       <div class="flow-step done">PREDICTION {ghost, robot, angle, physics_validated}</div>
     </div>
     <div class="flow-row">
-      <span class="flow-label">TCP :5005</span>
+      <span class="flow-label">直接返回</span>
       <span class="flow-arrow">↑</span>
-      <div class="flow-step win">SocketClient.on_message()</div>
-      <span class="flow-arrow">→</span>
       <div class="flow-step win">HMI._draw_prediction()</div>
     </div>
   </div>
@@ -655,9 +650,9 @@
       </tr>
       <tr>
         <td><span class="tag tag-todo">🔴 高</span></td>
-        <td>WSL IP 更新</td>
-        <td>windows/config.py</td>
-        <td>SOCKET_HOST 待確認</td>
+        <td>口袋真實 mm 座標</td>
+        <td>strategy_module.py</td>
+        <td>POCKETS 硬編碼，需實地測量</td>
       </tr>
       <tr>
         <td><span class="tag tag-mid">🟡 中</span></td>

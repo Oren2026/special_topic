@@ -314,18 +314,18 @@
     <span class="arch-arrow">→</span>
     <div class="arch-box windows">state_machine.py<br><small>模式分派</small></div>
     <span class="arch-arrow">→</span>
-    <div class="arch-box windows">socket_client.py<br><small>TCP :5005</small></div>
+    <div class="arch-box windows">socket_client.py<br><small>廢除（Brain 同進程）</small></div>
   </div>
 
   <div class="arch-row">
-    <span class="arch-label">WSL</span>
+    <span class="arch-label">Brain</span>
     <div class="arch-box wsl">robot_brain.py<br><small>模式分派</small></div>
     <span class="arch-arrow">→</span>
     <div class="arch-box wsl">strategy_module.py<br><small>Ghost Ball</small></div>
     <span class="arch-arrow">→</span>
     <div class="arch-box wsl">coord_manager.py<br><small>pixel↔mm</small></div>
     <span class="arch-arrow">→</span>
-    <div class="arch-box wsl">striker_bridge.py<br><small>⚠ MOCK</small></div>
+    <div class="arch-box wsl">striker_bridge.py<br><small>Arduino 直連</small></div>
   </div>
 
   <div class="arch-row" style="margin-top:0.75rem; padding-top:0.75rem; border-top: 1px dashed var(--border);">
@@ -430,9 +430,9 @@
   </div>
 
   <div class="timeline-item pending">
-    <span class="phase-tag foundation">高優</span>
-    <div class="timeline-title">WSL IP 更新</div>
-    <div class="timeline-desc">windows/config.py SOCKET_HOST 待確認</div>
+    <span class="phase-tag foundation">Foundation</span>
+    <div class="timeline-title">口袋真實 mm 座標測量</div>
+    <div class="timeline-desc">POCKETS 硬編碼，需實地測量</div>
   </div>
 
 </div>
@@ -456,7 +456,7 @@
   <div class="todo-row">
     <div class="todo-check pending">○</div>
     <div class="todo-id">#3</div>
-    <span>WSL IP 更新到 windows/config.py</span>
+    <span>口袋真實 mm 座標測量</span>
     <span class="priority high" style="margin-left:auto;">high</span>
   </div>
   <div class="todo-row">
