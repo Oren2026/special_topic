@@ -16,7 +16,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import config
 from .state_machine import StateMachine, State
-from .socket_client import SocketClient
 from .sim_table import SimTable, DEFAULT_TABLE
 import vision
 from vision import BilliardVision, SimulationScene
@@ -24,22 +23,19 @@ from vision import BilliardVision, SimulationScene
 
 class HMI:
     """
-    Tkinter 主視窗
-    職責：事件 → StateMachine → Socket → 回應繪圖
+    Tkinter 主視窗（Windows-Only 架構）
+    職責：事件 → StateMachine → RobotBrain（同一程序，無 socket）
     """
 
-    def __init__(self):
+    def __init__(self, brain=None):
         self._prediction_data = None
         self._selected_ball = None
+        self._brain = brain  # RobotBrain 實例
 
         # ── 底層元件 ──────────────────────────────────────────────────────
         self._scene = SimulationScene()
         self._vision = BilliardVision()
-        self._socket = SocketClient()
-        self._socket.connect()
-        self._socket.on_message(self._on_wsl_message)
-
-        self._state = StateMachine(self._socket, vision=self._vision, hmi=self)
+        self._state = StateMachine(brain, vision=self._vision, hmi=self)
         self._state.on_prediction(self._on_prediction)
 
         # ── Tkinter 視窗 ─────────────────────────────────────────────────

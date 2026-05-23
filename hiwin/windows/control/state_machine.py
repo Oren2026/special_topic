@@ -1,15 +1,15 @@
 """
 windows/control/state_machine.py
-狀態機
+狀態機（Windows-Only 架構）
 
-依賴：CalibrationHandler, ShotDispatcher, SocketClient
+依賴：CalibrationHandler, ShotDispatcher, BreakHandler, RobotBrain
 輸出：set_mode(str) / handle_click(u,v) / handle_drag(type,u,v)
-      on_prediction(callback) / 狀態標籤文字
+      狀態標籤文字
 
 資源隔離原則：
 - COLOR_CALIB / CIRCLE_CALIB / COLOR_VIEW / SHAPE_VIEW 模組
   只在對應模式由 StateMachine 動態 import，PLAY_TEST / COMPETE 不會載入。
-- 正常運行時，只依賴：CalibrationHandler, ShotDispatcher, BreakHandler
+- 正常運行時，只依賴：CalibrationHandler, ShotDispatcher, BreakHandler, RobotBrain
   + 純資料的 YAML dict（windows/calib/*.yaml）
 """
 
@@ -34,9 +34,10 @@ class State:
 
 class StateMachine:
     """
-    狀態協調器
+    狀態協調器（Windows-Only）
+
     接收 HMI 的點擊事件，根據當前模式分派至 CalibrationHandler 或 ShotDispatcher，
-    並透過 SocketClient 發送最終封包
+    並透過 RobotBrain 執行擊球（同一程序，無 socket）。
 
     資源隔離：COLOR_CALIB / CIRCLE_CALIB / COLOR_VIEW / SHAPE_VIEW 模組
     只在對應 mode 才 import，PLAY_TEST / COMPETE 的 import chain 不包含這些模組。
@@ -48,13 +49,14 @@ class StateMachine:
     _color_view: Optional[object] = None
     _shape_view: Optional[object] = None
 
-    def __init__(self, socket_client, vision=None, hmi=None):
+    def __init__(self, brain, vision=None, hmi=None):
         """
+        brain: RobotBrain 實例（用於校正與擊球執行）
         vision: BilliardVision 實例（用於 COLOR_CALIB / CIRCLE_CALIB 取樣）
         hmi: HMI 實例（用於 COLOR_VIEW / SHAPE_VIEW 開啟 Toplevel 視窗）
         """
         self._mode = State.IDLE
-        self._socket = socket_client
+        self._brain = brain
         self._vision = vision
         self._hmi = hmi
         self._cal = CalibrationHandler()
@@ -62,6 +64,7 @@ class StateMachine:
         self._break = BreakHandler()
         self._prediction_cb = None
         self._shot_sent = False  # True：初始擊球封包已發送（區分「剛完成」vs「已完成」）
+        self._last_pockets = {}  # TABLE_CALIB 完成後的口袋結果
 
     def set_vision(self, vision):
         """注入 vision 實例（供 CALIB 模組取樣用）"""
@@ -99,6 +102,10 @@ class StateMachine:
     def current_mode(self) -> str:
         return self._mode
 
+    def get_last_pockets(self) -> dict:
+        """取得最近一次 TABLE_CALIB 完成後的口袋資料"""
+        return self._last_pockets
+
     # ── 事件處理 ─────────────────────────────────────────────────────────────
 
     def handle_click(self, u, v) -> Optional[dict]:
@@ -124,14 +131,33 @@ class StateMachine:
 
     def handle_drag(self, ball_type, u, v):
         """
-        拖曳球體 → 即時發送更新（task_id=9999）
+        拖曳球體 → 即時更新並重新計算路徑
         """
         if self._mode != State.PLAY_TEST:
             return
         self._shot._balls[ball_type] = {"u": int(u), "v": int(v)}
-        packet = self._shot.get_packet()
-        packet["task_id"] = 9999
-        self._socket.send(packet)
+        # 重新計算（不走硬體，只更新預測顯示）
+        result = self._recompute_shot()
+        if result and self._prediction_cb:
+            self._prediction_cb(result)
+
+    def _recompute_shot(self) -> Optional[dict]:
+        """根據當前球位置重新計算（不執行硬體）"""
+        balls = self._shot._balls
+        if not all(k in balls for k in ("POCKET", "TARGET_BALL", "CUE_BALL")):
+            return None
+        pkt  = balls["POCKET"]
+        tgt  = balls["TARGET_BALL"]
+        cue  = balls["CUE_BALL"]
+        candidates = self._brain.compute_shot_only(
+            cue_pixel=(cue["u"], cue["v"]),
+            target_pixel=(tgt["u"], tgt["v"]),
+            pocket_pixel=(pkt["u"], pkt["v"]),
+        )
+        if not candidates:
+            return None
+        # 取第一個候選
+        return candidates[0]
 
     # ── 校正模式處理 ─────────────────────────────────────────────────────────
 
@@ -169,7 +195,10 @@ class StateMachine:
         complete = self._cal.add_point(u, v)
         label = self._cal.next_label()
         if complete:
-            self._socket.send(self._cal.get_packet())
+            points = self._cal.get_points()
+            # 呼叫 RobotBrain 校正（計算 Homography + 口袋 pixel 座標）
+            calib_result = self._brain.calibrate(points)
+            self._last_pockets = calib_result.get("pockets", {})
             # 儲存校正結果（覆寫 JSON）
             json_path = os.path.join(
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -221,16 +250,31 @@ class StateMachine:
         }
 
     def _handle_test(self, u, v) -> dict:
+        """打球測試（PLAY_TEST）：三球齊後呼叫 brain 計算並執行"""
         # 自動從 shot sequence 取下一個類型
         next_type = self._shot.next_label()
         if next_type == "已完成":
             # 已完成：區分「剛完成（已發送過）」vs「已經完成（重複點擊）」
             return {"label": "已完成", "ready": True, "already_sent": self._shot_sent}
         complete = self._shot.add(next_type, u, v)
-        if complete:
-            self._socket.send(self._shot.get_packet())
-            self._shot_sent = True  # 標記已發送
-        return {"label": self._shot.next_label(), "ready": complete, "already_sent": self._shot_sent}
+        if not complete:
+            return {"label": self._shot.next_label(), "ready": False, "already_sent": self._shot_sent}
+
+        # 三球齊了，呼叫 brain 計算並執行
+        balls = self._shot._balls
+        pkt  = balls["POCKET"]
+        tgt  = balls["TARGET_BALL"]
+        cue  = balls["CUE_BALL"]
+
+        result = self._brain.compute_and_execute_shot(
+            cue_pixel=(cue["u"], cue["v"]),
+            target_pixel=(tgt["u"], tgt["v"]),
+            pocket_pixel=(pkt["u"], pkt["v"]),
+        )
+
+        self._shot_sent = True
+        self._prediction_cb(result)  # 通知 HMI 繪製預測線
+        return {"label": "已完成", "ready": True, "already_sent": False, **result}
 
     def _handle_break(self, u, v) -> dict:
         """處理 BREAK 模式：只需要白球位置"""
@@ -238,9 +282,10 @@ class StateMachine:
         if self._shot_sent:
             return {"label": "已完成", "ready": True, "already_sent": True}
         self._break.add(u, v)
-        self._socket.send(self._break.get_packet())
+        result = self._brain.compute_and_execute_break(cue_pixel=(u, v))
         self._shot_sent = True
-        return {"label": "已完成", "ready": True, "already_sent": False}
+        self._prediction_cb(result)  # 通知 HMI 繪製預測線
+        return {"label": "已完成", "ready": True, "already_sent": False, **result}
 
     # ── 顏色校正確認（數字鍵盤回調）────────────────────────────────────────────
 
@@ -275,10 +320,10 @@ class StateMachine:
     # ── 預測回調 ─────────────────────────────────────────────────────────────
 
     def on_prediction(self, callback):
-        """註冊收到 WSL PREDICTION 時的回調"""
+        """註冊收到計算結果時的回調（用於更新預測線顯示）"""
         self._prediction_cb = callback
 
     def notify_prediction(self, data: dict):
-        """由 SocketClient 在收到 PREDICTION 時呼叫"""
+        """內部呼叫：通知 prediction 回調"""
         if self._prediction_cb:
             self._prediction_cb(data)

@@ -14,6 +14,15 @@ brain/ 套件初始化
   brain = RobotBrain()
   brain.start()
 """
+import sys, os
+# 確保 brain/ 目錄在 sys.path 最前面（優於外層 windows/）
+_brain_dir = os.path.dirname(os.path.abspath(__file__))
+if _brain_dir not in sys.path:
+    sys.path.insert(0, _brain_dir)
+# 移除干擾：windows/ 目錄可能讓 Python 找到錯誤的 config.py
+_windows_dir = os.path.dirname(_brain_dir)
+while _windows_dir in sys.path:
+    sys.path.remove(_windows_dir)
 
 from robot_brain      import RobotBrain
 from hiwin_arm       import HiwinArmBridge

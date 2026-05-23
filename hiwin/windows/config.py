@@ -19,17 +19,26 @@ BALL_DIAMETER   = 38.0   # mm
 POCKET_DIAMETER = 50.0   # mm（洞口直徑）
 
 # =============================================================================
-# 硬體參數（擊球機構）
+# 擊球機構參數
 # =============================================================================
-ACCEL_DIST_LIMIT = 150.0   # 最大加速行程 mm
-FORCE_FACTOR     = 1.0      # 力道係數（預留）
-FIXED_LENGTH     = 200.0   # TCP 到桿頭縮回時的固定距離 mm
-SAFE_GAP         = 80.0    # 桿頭與白球的初始安全距離 mm
-MAX_STROKE       = 200.0   # 擊球機構最大行程 mm
+ARDUINO_PORT     = "COM3"          # Windows COM port（需確認實際值）
+ARDUINO_BAUD     = 9600            # 鮑率（需與 Arduino sketch 一致）
+ARDUINO_TIMEOUT  = 30.0            # 序列逾時秒數
+STRIKER_MOCK_MODE = True           # MOCK 模式：True = 只列印指令，不實際發送
+
+FIXED_LENGTH  = 200.0   # TCP 到桿頭縮回時的固定距離 mm
+SAFE_GAP      = 80.0    # 桿頭與白球的初始安全距離 mm
+MAX_STROKE    = 200.0   # 最大擊球行程 mm
+
+# 手臂 Z 軸參數
+Z_SAFE_HEIGHT   = 100.0            # 擊球後安全抬起高度（mm）
+Z_CUE_ALIGN     = 10.0             # Z軸對準白球時的高度（mm，球檯面上方）
 
 # =============================================================================
 # 硬體參數（手臂）
 # =============================================================================
+ROBOT_IP        = "192.168.50.200"  # HIWIN 預設 IP
+ROBOT_PORT      = 4000             # HIWIN 預設 port
 ROBOT_MAX_REACH  = 750     # 手臂最大可達半徑 mm
 ROBOT_OFFSET_X   = 600     # 手臂原點在 X 軸偏移量（長邊中心對齊）
 ROBOT_OFFSET_Y   = 0       # 手臂原點在 Y 軸偏移量
