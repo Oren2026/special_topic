@@ -33,7 +33,7 @@ node_vision ──→ node_strategy ──→ node_hardware
 | node_strategy | `windows/brain/strategy_module.py` + `bank_shot_planner.py` | ✅ 完成 | `ghost`, `robot_tcp`, `type` |
 | node_physics | `physics/trajectory.py` + `collision.py` | ✅ 完成 | `TrajectoryResult`, `chain_simulate` |
 | node_hardware | `windows/brain/hiwin_arm.py` + `striker_bridge.py` | 🔍 檢查中 | `execute_shot()` |
-| node_integration | `windows/main.py` + `hmi.py` + `state_machine.py` | 🔄 遷移中 | 單一進程架構 |
+| node_integration | `windows/main.py` + `hmi.py` + `state_machine.py` | ✅ 完成 | 單一進程架構 |
 
 ## 今日目標（2026-05-23）：Windows-Only 重構
 
@@ -41,9 +41,17 @@ node_vision ──→ node_strategy ──→ node_hardware
 
 ### node_integration 工作清單
 1. ✅ `windows/main.py` — 新增 RobotBrain 啟動
-2. ⏳ `hmi.py` — 接收 brain injection，移除 socket_client
-3. ⏳ `state_machine.py` — 直接 call brain API
-4. ⏳ `socket_client.py` — 移除
+2. ✅ `hmi.py` — 接收 brain injection，移除 socket_client
+3. ✅ `state_machine.py` — 直接 call brain API
+4. ✅ `socket_client.py` — 移除（已不需要）
+
+## 測試方式
+```bash
+cd ~/Desktop/special_topic/hiwin
+python windows/main.py
+```
+→ Tkinter GUI 出現，點擊「檯球桌位置確認」可以正常運作（4角校正）
+→ 點擊「打球測試」可以正常運作（顯示 ghost ball 預測線，無需真實手臂）
 
 ---
 
