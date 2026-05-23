@@ -5,10 +5,21 @@ WSL → Arduino 擊球指令橋接
 職責：
   - 接收 strategy_module.get_best_shot() 的輸出
   - 手臂座標直接送至上銀（此模組不處理，由 robot_brain 負責）
-  - 本模組只將 stroke_dist 轉換為 FIRE 指令送至 Arduino
+  - 本模組將 stroke_dist 轉換為 `goto {dist}` 指令送至 Arduino
 
-命令格式（預設）：
-  FIRE {stroke_dist:.1f}\n
+命令格式（與 Arduino sketch 對應）：
+  home              — 回原點（歸零）
+  goto {dist}       — 絕對移動至擊球距離（mm）
+  move {dist}       — 相對移動（mm）
+  speed {delay}     — 設定速度（越大越慢）
+  status            — 查詢狀態
+  stop              — 立即停止
+
+Arduino 回應：
+  "HOME DONE"       — 歸位完成
+  "DONE"            — 移動完成
+  "ERROR OUT_OF_RANGE" — 超出範圍
+  "UNKNOWN COMMAND"  — 不認識的指令
 
 依賴：serial（pyserial）, config (ARDUINO_DEVICE, ARDUINO_BAUD, ARDUINO_TIMEOUT, STRIKER_MOCK_MODE)
 使用：robot_brain.py
@@ -66,7 +77,7 @@ class StrikerBridge:
         bool
             執行是否成功
         """
-        cmd = f"FIRE {stroke_dist:.1f}\n"
+        cmd = f"goto {stroke_dist:.1f}\n"
 
         if self._mock:
             print(f"[StrikerBridge] MOCK → {cmd.strip()}")
@@ -75,8 +86,9 @@ class StrikerBridge:
         try:
             self._serial.write(cmd.encode("utf-8"))
             resp = self._serial.readline()
-            print(f"[StrikerBridge] Arduino 回應：{resp.strip()}")
-            return resp.strip().startswith(b"OK")
+            resp_str = resp.strip()
+            print(f"[StrikerBridge] Arduino 回應：{resp_str}")
+            return resp_str == "DONE"
         except Exception as e:
             print(f"[StrikerBridge] 發送失敗：{e}")
             return False

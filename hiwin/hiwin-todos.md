@@ -1,8 +1,8 @@
 # HIWIN 撞球機器人 — 待辦追蹤
 
-> 更新日期：2026-05-05
+> 更新日期：2026-05-13
 > 現況：視覺 Phase 1 核心完成，46 tests ✅
-> 複審截止：2026-05-22
+> 複審截止：2026-05-22（9天後）
 
 ---
 
@@ -57,15 +57,20 @@ Phase 1 (現在)   Phase 2 (中期)   Phase 3 (後期)
 - 側邊口袋：在長邊的**實際位置**（Y 座標）
 **Ghost Ball 偏移量** = `球半徑 + 口袋半徑`，夾角影響鬼球計算方向
 
-### 3. WSL IP 更新到 windows/config.py
-**症狀**：`windows/config.py` 的 `SOCKET_HOST` 尚未更新為 WSL IP
+### 3. striker_bridge.py → Arduino 指令格式 ✅ 已修復
+**問題**：`FIRE` 指令 Arduino 不認識
+**修法**：
+- 改為 `goto {stroke_dist}` 指令（Arduino sketch 認識）
+- 回應判斷從 `startswith(b"OK")` 改為 `== "DONE"`
+### 4. WSL IP 更新到 windows/config.py
+**症狀**：`windows/config.py` 的 `SOCKET_HOST` 是 `127.0.0.1`，需改成 WSL IP
 **詳見**：`windows/config.py` 內註解待確認
 
 ---
 
 ## 🟡 中優先級
 
-### 4. COMPETE 模式（自動視覺辨識）
+### 5. COMPETE 模式（自動視覺辨識）
 
 **✅ Phase 1：影像辨識介面（核心完成）**
 
@@ -141,13 +146,13 @@ class StrategyConfig:
     SIDE_CAMERA_OFFSET = 0      # 側邊相機擊球點 offset
 ```
 
-### 5. 擊球後場景重置
+### 6. 擊球後場景重置
 **需求**：點擊球桌外空白區域 → 清除 scene，重置為可重新布置
 
-### 6. 校正資料持久化
+### 7. 校正資料持久化
 **需求**：校正矩陣寫入 JSON，斷電重啟後無需重新校正
 
-### 7. 校正完成後畫面
+### 8. 校正完成後畫面
 **需求**：校正完成時，6 口袋顯示在正確位置，TEST 模式提示使用者布置球
 
 ---
@@ -188,3 +193,30 @@ class StrategyConfig:
 - `strategy_module._calc_stroke()`：變量衝程公式待驗證（`accel_dist_limit` 未使用）
 - `windows/vision/objects.py`：口袋徑從 45→50mm 已修正，確認比例尺計算正確
 - 口袋 pixel 匹配閾值：100mm 是合理值，但待實際校正後驗證
+
+---
+
+## 2026-05-13 會議記錄
+
+### ✅ 今日已完成
+- striker_bridge.py：`FIRE` → `goto`，回應判斷 `OK` → `DONE`
+- KB 更新：SCHEMA 新增平行專案約定（黑輪repo vs 黑探repo）
+- KB 更新：BLUEPRINT.md 日期更新至 2026-05-13
+- KB 更新：新建 `黑探_OVERVIEW.md`、`projects/OVERVIEW.md`
+
+### 📌 擊球流程確認（待驗證）
+完整鍊：
+```
+1. 鏡頭辨識 → Windows 計算白球位置
+2. Windows → 手臂控制器（TCP 192.168.50.200:4000）
+   └─ 移動法蘭對白球 + 下降Z軸至設定高度
+3. Windows → WSL RobotBrain（TCP）：告知就位
+4. WSL → Arduino（Serial）：`goto {stroke_dist}`
+   └─ 步進馬達前進 → 擊球
+```
+
+### ❓ 待確認（明日）
+1. 手臂控制：Windows 端是否有獨立的 TCP client 發送到手臂？
+2. WSL IP：Windows `socket_client.py` 的 `SOCKET_HOST` 需更新為 WSL IP
+3. 手臂接收的手臂指令格式（確認 `PTP` 或其他格式）
+4. 口袋直徑、角落夾角、側邊口袋 Y 座標（實測值）
