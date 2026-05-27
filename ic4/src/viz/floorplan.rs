@@ -77,7 +77,7 @@ pub fn draw_floorplan_simple(fp: &Floorplan) -> String {
     output.push_str("║       Floorplanning Visualization    ║\n");
     output.push_str("╠══════════════════════════════════════╣\n");
 
-    let scale = 3.0;
+    let scale = 0.6;
     let width = ((fp.die.x2 - fp.die.x1) * scale) as usize;
     let height = ((fp.die.y2 - fp.die.y1) * scale) as usize;
 
