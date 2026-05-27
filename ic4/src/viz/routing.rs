@@ -43,10 +43,7 @@ pub fn draw_grid_with_routes(grid: &Grid, routes: &[Vec<Coordinate>]) -> String 
 
     let mut display_grid = grid.cells.clone();
 
-    let colors = ['1', '2', '3', '4', '5', '6'];
-
-    for (i, route) in routes.iter().enumerate() {
-        let color = colors[i % colors.len()];
+    for route in routes.iter() {
         for &coord in route {
             let x = coord.x as usize;
             let y = coord.y as usize;

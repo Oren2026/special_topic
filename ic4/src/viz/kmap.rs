@@ -28,12 +28,6 @@ pub fn draw_kmap(kmap: &Kmap) -> String {
     output.push_str(&format!("│{}│\n", b_label));
     output.push('\n');
 
-    for (row_idx, bg) in gray.iter().enumerate() {
-        let row_minterms: Vec<&Minterm> = kmap.minterms.iter()
-            .filter(|m| !m.is_dc && m.vars.len() >= 2 && m.vars[1] == (row_idx % 2 == 1))
-            .collect();
-    }
-
     let col_count = 1 << (n / 2);
     let row_count = 1 << ((n + 1) / 2);
 

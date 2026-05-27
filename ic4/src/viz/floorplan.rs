@@ -9,14 +9,6 @@ pub fn draw_floorplan(fp: &Floorplan) -> String {
 
     let mut grid = vec![vec![' '; width]; height];
 
-    fn set_rect(grid: &mut Vec<Vec<char>>, x1: usize, y1: usize, x2: usize, y2: usize, ch: char) {
-        for y in y1..y2.min(grid.len()) {
-            for x in x1..x2.min(grid[0].len()) {
-                grid[y][x] = ch;
-            }
-        }
-    }
-
     let colors = ['░', '▒', '▓', '█', '◫', '◧', '◨', '◪'];
 
     for (i, block) in fp.blocks.iter().enumerate() {
