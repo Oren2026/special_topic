@@ -19,6 +19,7 @@ impl eframe::App for IC4DemoApp {
                     egui::Sense::hover(),
                 );
                 self.draw_kmap(&response, &painter);
+                self.draw_panel_footer(&response, &painter, "Minterms: 6 | 3 vars | Gray: AB×C");
 
                 cols[1].heading("2. Floorplan");
                 let (response, painter) = cols[1].allocate_painter(
@@ -26,6 +27,7 @@ impl eframe::App for IC4DemoApp {
                     egui::Sense::hover(),
                 );
                 self.draw_floorplan(&response, &painter);
+                self.draw_panel_footer(&response, &painter, "4 blocks | HPWL: 142.5");
             });
 
             ui.columns(2, |cols| {
@@ -35,6 +37,7 @@ impl eframe::App for IC4DemoApp {
                     egui::Sense::hover(),
                 );
                 self.draw_placement(&response, &painter);
+                self.draw_panel_footer(&response, &painter, "4 blocks | Util: 67%");
 
                 cols[1].heading("4. Routing");
                 let (response, painter) = cols[1].allocate_painter(
@@ -42,6 +45,7 @@ impl eframe::App for IC4DemoApp {
                     egui::Sense::hover(),
                 );
                 self.draw_routing(&response, &painter);
+                self.draw_panel_footer(&response, &painter, "2 routes | grid: 20×10");
             });
 
             ui.separator();
@@ -278,6 +282,22 @@ impl IC4DemoApp {
                 painter.rect_filled(cell_rect, 1.0, route_color2);
             }
         }
+    }
+
+    fn draw_panel_footer(&self, response: &egui::Response, painter: &egui::Painter, text: &str) {
+        let rect = response.rect;
+        let footer_rect = egui::Rect::from_min_size(
+            egui::pos2(rect.min.x, rect.max.y - 20.0),
+            egui::vec2(rect.width(), 20.0),
+        );
+        painter.rect_filled(footer_rect, 0.0, egui::Color32::from_gray(15));
+        painter.text(
+            footer_rect.center(),
+            egui::Align2::CENTER_CENTER,
+            text,
+            egui::FontId::proportional(11.0),
+            egui::Color32::from_gray(180),
+        );
     }
 }
 
