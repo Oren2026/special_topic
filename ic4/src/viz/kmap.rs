@@ -125,7 +125,7 @@ pub fn draw_kmap_simple(kmap: &Kmap) -> String {
             }
             for (i, g) in col_gray.chars().enumerate() {
                 if g == '1' {
-                    val |= 1 << (i + n/2);
+                    val |= 1 << (i + 1);
                 }
             }
 
