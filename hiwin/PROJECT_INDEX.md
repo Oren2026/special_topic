@@ -27,13 +27,13 @@ node_vision ──→ node_strategy ──→ node_hardware
 
 ## 節點狀態
 
-| Node | 模組 | 狀態 | 輸出 |
-|------|------|------|------|
-| node_vision | `windows/control/ball_identifier.py` + `vision_pipeline.py` | ✅ 完成 | `balls`, `obstacles` |
-| node_strategy | `windows/brain/strategy_module.py` + `bank_shot_planner.py` | ✅ 完成 | `ghost`, `robot_tcp`, `type` |
-| node_physics | `physics/trajectory.py` + `collision.py` | ✅ 完成 | `TrajectoryResult`, `chain_simulate` |
-| node_hardware | `windows/brain/hiwin_arm.py` + `striker_bridge.py` | 🔍 檢查中 | `execute_shot()` |
-| node_integration | `windows/main.py` + `hmi.py` + `state_machine.py` | ✅ 完成 | 單一進程架構 |
+|| Node | 模組 | 狀態 | 輸出 |
+||------|------|------|------|
+|| node_vision | `lib/vision/` + `windows/control/ball_identifier.py` | ✅ 完成 | `balls`, `obstacles` |
+|| node_physics | `lib/physics/trajectory.py` + `collision.py` | ✅ 完成 | `TrajectoryResult`, `chain_simulate` |
+|| node_strategy | `windows/brain/strategy_module.py` + `bank_shot_planner.py` | ✅ 完成 | `ghost`, `robot_tcp`, `type` |
+|| node_hardware | `windows/brain/hiwin_arm.py` + `striker_bridge.py` | 🔍 檢查中 | `execute_shot()` |
+|| node_integration | `windows/main.py` + `hmi.py` + `state_machine.py` | ✅ 完成 | 單一進程架構 |
 
 ## 今日目標（2026-05-23）：Windows-Only 重構
 
@@ -71,9 +71,9 @@ python windows/main.py
 
 ---
 
-## 已知問題（委派依據）
+## 筆記
 
----
+- 物理模組重構：`physics/` → `lib/physics/`（乾淨，無 windows import）
 
 ## Context Compression 安全閥
 

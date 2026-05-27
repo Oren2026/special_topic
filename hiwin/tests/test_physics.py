@@ -60,10 +60,12 @@ def test_no_collision_separate():
 
 
 def test_no_collision_tangent():
-    """兩球剛好相切，無碰撞"""
+    """兩球剛好相切（接觸），distance == 2×BALL_RADIUS → collision_detect 應回傳 CollisionInfo"""
     s1 = BallState(x=0, y=0)
     s2 = BallState(x=BALL_DIAMETER, y=0)
-    assert collision_detect(s1, s2) is None
+    ci = collision_detect(s1, s2)
+    assert ci is not None  # 表面接觸 = 碰撞
+    assert ci.distance == BALL_DIAMETER  # 38mm = 2×radius
 
 
 def test_collision_overlapping():
