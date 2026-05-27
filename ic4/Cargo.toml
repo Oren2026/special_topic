@@ -1,0 +1,25 @@
+[package]
+name = "ic4"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["gui"]
+gui = ["eframe"]
+
+[dependencies]
+rand = "0.8"
+
+[dependencies.eframe]
+version = "0.29"
+optional = true
+
+[dev-dependencies]
+
+[[example]]
+name = "demo"
+path = "examples/demo.rs"
+
+[[example]]
+name = "gui_demo"
+path = "examples/gui_demo.rs"
