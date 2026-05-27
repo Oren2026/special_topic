@@ -37,25 +37,27 @@ pub fn draw_kmap(kmap: &Kmap) -> String {
 
         for col in 0..col_count {
             let col_gray = &gray[col + col_count];
-            let cell_val = if row_gray == "0" && col_gray == "0" {
-                0
-            } else if row_gray == "0" && col_gray == "1" {
-                1
-            } else if row_gray == "1" && col_gray == "1" {
-                3
-            } else {
-                2
-            };
+            let mut val = 0;
+            for (i, g) in row_gray.chars().enumerate() {
+                if g == '1' {
+                    val |= 1 << i;
+                }
+            }
+            for (i, g) in col_gray.chars().enumerate() {
+                if g == '1' {
+                    val |= 1 << (i + 1);
+                }
+            }
 
-            let is_minterm = kmap.minterms.iter().any(|m| m.value() == cell_val && !m.is_dc);
-            let is_dc = kmap.minterms.iter().any(|m| m.value() == cell_val && m.is_dc);
+            let is_minterm = kmap.minterms.iter().any(|m| m.value() == val && !m.is_dc);
+            let is_dc = kmap.minterms.iter().any(|m| m.value() == val && m.is_dc);
 
             let cell_str = if is_minterm {
-                format!(" \x1b[1;32m{}\x1b[0m ", cell_val)
+                format!(" \x1b[1;32m{}\x1b[0m ", val)
             } else if is_dc {
-                format!(" \x1b[33m{}\x1b[0m ", cell_val)
+                format!(" \x1b[33m{}\x1b[0m ", val)
             } else {
-                format!(" {} ", cell_val)
+                format!(" {} ", val)
             };
 
             output.push_str(&format!("{}{}", row_str, cell_str));
@@ -180,5 +182,35 @@ mod tests {
         );
         let output = draw_kmap_simple(&kmap);
         assert!(!output.is_empty());
+    }
+
+    #[test]
+    fn test_draw_kmap_non_simple_2var() {
+        let kmap = Kmap::new(
+            vec!["A".to_string(), "B".to_string()],
+            vec![
+                Minterm::new(vec![false, false]),
+                Minterm::new(vec![true, true]),
+            ],
+        );
+        let output = draw_kmap(&kmap);
+        assert!(!output.is_empty());
+        assert!(output.contains("Minterms"));
+    }
+
+    #[test]
+    fn test_draw_kmap_non_simple_3var() {
+        let kmap = Kmap::new(
+            vec!["A".to_string(), "B".to_string(), "C".to_string()],
+            vec![
+                Minterm::new(vec![false, false, false]),
+                Minterm::new(vec![false, true, true]),
+                Minterm::dc(vec![true, false, false]), // don't care
+            ],
+        );
+        let output = draw_kmap(&kmap);
+        assert!(!output.is_empty());
+        assert!(output.contains("0"));
+        assert!(output.contains("Don't Care"));
     }
 }

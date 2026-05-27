@@ -92,4 +92,57 @@ mod tests {
             _ => panic!("Expected Not"),
         }
     }
+
+    #[test]
+    fn test_signal_and_flatten() {
+        // (a & b) & c should flatten to And({a, b, c})
+        let a = Signal::var("a");
+        let b = Signal::var("b");
+        let c = Signal::var("c");
+        let ab = a.and(b);
+        let abc = ab.and(c);
+        match abc {
+            Signal::And(ref set) if set.len() == 3 => {},
+            _ => panic!("Expected And with 3 elements, got {:?}", abc),
+        }
+    }
+
+    #[test]
+    fn test_signal_or_flatten() {
+        // (a | b) | c should flatten to Or({a, b, c})
+        let a = Signal::var("a");
+        let b = Signal::var("b");
+        let c = Signal::var("c");
+        let ab = a.or(b);
+        let abc = ab.or(c);
+        match abc {
+            Signal::Or(ref set) if set.len() == 3 => {},
+            _ => panic!("Expected Or with 3 elements, got {:?}", abc),
+        }
+    }
+
+    #[test]
+    fn test_signal_not_double() {
+        // NOT(NOT(a)) == a
+        let a = Signal::var("a");
+        let na = a.not();
+        let nna = na.not();
+        assert_eq!(nna, Signal::Var("a".to_string()));
+    }
+
+    #[test]
+    fn test_signal_and_with_not() {
+        // a & NOT(b)
+        let a = Signal::var("a");
+        let b = Signal::var("b");
+        let not_b = b.not();
+        let result = a.and(not_b);
+        match result {
+            Signal::And(ref set) if set.len() == 2 => {
+                assert!(set.contains(&Signal::Var("a".to_string())));
+                assert!(set.contains(&Signal::Not(Box::new(Signal::Var("b".to_string())))));
+            },
+            _ => panic!("Expected And with 2 elements"),
+        }
+    }
 }
