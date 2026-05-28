@@ -97,7 +97,7 @@ impl QuineMcCluskey {
                 }
             }
 
-            for (i, set) in &current_groups {
+            for (_i, set) in &current_groups {
                 for s in set {
                     if !used.contains(s) {
                         prime_implicants.insert(s.clone());
@@ -142,9 +142,9 @@ impl QuineMcCluskey {
     pub fn essential_implicants(&self, implicants: &[String]) -> Vec<usize> {
         let table = self.cover_table(implicants);
         let mut essential: Vec<usize> = Vec::new();
-        let mut remaining_mintrms: BTreeSet<usize> = self.minterms.iter().cloned().collect();
+        let _remaining_mintrms: BTreeSet<usize> = self.minterms.iter().cloned().collect();
 
-        for (&m, covering) in &table {
+        for (&_m, covering) in &table {
             if covering.len() == 1 {
                 let imp_idx = *covering.iter().next().unwrap();
                 if !essential.contains(&imp_idx) {

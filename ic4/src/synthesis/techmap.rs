@@ -162,7 +162,7 @@ pub fn lfoa(netlist: &Netlist) -> Vec<String> {
     let mut in_degree: HashMap<String, usize> = HashMap::new();
 
     for node in &netlist.nodes {
-        *in_degree.entry(node.output.clone()).or_insert(0);
+        let _ = *in_degree.entry(node.output.clone()).or_insert(0);
         for input in &node.inputs {
             *in_degree.entry(input.clone()).or_insert(0) += 1;
         }

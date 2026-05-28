@@ -39,7 +39,7 @@ pub fn draw_floorplan(fp: &Floorplan) -> String {
     }
 
     let border_char = '─';
-    let corner_char = '┼';
+    let _corner_char = '┼';
 
     output.push_str(&format!("┌{}┐\n", border_char.to_string().repeat(width + 2)));
 

@@ -1,13 +1,87 @@
 use eframe::egui;
 use ic4::prelude::*;
 
-struct IC4DemoApp;
+struct IC4DemoApp {
+    minterm_input: String,
+    dc_input: String,
+    cached_minterms: Vec<Minterm>,
+    cached_dcs: Vec<Minterm>,
+    cached_kmap: Option<Kmap>,
+}
+
+impl Default for IC4DemoApp {
+    fn default() -> Self {
+        let default_minterms = "0, 1, 2, 4, 5, 6".to_string();
+        let default_dcs = "3, 7".to_string();
+        let (minterms, dcs) = Self::parse_inputs(&default_minterms, &default_dcs);
+        Self {
+            minterm_input: default_minterms,
+            dc_input: default_dcs,
+            cached_minterms: minterms,
+            cached_dcs: dcs,
+            cached_kmap: None,
+        }
+    }
+}
+
+impl IC4DemoApp {
+    fn parse_inputs(minterm_str: &str, dc_str: &str) -> (Vec<Minterm>, Vec<Minterm>) {
+        let mut minterms = Vec::new();
+        let mut dcs = Vec::new();
+
+        for s in minterm_str.split(',') {
+            if let Ok(v) = s.trim().parse::<u32>() {
+                let bits = (0..3).map(|i| (v >> i) & 1 == 1).collect();
+                minterms.push(Minterm::new(bits));
+            }
+        }
+
+        for s in dc_str.split(',') {
+            if let Ok(v) = s.trim().parse::<u32>() {
+                let bits = (0..3).map(|i| (v >> i) & 1 == 1).collect();
+                dcs.push(Minterm::dc(bits));
+            }
+        }
+
+        (minterms, dcs)
+    }
+
+    fn rebuild_kmap(&mut self) {
+        let (minterms, dcs) = Self::parse_inputs(&self.minterm_input, &self.dc_input);
+        self.cached_minterms = minterms;
+        self.cached_dcs = dcs;
+
+        let mut all_minterms = self.cached_minterms.clone();
+        all_minterms.extend(self.cached_dcs.clone());
+        self.cached_kmap = Some(Kmap::new(
+            vec!["A".to_string(), "B".to_string(), "C".to_string()],
+            all_minterms,
+        ));
+    }
+}
 
 impl eframe::App for IC4DemoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("IC4 - IC Design Visualization");
             ui.separator();
+
+            // K-map input section
+            ui.horizontal(|ui| {
+                ui.label("Minterms:");
+                ui.text_edit_singleline(&mut self.minterm_input);
+                ui.label("  Don't-cares:");
+                ui.text_edit_singleline(&mut self.dc_input);
+                if ui.button("Regenerate").clicked() {
+                    self.rebuild_kmap();
+                }
+            });
+            ui.add_space(4.0);
+
+            // Ensure kmap is initialized
+            if self.cached_kmap.is_none() {
+                self.rebuild_kmap();
+            }
 
             let width = ui.available_width() / 2.0 - 10.0;
             let height = 300.0;
@@ -19,7 +93,14 @@ impl eframe::App for IC4DemoApp {
                     egui::Sense::hover(),
                 );
                 self.draw_kmap(&response, &painter);
-                self.draw_panel_footer(&response, &painter, "Minterms: 6 | 3 vars | Gray: AB×C");
+                let minterm_count = self.cached_minterms.len();
+                let dc_count = self.cached_dcs.len();
+                let footer = if dc_count > 0 {
+                    format!("Minterms: {} | DCs: {} | 3 vars", minterm_count, dc_count)
+                } else {
+                    format!("Minterms: {} | 3 vars", minterm_count)
+                };
+                self.draw_panel_footer(&response, &painter, &footer);
 
                 cols[1].heading("2. Floorplan");
                 let (response, painter) = cols[1].allocate_painter(
@@ -49,24 +130,17 @@ impl eframe::App for IC4DemoApp {
             });
 
             ui.separator();
-            ui.label("使用說明：上方 K-map 綠色為最小項，Floorplan 彩色方塊為區塊，Placement 顯示配置，Routing 黃色=針腳/青色粉色=路由線");
+            ui.label("使用說明：上方 K-map 綠色=最小項，黃色=Don't-care，Floorplan 彩色方塊為區塊，Placement 顯示配置，Routing 黃色=針腳/青色粉色=路由線");
         });
     }
 }
 
 impl IC4DemoApp {
     fn draw_kmap(&self, response: &egui::Response, painter: &egui::Painter) {
-        let kmap = Kmap::new(
-            vec!["A".to_string(), "B".to_string(), "C".to_string()],
-            vec![
-                Minterm::new(vec![false, false, false]),
-                Minterm::new(vec![false, false, true]),
-                Minterm::new(vec![false, true, false]),
-                Minterm::new(vec![true, false, false]),
-                Minterm::new(vec![true, false, true]),
-                Minterm::new(vec![true, true, false]),
-            ],
-        );
+        let kmap = match &self.cached_kmap {
+            Some(k) => k,
+            None => return,
+        };
 
         let n = 3;
         let col_count = 1 << ((n + 1) / 2);
@@ -98,9 +172,12 @@ impl IC4DemoApp {
                 }
 
                 let is_minterm = kmap.minterms.iter().any(|m| m.value() == val && !m.is_dc);
+                let is_dc = kmap.minterms.iter().any(|m| m.value() == val && m.is_dc);
 
                 let color = if is_minterm {
                     egui::Color32::from_rgb(0, 200, 100)
+                } else if is_dc {
+                    egui::Color32::from_rgb(255, 255, 0)
                 } else {
                     egui::Color32::from_gray(60)
                 };
@@ -309,6 +386,6 @@ fn main() {
     eframe::run_native(
         "IC4 - IC Design Visualization",
         options,
-        Box::new(|_cc| Ok(Box::new(IC4DemoApp))),
+        Box::new(|_cc| Ok(Box::new(IC4DemoApp::default()))),
     ).unwrap();
 }

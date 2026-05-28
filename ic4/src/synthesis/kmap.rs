@@ -85,12 +85,12 @@ impl Kmap {
         let mut prime_implicants: Vec<Minterm> = Vec::new();
         let mut visited: HashSet<Vec<bool>> = HashSet::new();
 
-        for (i, group) in groups.iter().enumerate() {
+        for (_i, group) in groups.iter().enumerate() {
             for m in group {
                 if visited.contains(&m.vars) { continue; }
                 let mut current = m.clone();
                 loop {
-                    let mut next_group_idx = current.ones_count() + 1;
+                    let next_group_idx = current.ones_count() + 1;
                     if next_group_idx >= groups.len() { break; }
                     let mut found = false;
                     for other in &groups[next_group_idx] {
