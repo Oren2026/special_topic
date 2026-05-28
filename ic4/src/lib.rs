@@ -2,12 +2,12 @@ pub mod synthesis;
 pub mod physical;
 pub mod viz;
 
-pub use synthesis::{Signal, Kmap, Minterm, QuineMcCluskey, TechMapper, Library, Cell};
+pub use synthesis::{Signal, Kmap, Minterm, QuineMcCluskey, TechMapper, Library, Cell, parse_signal, derive_minterms, get_vars};
 pub use physical::{Point, Rect, Floorplan, Block, Placer, GridPlacer, ForceDirectPlacer, PlaceBlock};
 pub use physical::{Grid, GridValue, Coordinate, Router, LeeRouter, MazeRouter, ChannelRouter};
 
 pub mod prelude {
-    pub use crate::synthesis::{Kmap, Minterm, QuineMcCluskey, TechMapper, Library, Cell, Signal};
+    pub use crate::synthesis::{Kmap, Minterm, QuineMcCluskey, TechMapper, Library, Cell, Signal, parse_signal, derive_minterms, get_vars};
     pub use crate::physical::{Point, Rect, Floorplan, Block, Placer, GridPlacer, ForceDirectPlacer, PlaceBlock};
     pub use crate::physical::{Grid, GridValue, Coordinate, Router, LeeRouter, MazeRouter, ChannelRouter};
     pub use crate::viz::kmap::{draw_kmap, draw_kmap_simple};

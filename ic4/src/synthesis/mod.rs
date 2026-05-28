@@ -1,10 +1,12 @@
 pub mod kmap;
 pub mod quine;
 pub mod techmap;
+pub mod parser;
 
 pub use kmap::{Kmap, Minterm};
 pub use quine::QuineMcCluskey;
 pub use techmap::{Library, Cell, TechMapper};
+pub use parser::{parse_signal, derive_minterms, get_vars};
 
 use std::collections::BTreeSet;
 

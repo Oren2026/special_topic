@@ -2,24 +2,30 @@ use eframe::egui;
 use ic4::prelude::*;
 
 struct IC4DemoApp {
+    expression_input: String,
     minterm_input: String,
     dc_input: String,
     cached_minterms: Vec<Minterm>,
     cached_dcs: Vec<Minterm>,
     cached_kmap: Option<Kmap>,
+    parse_error: Option<String>,
+    parsed_vars: Vec<String>,
 }
 
 impl Default for IC4DemoApp {
     fn default() -> Self {
         let default_minterms = "0, 1, 2, 4, 5, 6".to_string();
         let default_dcs = "3, 7".to_string();
-        let (minterms, dcs) = Self::parse_inputs(&default_minterms, &default_dcs);
+        let (minterms, dcs) = Self::parse_minterm_inputs(&default_minterms, &default_dcs, 3);
         Self {
+            expression_input: "a & b | c".to_string(),
             minterm_input: default_minterms,
             dc_input: default_dcs,
             cached_minterms: minterms,
             cached_dcs: dcs,
             cached_kmap: None,
+            parse_error: None,
+            parsed_vars: vec!["a".to_string(), "b".to_string(), "c".to_string()],
         }
     }
 }
