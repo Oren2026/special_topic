@@ -11,7 +11,6 @@ pub fn draw_kmap(kmap: &Kmap) -> String {
     } else if n == 3 {
         "        │ AB=00     │ AB=01     │ AB=11     │ AB=10     ".to_string()
     } else {
-        let half = n / 2;
         "        │ A=0       │ A=1       ".to_string()
     };
 
@@ -45,7 +44,7 @@ pub fn draw_kmap(kmap: &Kmap) -> String {
             }
             for (i, g) in col_gray.chars().enumerate() {
                 if g == '1' {
-                    val |= 1 << (i + 1);
+                    val |= 1 << i;
                 }
             }
 
@@ -96,7 +95,10 @@ pub fn draw_kmap_simple(kmap: &Kmap) -> String {
 
     let gray = Kmap::gray_code(n);
 
-    let col_count = 1 << (n / 2);
+    // n=3: col=4 (MSB=C), row=2 (MSB=A)
+    // n=2: col=2 (MSB=B), row=2 (MSB=A)
+    let col_count = 1 << ((n + 1) / 2);
+    let row_count = 1 << (n / 2);
 
     let header = if n == 2 {
         "  │ A=0  A=1  "
@@ -109,8 +111,6 @@ pub fn draw_kmap_simple(kmap: &Kmap) -> String {
     output.push_str(&format!("┌───├{}┐\n", "─".repeat(header.len() - 4)));
     output.push_str(&format!("│   │{}│\n", header));
     output.push_str(&format!("├───├{}┤\n", "─".repeat(header.len() - 4)));
-
-    let row_count = 1 << ((n + 1) / 2);
 
     for row in 0..row_count {
         let row_gray = &gray[row];
@@ -127,7 +127,7 @@ pub fn draw_kmap_simple(kmap: &Kmap) -> String {
             }
             for (i, g) in col_gray.chars().enumerate() {
                 if g == '1' {
-                    val |= 1 << (i + 1);
+                    val |= 1 << i;
                 }
             }
 
