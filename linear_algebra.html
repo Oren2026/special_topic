@@ -542,10 +542,10 @@
               <div class="ch-title"><span class="en">Ch6 線性轉換</span><span class="zh">｜核與像 · 維度定理 · 座標變換 · 同構</span></div>
               <span class="status" style="background:var(--success);color:white;">✅ 完成</span>
             </div>
-            <div class="roadmap-item" onclick="switchTab('ch7')">
+            <div class="roadmap-item active" onclick="switchTab('ch7')">
               <span class="ch-icon">🎯</span>
-              <div class="ch-title"><span class="en">Ch7 特徵值與特徵向量</span><span class="zh">｜Ax=λx · 對角化 · SVD · PCA · 電網穩定性</span></div>
-              <span class="status">預定</span>
+              <div class="ch-title"><span class="en">Ch7 特徵值與特徵向量</span><span class="zh">｜特徵值 · 對角化 · SVD · PCA · 電網穩定性</span></div>
+              <span class="status" style="background:var(--success);color:white;">✅ 完成</span>
             </div>
           </div>
         </div>
@@ -2615,12 +2615,402 @@ h⁽ˡ⁺¹⁾ = σ(Ã · h⁽ˡ⁾ · W⁽ˡ⁾)
     </div>
 
     <div class="chapter-page" id="ch7">
-      <div class="ch-header"><h1><span class="en">Ch7 特徵值與特徵向量</span> <span class="zh">｜Eigenvalues & Eigenvectors</span></h1><p class="ch-desc">（待討論）這是整個線性代數應用最廣的一章。PCA、電網穩定性、PageRank — 全在這。</p></div>
-      <div class="content-block"><h3>🚧 此章節內容待討論後補充</h3></div>
-    </div>
-  </main>
+      <div class="ch-header"><h1><span class="en">Ch7 特徵值與特徵向量</span> <span class="zh">｜Eigenvalues & Eigenvectors</span></h1><p class="ch-desc">這是整個線性代數應用最廣的一章——所有「找不變方向」的問題都在這。PCA 降維、電網穩定性、PageRank、馬可夫鏈收斂，全部是特徵值的語言。</p>
+        <div class="ch-tags">
+          <span class="ch-tag intro">特徵值定義</span>
+          <span class="ch-tag method">特性多項式 · 對角化</span>
+          <span class="ch-tag app">PCA · 電網穩定性 · PageRank</span>
+        </div>
+      </div>
 
-  <footer>
+      <!-- §7.1 -->
+      <div class="ch-subsection-title">§7.1 定義——什麼是特徵值</div>
+
+      <div class="content-block">
+        <h3>特徵值方程式（Eigenvalue Equation）</h3>
+        <p>找非零向量 x 和純量 λ，使得：</p>
+        <div class="math-block">
+Ax = λx
+        </div>
+        <p>x = <strong>特徵向量</strong>（Eigenvector）——方向不變的向量<br>
+        λ = <strong>特徵值</strong>（Eigenvalue）——放大/縮小/反轉的倍數</p>
+        <div class="analogy">
+          <strong>💡 幾何直覺：軸心轉動</strong><br>
+          地球自轉：極軸（北極→南極）方向不變，地球上任何其他點都會旋轉離開原位。
+          特徵向量就是「地球自轉的極軸」——方向不變，只是「縮放」。
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>為什麼重要？</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">📐</span> 不變的方向</h4>
+            <p>矩陣 A 作用在 x 上，x 方向不變（只是長度變 λ 倍）。</p>
+            <p>非特徵向量方向：被 A 完全扭轉。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🧮</span> 對角化的關鍵</h4>
+            <p>A = PDP⁻¹（D 為對角矩陣）⟺ A 有 n 個線性獨立的特徵向量。</p>
+            <p>對角化後：Aⁿ = PDⁿP⁻¹——冪矩陣瞬間可算！</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>與 Ch6 的連結</h3>
+        <p>Ch6 的相似矩陣告訴我們：B = P⁻¹AP 代表同一轉換不同基底。</p>
+        <p>若 D 為對角矩陣，則 [T]_新 = D 意味著：</p>
+        <div class="math-block">
+在以特徵向量為基底的座標系中
+T 的作用只是「沿每個特徵向量方向縮放 λ 倍」
+        </div>
+        <p>這就是為什麼 Ch7 稱為「線性代數應用最廣的一章」——所有「找不變方向」的問題都在這。</p>
+      </div>
+
+      <!-- §7.2 -->
+      <div class="ch-subsection-title">§7.2 特性多項式——如何求特徵值</div>
+
+      <div class="content-block">
+        <h3>特性方程式（Characteristic Equation）</h3>
+        <p>從 Ax = λx 出發，求 λ 的方法：</p>
+        <div class="math-block">
+Ax = λx  ⟹  (A − λI)x = 0
+        </div>
+        <p>有非零解 ⟺ 係數矩陣奇異：</p>
+        <div class="math-block">
+det(A − λI) = 0
+        </div>
+        <p>這個方程式稱為<strong>特性方程式</strong>，解出來的根就是特徵值 λ。</p>
+      </div>
+
+      <div class="content-block">
+        <h3>代數重數 vs 幾何重數</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">🔢</span> 代數重數（Algebraic Multiplicity）</h4>
+            <p>特性方程式中，λ 作為根出現的次數。</p>
+            <p>例：det(A−λI) = (λ−2)³(λ+1)²，則 λ=2 代數重數 3，λ=−1 代數重數 2。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">📐</span> 幾何重數（Geometric Multiplicity）</h4>
+            <p>ker(A − λI) 的維度（該特徵值對應的線性獨立特徵向量個數）。</p>
+            <p>恆有：幾何重數 ≤ 代數重數</p>
+          </div>
+        </div>
+        <div class="warning-box">
+          <strong>⚠️ 可對角化判定</strong>
+          A 可對角化 ⟺ 對<strong>每個</strong>特徵值，幾何重數 = 代數重數。
+          若不相等，A 無法對角化（但仍可能求特徵值）。
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>行列式與跡（Trace）的意義</h3>
+        <p>由特性方程式的 Vieta 關係：</p>
+        <div class="math-block">
+det(A) = λ₁ · λ₂ · ... · λₙ（特徵值的乘積）
+trace(A) = λ₁ + λ₂ + ... + λₙ（特徵值的總和）
+        </div>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">🔍</span> det(A) = 0</h4>
+            <p>⟺ 至少有一個 λ = 0 ⟺ A 不可逆</p>
+            <p>幾何意義：行列式 = 體積膨脹率 = 0 表示空間被「壓扁」。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🔍</span> trace(A) 的應用</h4>
+            <p>求平均特徵值：trace(A)/n</p>
+            <p>矩陣冪的行為：Aᵏ 的 trace → 0（當 |λᵢ| < 1）</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <h3>求特徵值與特徵向量 <span class="zh">｜Step-by-Step</span></h3>
+        <div class="algo-steps">
+          <h4>⚙️ 標準步驟</h4>
+          <ol>
+            <li>寫出 A − λI</li>
+            <li>計算 det(A − λI)</li>
+            <li>解特性方程式 det(A − λI) = 0，得到 λ₁, λ₂, ..., λₙ</li>
+            <li>對每個 λᵢ，解 (A − λᵢI)x = 0 得到 ker(A − λᵢI)</li>
+            <li>ker(A − λᵢI) 的非零向量即為特徵向量</li>
+          </ol>
+        </div>
+        <div class="keywords">
+          <span class="kw">det(A−λI)</span><span class="kw">特性多項式</span><span class="kw">代數重數</span><span class="kw">幾何重數</span>
+        </div>
+      </div>
+
+      <!-- §7.3 -->
+      <div class="ch-subsection-title">§7.3 對角化——讓矩陣變簡單</div>
+
+      <div class="content-block">
+        <h3>對角化定義（Diagonalization）</h3>
+        <p>若 A 有 n 個線性獨立的特徵向量，則：</p>
+        <div class="math-block">
+A = PDP⁻¹
+        </div>
+        <p>P 的 columns = 這 n 個線性獨立的特徵向量<br>
+        D = diag(λ₁, λ₂, ..., λₙ) = 對角矩陣（對角線是特徵值）</p>
+        <div class="analogy">
+          <strong>💡 幾何意義</strong><br>
+          對角化 = 找到一個「好基底」（特徵向量基底）。
+          在這個基底中，T 的作用只是「沿每個座標軸縮放 λᵢ 倍」。
+          看世界的角度選對了，複雜的矩陣乘法就變成簡單的「各自縮放」。
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>為什麼要對角化——三個殺手級應用</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">⚡</span> 冪矩陣瞬間可算</h4>
+            <div class="math-block">
+Aⁿ = PDⁿP⁻¹ = P · diag(λ₁ⁿ, λ₂ⁿ, ..., λₙⁿ) · P⁻¹
+            </div>
+            <p>原來要算 A¹⁰⁰，需要 100 次矩陣乘法。<br>對角化後：只需要把每個 λᵢ 取 100 次方！</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🔄</span> 差分方程</h4>
+            <p>xₖ₊₁ = Axₖ</p>
+            <p>展開：xₙ = Aⁿx₀ = PDⁿP⁻¹x₀</p>
+            <p>馬可夫鏈（Ch2）就是這種形式。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">📈</span> 微分方程</h4>
+            <p>x'(t) = Ax(t)</p>
+            <p>解：x(t) = PeᴅᵗP⁻¹x₀</p>
+            <p>電網小信號穩定性分析全靠這個。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <h3>對角化步驟 <span class="zh">｜Diagonalization Procedure</span></h3>
+        <div class="algo-steps">
+          <h4>⚙️ 標準步驟</h4>
+          <ol>
+            <li>求 A 的 n 個特徵值 λ₁...λₙ（解 det(A−λI)=0）</li>
+            <li>對每個 λᵢ，求 ker(A−λᵢI) 得到獨立的特徵向量</li>
+            <li>檢查：若有 n 個線性獨立的特徵向量 → 可對角化</li>
+            <li>令 P = [v₁ v₂ ... vₙ]（columns = 特徵向量）</li>
+            <li>令 D = diag(λ₁, λ₂, ..., λₙ)</li>
+            <li>驗證：A = PDP⁻¹</li>
+          </ol>
+        </div>
+        <div class="keywords">
+          <span class="kw">PDP⁻¹</span><span class="kw">對角化</span><span class="kw">冪矩陣</span><span class="kw">差分方程</span>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>什麼時候不能對角化——缺陷矩陣</h3>
+        <p>並非所有矩陣都能對角化：</p>
+        <div class="math-block">
+A = | 1   1 |   →  λ = 1（代數重數 2，但只有 1 個特徵向量）
+    | 0   1 |   →  幾何重數 = 1 < 代數重數 = 2
+        </div>
+        <p>這類矩陣稱為<strong>缺陷矩陣</strong>（defective matrix）。</p>
+        <div class="highlight-box">
+          <strong>💡 實用提醒</strong>
+          對稱矩陣（A = Aᵀ）一定可以對角化。
+          電網系統矩陣通常是實對稱或接近實對稱，所以幾乎都可以對角化。
+          但如果是一般矩陣，先檢查是否能對角化。
+        </div>
+      </div>
+
+     <!-- §7.4 -->
+     <div class="ch-subsection-title">§7.4 應用——特徵值的實戰場景</div>
+
+     <div class="content-block">
+       <h3>電網：小信號穩定性分析</h3>
+       <p>電力系統受擾動後的動態響應建模為線性微分方程：</p>
+       <div class="math-block">
+    x'(t) = Ax(t)
+       </div>
+       <p>A = 系統矩陣（state matrix），x = 狀態變數（電壓、相角等）。</p>
+       <div class="card-grid">
+         <div class="card">
+           <h4><span class="icon">📈</span> 穩定性判定</h4>
+           <p>所有特徵值 λᵢ 的實部：</p>
+           <p>Re(λᵢ) < 0（所有）→ 系統穩定，擾動後收斂回平衡點</p>
+           <p>Re(λᵢ) > 0（任何一個）→ 振盪發散，電網失穩</p>
+         </div>
+         <div class="card">
+           <h4><span class="icon">🔄</span> 機電振盪模式</h4>
+           <p>λ = σ ± jω</p>
+           <p>σ < 0：衰減振盪（正常）</p>
+           <p>σ > 0：增幅振盪（危險！）</p>
+           <p>機電模式頻率 = ω/2π Hz（通常 0.1-2 Hz）</p>
+         </div>
+       </div>
+       <div class="analogy">
+         <strong>💡 為什麼是 Re(λ)？</strong><br>
+         微分方程解：x(t) = PeᵈᵗP⁻¹x₀ = Σ cᵢvᵢe^(λᵢt)
+         若 λ = σ + jω，則 e^(λt) = e^(σt) · e^(jωt)
+         σ > 0：指數成長（發散）。σ < 0：指數衰減（穩定）。
+       </div>
+     </div>
+
+     <div class="content-block">
+       <h3>PCA：主成分分析——找最大方差方向</h3>
+       <p>給定資料矩陣 X（n 個樣本 × d 個特徵），共變異數矩陣：</p>
+       <div class="math-block">
+    Σ = (XᵀX) / (n − 1)
+       </div>
+       <p>Σ 是對稱半正定矩陣 → 必有正交特徵向量。</p>
+       <div class="card-grid">
+         <div class="card">
+           <h4><span class="icon">📊</span> PCA 的特徵值意義</h4>
+           <p>Σ 的特徵向量 = 主成分方向</p>
+           <p>Σ 的特徵值 = 該方向的方差（資訊量）</p>
+           <p>保留前 k 個最大 λ → 保留最多資訊的 k 維投影</p>
+         </div>
+         <div class="card">
+           <h4><span class="icon">🖼️</span> 影像壓縮</h4>
+           <p>一張 100×100 灰階圖 = 10,000 維向量</p>
+           <p>取前 50 個主成分（λ 最大的 50 個方向）→ 壓縮率 50%</p>
+           <p>奇異值分解（SVD）= 對稱矩陣特徵值分解的推廣（Ch5 也提到）</p>
+         </div>
+       </div>
+     </div>
+
+     <div class="content-block">
+       <h3>PageRank：Google 的排名演算法</h3>
+       <p>網路圖：節點 = 網頁，邊 = 連結。PageRank 迭代：</p>
+       <div class="math-block">
+    r = G · r
+       </div>
+       <p>G = Google 矩陣，r = 排名向量。<br>r 是 G 的主特徵向量（λ = 1）。</p>
+       <div class="math-block">
+    G = αM + (1 − α)(1/n · 11ᵀ)
+       </div>
+       <p>M：轉移矩陣（隨機walk）。α：阻尼因子（通常 0.85）。</p>
+       <div class="analogy">
+         <strong>💡 直覺</strong><br>
+         想像一個隨機在網路上點擊連結的人。
+         大部分時間他隨機點擊，但有 15% 的機率他直接跳到任意頁面（防止困在死胡同）。
+         停留在每個頁面的穩態機率 = PageRank 分數。
+         這就是為什麼當你搜尋時，有些頁面永遠排前面——它們是這個隨機過程的「引力中心」。
+       </div>
+     </div>
+
+     <div class="content-block">
+           <h3>馬可夫鏈：平穩分佈</h3>
+           <p>馬可夫鏈（Ch2）的轉移矩陣 P 滿足：</p>
+                 <div class="math-block">
+               π = Pᵀπ
+                 </div>
+           <p>π = 穩態分佈（stationary distribution）。<br>這是 Pᵀ 的特徵向量，對應 λ = 1。</p>
+           <div class="card-grid">
+             <div class="card">
+               <h4><span class="icon">🔗</span> 馬可夫鏈收斂</h4>
+               <p>若 P 為不可約、非週期，則：</p>
+               <p>Pᵏ → 1·πᵀ（當 k → ∞）</p>
+               <p>所有 |λᵢ| < 1（除了 λ = 1）→ 系統最終趨近 π</p>
+             </div>
+             <div class="card">
+               <h4><span class="icon">🌡️</span> PageRank 也是馬可夫鏈</h4>
+               <p>G 的每一列和 = 1（隨機矩陣性質）</p>
+               <p>λ = 1 為 dominant 特徵值</p>
+               <p>對應的特徵向量就是排名分佈</p>
+             </div>
+           </div>
+         </div>
+
+         <!-- §7.5 -->
+         <div class="ch-subsection-title">§7.5 對稱矩陣與奇異值</div>
+
+         <div class="content-block">
+           <h3>對稱矩陣 A = Aᵀ 的特殊性</h3>
+           <p>對稱矩陣的特徵值有極強的結構：</p>
+           <div class="highlight-box">
+             <strong>對稱矩陣定理</strong><br>
+             A 為實對稱矩陣 ⟺ A 可正交對角化（A = QΛQᵀ）<br>
+             且所有特徵值皆為實數
+           </div>
+           <p>Q 的列 = A 的正交特徵向量（因為 Q⁻¹ = Qᵀ）。</p>
+           <div class="card-grid">
+             <div class="card">
+               <h4><span class="icon">🔢</span> 證明直覺</h4>
+               <p>若 Ax = λx，兩邊取轉置：xᵀAᵀ = xᵀA = λxᵀ</p>
+               <p>實對稱 → λ = λ̄ → λ 為實數</p>
+             </div>
+             <div class="card">
+               <h4><span class="icon">📐</span> 幾何意義</h4>
+               <p>Q 為正交矩陣（旋轉/反射），Λ 為純量拉伸</p>
+               <p>對稱矩陣 = 正交變換 + 純量拉伸</p>
+               <p>這就是「主軸定理」——把二次型 xᵀAx 化為 Σ λᵢyᵢ²</p>
+             </div>
+           </div>
+         </div>
+
+         <div class="content-block">
+           <h3>奇異值分解（SVD）——對任意矩陣的推廣</h3>
+           <p>並非所有矩陣都可對角化，但所有矩陣都有奇異值分解：</p>
+           <div class="math-block">
+     A = UΣVᵀ
+           </div>
+           <p>U、V 為正交矩陣，Σ 為對角矩陣（奇異值）。</p>
+           <div class="card-grid">
+             <div class="card">
+               <h4><span class="icon">🔑</span> 奇異值與特徵值</h4>
+               <p>AᵀA 的特徵值 = σᵢ²，V = AᵀA 的特徵向量</p>
+               <p>若 A 已是對稱正定，則 σᵢ = λᵢ</p>
+             </div>
+             <div class="card">
+               <h4><span class="icon">📉</span> 為什麼需要 SVD？</h4>
+               <p>非方陣無法做特徵值分解，SVD 對任意 m×n 矩陣都存在</p>
+               <p>是 PCA 的基礎，影像處理、推薦系統的核心工具</p>
+             </div>
+           </div>
+           <div class="analogy">
+             <strong>💡 對稱 vs. 反對稱矩陣</strong><br>
+             對稱 = 純拉伸；反對稱 = 純旋轉（特徵值為純虛數）<br>
+             任何矩陣 = 對稱部分 ((A+Aᵀ)/2) + 反對稱部分 ((A−Aᵀ)/2)
+           </div>
+         </div>
+
+         <div class="content-block">
+           <h3>凱萊-漢米爾頓定理（Cayley-Hamilton）</h3>
+           <p>每一個 n×n 矩陣都滿足它自己的特徵方程式：</p>
+           <div class="math-block">
+     A² − (a₁₁ + a₂₂)·A + det(A)·I = 0
+           </div>
+           <p>對 2×2：A 滿足 det(A−λI) = 0。</p>
+           <div class="card-grid">
+             <div class="card">
+               <h4><span class="icon">⚡</span> 用處：快速算 A⁻¹</h4>
+               <p>⇒ A⁻¹ = (1/det(A))(tr(A)I − A)</p>
+             </div>
+             <div class="card">
+               <h4><span class="icon">🔢</span> 用處：快速算 Aⁿ</h4>
+               <p>寫 Aⁿ 為 A 和 I 的組合，不用算 P</p>
+             </div>
+           </div>
+         </div>
+
+         <!-- §7.6 -->
+         <div class="ch-subsection-title">§7.6 詞彙與概念表</div>
+
+         <div class="content-block vocab-grid">
+           <div class="vocab-item"><strong>特徵值（Eigenvalue）</strong> λ：滿足 Ax = λx 的純量</div>
+           <div class="vocab-item"><strong>特徵向量（Eigenvector）</strong> v ≠ 0：滿足 Av = λv 的向量</div>
+           <div class="vocab-item"><strong>特徵方程式</strong> det(A−λI) = 0</div>
+           <div class="vocab-item"><strong>代數重度</strong> 特徵方程式根的重數</div>
+           <div class="vocab-item"><strong>幾何重度</strong> 對應 λ 之核空間維度 dim null(A−λI)</div>
+           <div class="vocab-item"><strong>對角化</strong> A = PDP⁻¹（D 為對角）</div>
+           <div class="vocab-item"><strong>可對角化</strong> n 個線性無關特徵向量存在</div>
+           <div class="vocab-item"><strong>奇異值</strong> σᵢ = √λᵢ（AᵀA 的特徵值平方根）</div>
+           <div class="vocab-item"><strong>跡（Trace）</strong> tr(A) = Σ λᵢ = Σ aᵢᵢ</div>
+           <div class="vocab-item"><strong>行列式</strong> det(A) = Π λᵢ</div>
+           <div class="vocab-item"><strong>凱萊-漢米爾頓</strong> A 滿足自己的特徵方程式</div>
+           <div class="vocab-item"><strong>奇異值分解</strong> A = UΣVᵀ（任意 m×n 矩陣）</div>
+         </div>
+
+       </main>
     Last updated: 2026-04-28<br>
     <span class="en">Linear Algebra Learning System — Ch1 & Ch2 complete, others in progress</span>
     <span class="zh">｜Ch1、Ch2 完成，其餘章節持續更新中</span>
