@@ -474,7 +474,7 @@
           <span class="ch-pill" style="border-color:rgba(255,255,255,0.4);">Ch1-Ch2 ✅ →</span>
           <span class="ch-pill" style="border-color:rgba(255,255,255,0.4);">Ch3-Ch4 ✅ →</span>
           <span class="ch-pill" style="border-color:rgba(255,255,255,0.4);">Ch5 內積 ✅ →</span>
-          <span class="ch-pill" style="border-color:rgba(255,255,255,0.4);">Ch6 轉換 →</span>
+          <span class="ch-pill" style="border-color:rgba(255,255,255,0.4);">Ch6 轉換 ✅ →</span>
           <span class="ch-pill" style="border-color:rgba(255,255,255,0.4);">Ch7 特徵值</span>
         </div>
       </div>
@@ -537,10 +537,10 @@
               <div class="ch-title"><span class="en">Ch5 內積空間</span><span class="zh">｜長度 · 夾角 · Cauchy-Schwarz · 正交基底 · 最小平方法</span></div>
               <span class="status" style="background:var(--success);color:white;">✅ 完成</span>
             </div>
-            <div class="roadmap-item" onclick="switchTab('ch6')">
+            <div class="roadmap-item active" onclick="switchTab('ch6')">
               <span class="ch-icon">🔄</span>
-              <div class="ch-title"><span class="en">Ch6 線性轉換</span><span class="zh">｜矩陣作為轉換 · 核與像 · 合成 · 轉換矩陣</span></div>
-              <span class="status">預定</span>
+              <div class="ch-title"><span class="en">Ch6 線性轉換</span><span class="zh">｜核與像 · 維度定理 · 座標變換 · 同構</span></div>
+              <span class="status" style="background:var(--success);color:white;">✅ 完成</span>
             </div>
             <div class="roadmap-item" onclick="switchTab('ch7')">
               <span class="ch-icon">🎯</span>
@@ -2155,7 +2155,13 @@ cos θ = (v₁·v₂) / (‖v₁‖·‖v₂‖)
     </div>
 
     <div class="chapter-page" id="ch6">
-      <div class="ch-header"><h1><span class="en">Ch6 線性轉換</span> <span class="zh">｜Linear Transformation</span></h1><p class="ch-desc">（待討論）矩陣作為線性變換。核、像、合成。</p></div>
+      <div class="ch-header"><h1><span class="en">Ch6 線性轉換</span> <span class="zh">｜Linear Transformation</span></h1><p class="ch-desc">矩陣作為空間的變形語言——核、像、合成、座標變換、同構。電網 abc/dq0 轉換、ML Attention 機制的底層數學。</p>
+        <div class="ch-tags">
+          <span class="ch-tag intro">線性轉換定義</span>
+          <span class="ch-tag method">核與像 · 維度定理</span>
+          <span class="ch-tag app">電網座標 · ML Embedding</span>
+        </div>
+      </div>
       <!-- §6.1 -->
       <div class="ch-subsection-title">§6.1 什麼是線性轉換</div>
 
@@ -2373,6 +2379,236 @@ T(v) = [T] · [v]
             <p>dq0：同步旋轉座標（直流稳態）</p>
             <p>P = Park 轉換矩陣——這就是一個座標變換！</p>
           </div>
+        </div>
+      </div>
+
+      <!-- §6.4 -->
+      <div class="ch-subsection-title">§6.4 合成——轉換的串聯</div>
+
+      <div class="content-block">
+        <h3>什麼是合成（Composition）</h3>
+        <p>兩個線性轉換串聯：T₁: U → V， T₂: V → W</p>
+        <p>先做 T₁，再做 T₂：</p>
+        <div class="math-block">
+(T₂ ∘ T₁)(u) = T₂(T₁(u))
+        </div>
+        <p>讀作「T₂ 複 T₁」（先做 T₁，右邊先作用）。</p>
+      </div>
+
+      <div class="content-block">
+        <h3>矩陣表示——矩陣乘法</h3>
+        <p>合成轉換的矩陣 = 矩陣乘積：</p>
+        <div class="math-block">
+[T₂ ∘ T₁] = [T₂] · [T₁]
+        </div>
+        <p>注意：<strong>右側先作用，所以右乘</strong>。這不是巧合——矩陣乘法就是定義為合成。</p>
+        <div class="warning-box">
+          <strong>⚠️ 矩陣乘法不可交換</strong>
+          一般而言：AB ≠ BA<br>
+          幾何意義：先旋轉再平移 ≠ 先平移再旋轉。
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>冪矩陣（Aⁿ）</h3>
+        <p>同一轉換應用 n 次：</p>
+        <div class="math-block">
+Tⁿ(x) = Aⁿ · x
+A⁰ = I（零次 = 單位矩陣）
+        </div>
+        <p>幾何意義：旋轉 θ 的 n 次 = 旋轉 nθ（但注意：旋轉矩陣特殊，Aⁿ ≠ A 的特徵值冪次）。</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">🔄</span> 差分方程</h4>
+            <p>xₖ₊₁ = A · xₖ</p>
+            <p>則 xₙ = Aⁿ · x₀</p>
+            <p>馬可夫鏈（Ch2）就是這種形式。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">📈</span> 矩陣次方計算</h4>
+            <p>A² 的幾何意義：兩次線性轉換疊加。</p>
+            <p>實用：特徵值分解（Ch7）：Aⁿ = PDⁿP⁻¹</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>交換圖（Commutative Diagram）</h3>
+        <p>若兩條從起點到終點的路徑結果相同，則稱交換：</p>
+        <div class="math-block">
+T₁ ∘ T₂ = T₃ ∘ T₄
+        </div>
+        <p>這在泛函分析、控制理論（LQR）中非常重要。</p>
+        <div class="analogy">
+          <strong>💡 交換的意義：殊途同歸</strong><br>
+          從 A 到 B 有兩條路，無論走哪條，結果一樣。
+          這個性質在對角化（Ch7）和座標變換中反覆出現。
+        </div>
+      </div>
+
+      <!-- §6.5 -->
+      <div class="ch-subsection-title">§6.5 可逆轉換與同構</div>
+
+      <div class="content-block">
+        <h3>可逆轉換（Invertible Transformation）</h3>
+        <p>T: V → W 可逆 ⟺ 存在 T⁻¹: W → V 使得：</p>
+        <div class="math-block">
+T⁻¹ ∘ T = I_V　且　T ∘ T⁻¹ = I_W
+        </div>
+        <p>矩陣語言：A 可逆 ⟺ A⁻¹ 存在。</p>
+      </div>
+
+      <div class="algo-card">
+        <h3>可逆的充要條件 <span class="zh">｜Equivalence Conditions</span></h3>
+        <p>對於 n×n 方陣 A，以下條件互為充要：</p>
+        <div class="algo-steps">
+          <h4>✅ 全部等價</h4>
+          <ol>
+            <li>A 可逆（A⁻¹ 存在）</li>
+            <li>rank(A) = n（A 滿秩）</li>
+            <li>det(A) ≠ 0</li>
+            <li>ker(A) = {0}（T 為單射）</li>
+            <li>im(A) = Rⁿ（T 為滿射）</li>
+            <li>A 的所有特徵值 ≠ 0（Ch7）</li>
+          </ol>
+        </div>
+        <div class="keywords">
+          <span class="kw">det≠0</span><span class="kw">滿秩</span><span class="kw">單射</span><span class="kw">滿射</span>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>同構（Isomorphism）</h3>
+        <p>兩個向量空間 V 和 W 同構 ⟺ 存在可逆線性轉換 T: V → W</p>
+        <div class="math-block">
+V ≅ W（存在同構映射）
+        </div>
+        <p>重要定理：dim(V) = dim(W) ⟺ V ≅ W</p>
+        <div class="highlight-box">
+          <strong>💡 同構的意義：結構完全相同，只是標籤不同</strong>
+          R³ 和 P₂（次數 ≤ 2 的多項式）同構——都是 3 維向量空間。
+          但 R³ 和 R² 不同構——維度不同，無法建立一一對應。
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>同構的具體例子</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">📐</span> Rⁿ ≅ Pₙ₋₁</h4>
+            <p>Rⁿ 中的向量 ↔ 次數 ≤ n-1 的多項式</p>
+            <p>v = (a₀, a₁, ..., aₙ₋₁) ↔ a₀ + a₁x + ... + aₙ₋₁xⁿ⁻¹</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">📡</span> 信號處理</h4>
+            <p>離散訊號（長度 N 的序列）≅ Rᴺ</p>
+            <p>傅立葉變換：時域 ↔ 頻域（都是 Rᴺ）</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🧬</span> 希爾伯特空間</h4>
+            <p>量子力學中，態向量在希爾伯特空間的表示。</p>
+            <p>測量 = 從無窮維空間到 R 的線性泛函。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- §6.6 -->
+      <div class="ch-subsection-title">§6.6 應用——電網與機器學習</div>
+
+      <div class="content-block">
+        <h3>電網：abc ↔ dq0 座標轉換</h3>
+        <p>三相系統（abc-frame）：三個瞬時交流值（隨時間震盪）。</p>
+        <p>同步旋轉座標（dq0-frame）：轉換到與轉子磁場同步的參考系，電壓電流變成直流。</p>
+        <div class="math-block">
+|v_d|   | cosθ  sinθ | |v_a|
+|v_q| = | -sinθ  cosθ | |v_b|   ← Park 轉換
+| v_0|   | ...    ...  | |v_c|
+        </div>
+        <div class="analogy">
+          <strong>💡 為什麼要轉換？</strong><br>
+          在 abc 座標：功率 P(t) = v_a i_a + v_b i_b + v_c i_c（隨時間震盪）。
+          在 dq0 座標：P = v_d i_d + v_q i_q（直流，控制器設計大幅簡化！）
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>電力系統：Jacobian 矩陣與牛頓法</h3>
+        <p>牛頓-拉夫森法解潮流方程：</p>
+        <div class="math-block">
+J(x) · Δx = −F(x)
+        </div>
+        <p>J(x) 是潮流方程 F(x) 的 Jacobian（偏導數矩陣）。</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">🔄</span> 局部線性化</h4>
+            <p>牛頓法：在當前猜測點 xₖ 做線性近似。</p>
+            <p>非線性 F(x) → 線性轉換 J(xₖ)·Δx</p>
+            <p>這是微分（導數）概念推廣到多維。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">📉</span> 收斂速度</h4>
+            <p>J 的條件數（condition number）決定收斂速度。</p>
+            <p>條件數大（Ch7）→ Jacobian 病態 → 牛頓法收斂慢。</p>
+            <p>這就是為什麼病態系統需要更好的初始猜測。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>機器學習：Embedding 與 Attention</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">🧠</span> Embedding：文字 → 向量</h4>
+            <p>word2vec、CLIP：每個詞/圖片 = Rᵈ 中的一個向量。</p>
+            <p>線性轉換（矩陣 W）：從原始特徵空間投影到 embedding 空間。</p>
+            <p>這個 W 是學習出來的（Gradient Descent）。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🔍</span> Attention 機制</h4>
+            <div class="math-block">
+Q = XW_Q，K = XW_K，V = XW_V
+Attention = softmax(QKᵀ / √d) · V
+            </div>
+            <p>Q, K, V 都是線性轉換！</p>
+            <p>Attention 的本質：用 KQ 相似度加權 V 的線性組合。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>圖神經網路：鄰接矩陣</h3>
+        <p>A（鄰接矩陣）× x（節點特徵）= 鄰居特徵的線性組合：</p>
+        <div class="math-block">
+h⁽ˡ⁺¹⁾ = σ(Ã · h⁽ˡ⁾ · W⁽ˡ⁾)
+        </div>
+        <p>每層 GNN：線性轉換（Ã·W） + 非線性激活（σ）。</p>
+        <p>Ã 是加了自環的正規化鄰接矩陣。</p>
+        <div class="analogy">
+          <strong>💡 拉普拉斯算子的離散類比</strong><br>
+          連續：Δf = ∂²f/∂x²（微分算子）。<br>
+          離散：L = D − A（圖拉普拉斯矩陣）。<br>
+          L 的特徵值（Ch7）告訴你圖的「頻率」——社群偵測、頻譜分析全靠它。
+        </div>
+      </div>
+
+      <!-- §6.7 -->
+      <div class="ch-subsection-title">§6.7 詞彙（中英對照）</div>
+
+      <div class="vocab-section">
+        <h3>📖 Linear Transformation — Glossary</h3>
+        <div class="vocab-grid">
+          <div class="vocab-item"><div class="term">Linear Transformation</div><div class="chinese">線性轉換</div><div class="definition">T: V→W，滿足 T(cu+dv)=cT(u)+dT(v)。</div></div>
+          <div class="vocab-item"><div class="term">Kernel / Null Space</div><div class="chinese">核 / 零空間</div><div class="definition">ker(T) = {x | T(x) = 0}。被映到零的輸入集合。</div></div>
+          <div class="vocab-item"><div class="term">Image / Column Space</div><div class="chinese">像 / 列空間</div><div class="definition">im(T) = {T(x) | x∈V}。所有可能輸出的集合。</div></div>
+          <div class="vocab-item"><div class="term">Rank-Nullity Theorem</div><div class="chinese">維度定理</div><div class="definition">dim(ker) + dim(im) = dim(V)。</div></div>
+          <div class="vocab-item"><div class="term">Matrix Representation</div><div class="chinese">轉換矩陣</div><div class="definition">固定基底下代表 T 的唯一矩陣 [T]。</div></div>
+          <div class="vocab-item"><div class="term">Similar Matrices</div><div class="chinese">相似矩陣</div><div class="definition">B = P⁻¹AP，代表同一轉換不同基底。</div></div>
+          <div class="vocab-item"><div class="term">Composition</div><div class="chinese">合成</div><div class="definition">(T₂∘T₁)(x) = T₂(T₁(x))，矩陣為 [T₂][T₁]。</div></div>
+          <div class="vocab-item"><div class="term">Isomorphism</div><div class="chinese">同構</div><div class="definition">V≅W：存在可逆線性轉換。dim(V)=dim(W)⟺V≅W。</div></div>
+          <div class="vocab-item"><div class="term">Invertible</div><div class="chinese">可逆</div><div class="definition">A⁻¹存在 ⟺ det≠0 ⟺ rank=n ⟺ ker={0}。</div></div>
+          <div class="vocab-item"><div class="term">One-to-one (Injective)</div><div class="chinese">單射</div><div class="definition">ker(T) = {0}。每個輸出只有一個輸入對應。</div></div>
+          <div class="vocab-item"><div class="term">Onto (Surjective)</div><div class="chinese">滿射</div><div class="definition">im(T) = W。所有輸出都可被達到。</div></div>
+          <div class="vocab-item"><div class="term">Commutative Diagram</div><div class="chinese">交換圖</div><div class="definition">殊途同歸：不同路徑產生相同結果。</div></div>
         </div>
       </div>
 
