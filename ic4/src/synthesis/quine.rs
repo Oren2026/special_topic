@@ -1,4 +1,4 @@
-use std::collections::{HashSet, BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 pub struct QuineMcCluskey {
     pub num_vars: usize,

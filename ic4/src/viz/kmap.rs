@@ -1,4 +1,4 @@
-use crate::synthesis::{Kmap, Minterm};
+use crate::synthesis::Kmap;
 
 pub fn draw_kmap(kmap: &Kmap) -> String {
     let n = kmap.n;

@@ -68,17 +68,20 @@ impl IC4DemoApp {
             ],
         );
 
-        let rect = response.rect;
-        let cell_width = rect.width() / 4.0;
-        let cell_height = rect.height() / 4.0;
+        let n = 3;
+        let col_count = 1 << ((n + 1) / 2);
+        let row_count = 1 << (n / 2);
 
-        let gray = Kmap::gray_code(3);
-        let col_count = 4;
+        let rect = response.rect;
+        let cell_width = rect.width() / col_count as f32;
+        let cell_height = rect.height() / row_count as f32;
+
+        let gray = Kmap::gray_code(n);
 
         painter.rect_filled(rect, 0.0, egui::Color32::from_gray(30));
 
-        for row in 0..4 {
-            for col in 0..4 {
+        for row in 0..row_count {
+            for col in 0..col_count {
                 let cell_rect = egui::Rect::from_min_size(
                     egui::pos2(rect.min.x + col as f32 * cell_width, rect.min.y + row as f32 * cell_height),
                     egui::vec2(cell_width, cell_height),
@@ -91,7 +94,7 @@ impl IC4DemoApp {
                     if g == '1' { val |= 1 << i; }
                 }
                 for (i, g) in col_gray.chars().enumerate() {
-                    if g == '1' { val |= 1 << (i + 1); }
+                    if g == '1' { val |= 1 << i; }
                 }
 
                 let is_minterm = kmap.minterms.iter().any(|m| m.value() == val && !m.is_dc);
