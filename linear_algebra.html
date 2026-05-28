@@ -2156,7 +2156,226 @@ cos θ = (v₁·v₂) / (‖v₁‖·‖v₂‖)
 
     <div class="chapter-page" id="ch6">
       <div class="ch-header"><h1><span class="en">Ch6 線性轉換</span> <span class="zh">｜Linear Transformation</span></h1><p class="ch-desc">（待討論）矩陣作為線性變換。核、像、合成。</p></div>
-      <div class="content-block"><h3>🚧 此章節內容待討論後補充</h3></div>
+      <!-- §6.1 -->
+      <div class="ch-subsection-title">§6.1 什麼是線性轉換</div>
+
+      <div class="content-block">
+        <h3>定義（Definition）</h3>
+        <p>線性轉換 T: V → W 是向量空間之間的映射，滿足兩條公理：</p>
+        <div class="math-block">
+T(u + v) = T(u) + T(v)    ← 加性（Additivity）
+T(cu)    = cT(u)          ← 齊次性（Homogeneity）
+        </div>
+        <p>合併：T(cu + dv) = cT(u) + dT(v)</p>
+        <div class="highlight-box">
+          <strong>💡 零向量必映到零向量</strong>
+          將 u = 0 帶入：T(0) = T(0+0) = T(0)+T(0) ⟹ T(0) = 0
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>矩陣就是線性轉換（Matrix = Linear Transformation）</h3>
+        <p>每個 m×n 矩陣 A 定義一個線性轉換：</p>
+        <div class="math-block">
+T_A: Rⁿ → Rᵐ
+T_A(x) = Ax
+        </div>
+        <p>反過來：有限維向量空間上的線性轉換，都可以在固定基底後用矩陣表示。<br>這就是 Ch6 的核心觀點——<strong>矩陣是空間的變形語言</strong>。</p>
+      </div>
+
+      <div class="content-block">
+        <h3>四大基本線性轉換（Geometric Intuitions）</h3>
+        <p>所有線性轉換都是這四種的組合：</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">🔄</span> 旋轉（Rotation）R_θ</h4>
+            <p>R² 繞原點逆時針旋轉 θ 角度。</p>
+            <div class="math-block">
+| cosθ  −sinθ |
+| sinθ   cosθ |</div>
+            <p>θ=90°：R_90 · (1,0) = (0,1)</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🪞</span> 鏡射（Reflection）</h4>
+            <p>關於某直線或平面的對稱。關於 x 軸鏡射：</p>
+            <div class="math-block">
+| 1   0  |
+| 0  -1  |</div>
+          </div>
+          <div class="card">
+            <h4><span class="icon">📏</span> 縮放（Scaling）</h4>
+            <p>沿某方向均勻拉長或壓縮。</p>
+            <div class="math-block">
+| k   0  |
+| 0   k  |   ← 均匀缩放 k 倍</div>
+          </div>
+          <div class="card">
+            <h4><span class="icon">↗</span> 剪切（Shear）</h4>
+            <p>平行於某軸的滑動，角度改變但長度不變。</p>
+            <div class="math-block">
+| 1   k  |
+| 0   1  |   ← 水平剪切 k</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>非線性的陷阱——哪些不是線性轉換？</h3>
+        <div class="compare-grid">
+          <div class="compare-item" style="border-top:3px solid #dc2626;">
+            <div class="label">✗ 平移</div>
+            <div class="value">T(x) = x + b（b ≠ 0）</div>
+            <div class="cond">T(0) = b ≠ 0，破壞線性</div>
+          </div>
+          <div class="compare-item" style="border-top:3px solid #dc2626;">
+            <div class="label">✗ 平方</div>
+            <div class="value">T(x) = x²</div>
+            <div class="cond">T(cu) = c²u² ≠ cT(u)</div>
+          </div>
+          <div class="compare-item" style="border-top:3px solid #dc2626;">
+            <div class="label">✗ 絕對值</div>
+            <div class="value">T(x) = |x|</div>
+            <div class="cond">T((-1)·1) = |-1| = 1 ≠ (-1)|1|</div>
+          </div>
+          <div class="compare-item" style="border-top:3px solid var(--success);">
+            <div class="label">✓ 矩陣乘法</div>
+            <div class="value">T(x) = Ax</div>
+            <div class="cond">任何矩陣乘法都是線性轉換</div>
+          </div>
+        </div>
+      </div>
+      <!-- §6.2 -->
+      <div class="ch-subsection-title">§6.2 核與像——被消滅的與被產生的</div>
+
+      <div class="content-block">
+        <h3>核（Kernel / Null Space）</h3>
+        <p>ker(T) = {x ∈ V | T(x) = 0}——所有被 T「消滅」到零的輸入向量。</p>
+        <div class="math-block">
+ker(T) = null(A) = {x | Ax = 0}
+        </div>
+        <p>幾何意義：在 R² 中，ker(A) = span{v} 表示一條被映到原點的直線。</p>
+      </div>
+
+      <div class="content-block">
+        <h3>像（Image / Column Space）</h3>
+        <p>im(T) = {T(x) | x ∈ V}——所有可能的輸出構成的子空間。</p>
+        <div class="math-block">
+im(T) = col(A) = span{col₁, col₂, ..., colₙ}
+        </div>
+        <p>幾何意義：T 把整個輸入空間 V「拍」到 W 中的 im(T)。</p>
+      </div>
+
+      <div class="algo-card">
+        <h3>維度定理 <span class="zh">｜Rank-Nullity Theorem</span></h3>
+        <div class="math-block">
+dim(ker(T)) + dim(im(T)) = dim(V)
+nullity(A)  +  rank(A)   = n（n = A 的列數）
+        </div>
+        <div class="algo-steps">
+          <h4>💡 推論</h4>
+          <ol>
+            <li>ker(T) = {0} ⟺ T 為單射（one-to-one）</li>
+            <li>im(T) = W ⟺ T 為滿射（onto）</li>
+            <li>若 dim(V) = dim(W)：單射 ⟺ 滿射 ⟺ 可逆</li>
+          </ol>
+        </div>
+        <div class="keywords">
+          <span class="kw">nullity</span><span class="kw">rank</span><span class="kw">單射</span><span class="kw">滿射</span>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>計算：ker(A) 與 im(A)</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">🧮</span> ker(A)</h4>
+            <p>解 Ax = 0（高斯消去）</p>
+            <p>free variables 構成 ker(A) 的基底</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🧮</span> im(A)</h4>
+            <p>A 的 pivot columns 就是 im(A) 的生成集</p>
+            <p>rank(A) = dim(im(A))</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>應用</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">🔌</span> 電網：Jacobian 零空間</h4>
+            <p>牛頓法潮流：J(x) 的零空間 = 系統的零頻振盪模式。</p>
+            <p>ker(J) 非零 → 存在多組解（電壓不穩定）</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🔐</span> 密碼學：線性編碼</h4>
+            <p>ker(A) 非零 → 存在非零訊息被編碼成零向量</p>
+            <p>這是線性區塊碼的核心問題</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- §6.3 -->
+      <div class="ch-subsection-title">§6.3 轉換矩陣——同一轉換，不同基底</div>
+
+      <div class="content-block">
+        <h3>固定基底下的矩陣表示</h3>
+        <p>給定 V 和 W 的基底後，每個線性轉換 T: V → W 有唯一矩陣 [T]：</p>
+        <div class="math-block">
+T(v) = [T] · [v]
+        </div>
+        <p>左邊：向量在 V 上的座標。右邊：[T] 是 m×n 矩陣，[v] 是 n×1 向量。</p>
+        <p>重要：同一個 T，不同基底 → 不同的矩陣。但這些矩陣之間有固定關係。</p>
+      </div>
+
+      <div class="content-block">
+        <h3>相似矩陣（Similar Matrices）</h3>
+        <p>設 P 為從舊基底到新基底的轉換矩陣，則：</p>
+        <div class="math-block">
+[T]_新 = P⁻¹ · [T]_舊 · P
+        </div>
+        <p>若 B = P⁻¹AP，則 A 和 B <strong>相似</strong>——代表同一個線性轉換，只是看的基底不同。</p>
+        <div class="highlight-box">
+          <strong>💡 相似不變性</strong>
+          相似矩陣共享：rank(A) = rank(B)、det(A) = det(B)、trace(A) = trace(B)、特徵值相同（Ch7）
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <h3>座標變換矩陣推導 <span class="zh">｜Change of Basis Matrix</span></h3>
+        <p>已知舊基底到新基底的轉換矩陣 P，如何計算任意向量在新基底下的座標？</p>
+        <div class="algo-steps">
+          <h4>⚙️ 標準步驟</h4>
+          <ol>
+            <li>舊座標 [v]_舊 → 實際向量 v = P · [v]_新 ⟹ [v]_新 = P⁻¹ · [v]_舊</li>
+            <li>轉換矩陣：[T]_新 = P⁻¹ · [T]_舊 · P</li>
+            <li>驗證：T(v) 在新座標下 = [T]_新 · [v]_新</li>
+          </ol>
+        </div>
+        <div class="keywords">
+          <span class="kw">P⁻¹AP</span><span class="kw">similar</span><span class="kw">座標變換</span>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <h3>幾何意義——同一地點，不同座標</h3>
+        <p>類比：台北 101 在 (25.034, 121.564) 和 (0, 508) 是同一個點，只是用的座標系統不同。</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="icon">🗺️</span> 地圖座標</h4>
+            <p>經緯度（WGS84）和 TM2 座標——同一地點，數字不同。</p>
+            <p>轉換矩陣 P = 不同座標系統之間的轉換器。</p>
+          </div>
+          <div class="card">
+            <h4><span class="icon">🔌</span> 電網：abc ↔ dq0</h4>
+            <p>abc：三相瞬時值座標（隨時間變化）</p>
+            <p>dq0：同步旋轉座標（直流稳態）</p>
+            <p>P = Park 轉換矩陣——這就是一個座標變換！</p>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <div class="chapter-page" id="ch7">
