@@ -1,0 +1,46 @@
+# ROS2 build artifacts
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+
+# Colcon
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Gazebo
+*.sdf
+*.world
+~/.gazebo/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Intel oneAPI (if used)
+Intel/
+
+# Node
+node_modules/
+
+# Latex
+*.aux
+*.log
+*.out
+*.pdf
+
+# Temp
+tmp/
+temp/
+*.tmp
