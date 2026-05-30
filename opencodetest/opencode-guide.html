@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCode CLI 使用邏輯</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --cyan: #00f0ff;
+      --purple: #7c3aed;
+      --green: #3fb950;
+      --red: #f85149;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.6;
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.8rem;
+      color: var(--cyan);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+    .subtitle { color: var(--muted); margin-bottom: 2rem; }
+    h2 {
+      font-size: 1.1rem;
+      color: var(--cyan);
+      border-left: 3px solid var(--cyan);
+      padding-left: 0.75rem;
+      margin: 2rem 0 1rem;
+    }
+    h3 { color: var(--text); font-size: 0.95rem; margin: 1rem 0 0.5rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    code {
+      background: #1c2128;
+      color: var(--cyan);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      font-size: 0.88em;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+    pre {
+      background: #1c2128;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+      font-size: 0.88em;
+      line-height: 1.5;
+    }
+    pre code { background: none; padding: 0; color: var(--text); }
+    .cmd { color: var(--green); }
+    .flag { color: var(--purple); }
+    .model { color: var(--cyan); }
+    ul { padding-left: 1.5rem; color: var(--muted); }
+    li { margin: 0.3rem 0; }
+    .note {
+      background: rgba(0,240,255,0.05);
+      border: 1px solid rgba(0,240,255,0.2);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9em;
+      color: var(--muted);
+      margin: 1rem 0;
+    }
+    .tag {
+      display: inline-block;
+      background: rgba(0,240,255,0.15);
+      color: var(--cyan);
+      font-size: 0.75em;
+      padding: 0.1em 0.5em;
+      border-radius: 3px;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.88em; }
+    th { color: var(--cyan); background: rgba(0,240,255,0.05); }
+    td:first-child { color: var(--green); font-family: monospace; }
+    .available-models .model-tag {
+      display: inline-block;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.25rem 0.6rem;
+      margin: 0.25rem 0.3rem 0.25rem 0;
+      font-family: monospace;
+      font-size: 0.85em;
+      color: var(--cyan);
+    }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin: 0.75rem 0;
+    }
+    .step-num {
+      background: var(--cyan);
+      color: var(--bg);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8em;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .step-content { font-size: 0.9em; }
+    .step-content .cmd { display: block; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+
+<h1>🤖 OpenCode CLI 使用邏輯</h1>
+<p class="subtitle">Terminal AI Agent · Non-Interactive & Persistent Session 完全攻略</p>
+
+<!-- 1. 核心觀念 -->
+<h2>1. 核心觀念：兩種運行模式</h2>
+<div class="card">
+  <h3>互動模式（TUI）</h3>
+  <p style="color:var(--muted);font-size:0.9em;margin-bottom:0.75rem;">你的視覺化終端，安裝後預設進入，包含彩色介面與提示。須要設定 AI Provider。</p>
+  <pre><code><span class="cmd">opencode</span>                        # 進入互動模式（預設）</code></pre>
+
+  <h3>非互動模式（Script / One-shot）</h3>
+  <p style="color:var(--muted);font-size:0.9em;margin-bottom:0.75rem;">用在 CLI script、Cron job、串接流程。搭配 <code>--prompt</code> 一次完成任務。</p>
+  <pre><code><span class="cmd">opencode run</span> <span class="flag">--prompt</span> <span class="flag">"任務描述"</span> <span class="flag">--model</span> <span class="model">opencode/big-pickle</span></code></pre>
+</div>
+
+<!-- 2. Session 持久化機制 -->
+<h2>2. Session 持久化 — 核心競爭力</h2>
+<div class="card">
+  <p style="color:var(--muted);font-size:0.9em;margin-bottom:1rem;">
+    OpenCode 最重要的能力：自帶 SQLite 資料庫儲存對話歷史，每次操作都有 Session ID，可以隨時召回、繼續、分支。
+  </p>
+
+  <table>
+    <tr><th>指令</th><th>說明</th></tr>
+    <tr><td>opencode session list</td><td>列出所有 sessions（顯示 ID、標題、最後更新時間）</td></tr>
+    <tr><td>opencode run --continue</td><td>繼續上一個 session（不開新對話）</td></tr>
+    <tr><td>opencode run --session <id></td><td>繼續指定的 session ID</td></tr>
+    <tr><td>opencode run --fork</td><td>fork 一份 current session 再繼續（不影響原 session）</td></tr>
+    <tr><td>opencode export [sessionID]</td><td>匯出 session 成 JSON（含完整對話歷史）</td></tr>
+    <tr><td>opencode import <file></td><td>從 JSON 檔案匯入 session</td></tr>
+  </table>
+</div>
+
+<!-- 3. 實戰流程 -->
+<h2>3. 實戰流程</h2>
+<div class="card">
+  <h3>單次任務（不需記憶）</h3>
+  <pre><code><span class="cmd">opencode run</span> <span class="flag">--prompt</span> <span class="flag">"在目前目錄建立 index.html"</span> <span class="flag">--model</span> <span class="model">opencode/big-pickle</span></code></pre>
+
+  <h3 style="margin-top:1rem;">持續對話（三步驟）</h3>
+  <div class="flow-step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      發送第一個任務，儲存回傳的 Session ID
+      <pre><code><span class="cmd">opencode run</span> <span class="flag">"建立一個 HTML 報告"</span> <span class="flag">--model</span> <span class="model">opencode/big-pickle</span> <span class="flag">--format</span> json 2>&1 | grep sessionID</code></pre>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      用 <code>--session</code> 繼續同一個 session 加入新任務
+      <pre><code><span class="cmd">opencode run</span> <span class="flag">"修正雷達圖座標"</span> <span class="flag">--session</span> <span class="flag">ses_18830d080ffem4aVo5n5xupl2q</span></code></pre>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      隨時用 <code>session list</code> 查看狀態
+      <pre><code><span class="cmd">opencode session list</span></code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- 4. 與 Hermes 整合 -->
+<h2>4. 與 Hermes Agent 整合策略</h2>
+<div class="card">
+  <p style="color:var(--muted);font-size:0.9em;margin-bottom:1rem;">Hermes 作為協調者，OpenCode 作為專案執行者的分工模式：</p>
+  <pre><code><span class="cmd"># Hermes 下令，OpenCode 執行，結果寫入檔案後回傳 summary</span>
+opencode run <span class="flag">--prompt</span> <span class="flag">"在 opencodetest/ 建立一份技術文件"</span> \
+  <span class="flag">--dir</span> ~/Desktop/special_topic/opencodetest \
+  <span class="flag">--model</span> <span class="model">opencode/big-pickle</span></code></pre>
+
+  <div class="note">
+    <strong>注意：</strong>CLI 模式下 OpenCode 同樣沒有你的 project context，需要在 prompt 裡明確定義目標、目錄、相對路徑。
+  </div>
+</div>
+
+<!-- 5. 可用模型 -->
+<h2>5. 可用模型（已內建，無需 API Key）</h2>
+<div class="card available-models">
+  <p style="color:var(--muted);font-size:0.9em;margin-bottom:0.75rem;">使用 <code>opencode models</code> 查看完整清單，以下為目前標配：</p>
+  <div>
+    <span class="model-tag">opencode/big-pickle</span>
+    <span class="model-tag">opencode/deepseek-v4-flash-free</span>
+    <span class="model-tag">opencode/mimo-v2.5-free</span>
+    <span class="model-tag">opencode/nemotron-3-super-free</span>
+  </div>
+  <p style="color:var(--muted);font-size:0.85em;margin-top:0.75rem;">
+    使用範例：<code>--model opencode/big-pickle</code>
+  </p>
+</div>
+
+<!-- 6. 重要 Flags -->
+<h2>6. 重要 Flags 一覽</h2>
+<div class="card">
+  <table>
+    <tr><th>Flag</th><th>說明</th></tr>
+    <tr><td>--prompt "..."</td><td>直接給任務（單次模式必備）</td></tr>
+    <tr><td>--model</td><td>指定模型，格式：provider/model</td></tr>
+    <tr><td>--continue</td><td>繼續上個 session</td></tr>
+    <tr><td>--session <id></td><td>繼續特定 session</td></tr>
+    <tr><td>--fork</td><td>fork session 再 continue（安全分支）</td></tr>
+    <tr><td>--format json</td><td>JSON 输出（可用於 pipeline 解析）</td></tr>
+    <tr><td>--dir <path></td><td>指定工作目錄</td></tr>
+    <tr><td>--title "..."</td><td>給 session 命名</td></tr>
+    <tr><td>--file <files></td><td>附加檔案到 prompt</td></tr>
+    <tr><td>--interactive</td><td>互動分割模式（終端內多工）</td></tr>
+  </table>
+</div>
+
+<!-- 7. Server 模式 -->
+<h2>7. 長期部署：Server / Web 模式</h2>
+<div class="card">
+  <p style="color:var(--muted);font-size:0.9em;margin-bottom:0.75rem;">如果需要長駐、透過程式呼叫、或分享給團隊：</p>
+  <pre><code><span class="cmd">opencode serve</span>               # 啟動 headless server（背景執行）
+<span class="cmd">opencode web</span>                # 啟動 + 開啟瀏覽器 Web UI
+<span class="cmd">opencode attach</span> <url>      # 附加到執行中的 server</code></pre>
+  <p style="color:var(--muted);font-size:0.85em;margin-top:0.5rem;">
+    Server 模式適合：需要 Hermes 從腳本定時呼叫、或需要多人共享同一個 OpenCode 實例。
+  </p>
+</div>
+
+<!-- 8. 限制與注意 -->
+<h2>8. 限制與注意</h2>
+<div class="card">
+  <ul>
+    <li><strong>沒有內建專案 context</strong> — prompt 必須自己包含目錄結構、要創建的檔案、相對路徑</li>
+    <li><strong>CLI 模式仍是獨立的 fresh session</strong> — 只有用 <code>--session</code> 才是 continuity，否則每次都是乾淨的上下文</li>
+    <li><strong>Big Pickle 模型輸出長度有限</strong> — 複雜 HTML 可能被截斷，需要分段落餵任務</li>
+    <li><strong>沒有 stderr 區分錯誤</strong> — exit code 0 不等於任務完成，還是要看輸出內容</li>
+    <li><strong>沒有直接檔案編輯回調</strong> — OpenCode 只能透過 tool use 改檔案，Hermes 之間需要靠寫檔案中轉</li>
+  </ul>
+</div>
+
+<div class="note" style="text-align:center;font-size:0.85em;margin-top:2rem;">
+  OpenCode v1.15.10 · 整理自 CLI help & 實際測試 · 2026-05-30
+</div>
+
+</body>
+</html>

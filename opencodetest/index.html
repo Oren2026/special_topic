@@ -892,30 +892,19 @@
         <text x="200" y="90" text-anchor="middle" fill="#8888aa" font-size="11" font-family="Inter">創造力</text>
 
         <!-- 2025 數據 (紫色) -->
-        <!-- 中心 400,220 半徑 120 -->
-        <!-- 推理:80 程式碼:70 多模態:60 安全性:50 效率:65 創造力:75 -->
-        <!-- 角度: 0, 60, 120, 180, 240, 300 deg -->
-        <!-- 點坐標: (cx + r*cos(a), cy + r*sin(a)) -->
-        <!-- 0deg=上: cos0=0, sin0=-1 -->
-        <!-- 60deg: cos60=0.5, sin60=-0.866 -->
-        <!-- 120deg: cos120=-0.5, sin120=-0.866 -->
-        <!-- 180deg: cos180=-1, sin180=0 -->
-        <!-- 240deg: cos240=-0.5, sin240=0.866 -->
-        <!-- 300deg: cos300=0.5, sin300=0.866 -->
-
-        <!-- 2025 -->
-        <polygon points="400,100 460,116 340,116 280,220 340,272 460,272"
+        <!-- 半徑: 推理:80 程式碼:70 多模態:60 安全性:50 效率:65 創造力:75 -->
+        <!-- cx=400, cy=220, maxR=120 -->
+        <polygon points="400,140 456,165.6 436,286 340,270 400,302 344,314"
                  fill="url(#area2025)" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
-        <polygon points="400,100 460,116 340,116 280,220 340,272 460,272"
-                 fill="none" stroke="#7c3aed" stroke-width="2"/>
+        <polygon points="400,140 456,165.6 436,286 340,270 400,302 344,314"
+                 fill="none" stroke="#7c3aed" stroke-width="1.5"/>
 
-        <!-- 2026 (青色) 接近外圍半徑 120 -->
-        <!-- 推理:110 程式碼:105 多模態:100 安全性:85 效率:105 創造力:100 -->
-        <!-- 400,110  460,100  340,100  280,220  340,280  460,280 -->
-        <polygon points="400,90 473,100 327,100 260,220 327,280 473,280"
-                 fill="url(#area2026)" stroke="#00f0ff" stroke-width="2" opacity="0.8"/>
-        <polygon points="400,90 473,100 327,100 260,220 327,280 473,280"
-                 fill="none" stroke="#00f0ff" stroke-width="2.5" filter="url(#glow2026)"/>
+        <!-- 2026 數據 (青色) -->
+        <!-- 半徑: 推理:110 程式碼:105 多模態:100 安全性:85 效率:105 創造力:100 -->
+        <polygon points="400,110 455,142.3 460,220 340,270.4 400,242 448,290"
+                 fill="url(#area2026)" stroke="#00f0ff" stroke-width="1.5" opacity="0.8"/>
+        <polygon points="400,110 455,142.3 460,220 340,270.4 400,242 448,290"
+                 fill="none" stroke="#00f0ff" stroke-width="2" filter="url(#glow2026)"/>
 
         <!-- 同心圓網格 -->
         <circle cx="400" cy="220" r="30" fill="none" stroke="#2a2a3e" stroke-width="0.5"/>
