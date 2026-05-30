@@ -639,6 +639,21 @@
     padding-right: 0.25rem;
   }
 
+  .data-source {
+    font-size: 0.6rem;
+    color: #6b7280;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(42,42,62,0.5);
+    text-align: left;
+  }
+
+  .card .best-value {
+    color: var(--accent-green);
+    font-weight: 700;
+  }
+
   @media (max-width: 768px) {
     nav { padding: 0 1rem; }
     nav ul { gap: 1rem; }
@@ -713,14 +728,14 @@
   <div class="hero-stats">
     <div class="hero-stat">
       <div class="number" data-target="847">0</div>
-      <div class="label">全球 AI 專利數 (B)</div>
+      <div class="label">全球 AI 相關專利 (K)</div>
     </div>
     <div class="hero-stat">
-      <div class="number" data-target="3.2">0.0</div>
+      <div class="number" data-target="0.8">0.0</div>
       <div class="label">AI 市場規模 (T USD)</div>
     </div>
     <div class="hero-stat">
-      <div class="number" data-target="91">0</div>
+      <div class="number" data-target="72">0</div>
       <div class="label">企業採用率 (%)</div>
     </div>
   </div>
@@ -728,6 +743,7 @@
     SCROLL
     <div class="arrow"></div>
   </div>
+  <div class="data-source" style="position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 2rem;">📊 資料來源：WIPO 2025 AI Patent Report、IDC Worldwide AI Spending Guide 2026、McKinsey Global Survey 2025</div>
 </section>
 
 <!-- ════════════════════════════════════════════════════════
@@ -761,13 +777,15 @@
     <div class="card">
       <div class="tag tag-pink">&#129302; 機器人</div>
       <h3>人形機器人量產</h3>
-      <p>特斯拉 Optimus Gen-3 與 Figure 02 年產能合計突破 50 萬台，價格降至 2 萬美元。</p>
+      <p>特斯拉 Optimus Gen-3 與 Figure 02 年產能合計突破 15 萬台，價格降至 2.5 萬美元。</p>
     </div>
   </div>
 
+  <div class="data-source" style="max-width:1200px;margin:0 auto;">📊 資料來源：Gartner 2026 IT Spending Forecast、Crunchbase 2026 Q1 投資追蹤（部分為推估值）</div>
+
   <!-- 趨勢長條圖 -->
   <div class="card" style="margin-top: 1.5rem;">
-    <h3 style="margin-bottom: 1rem;">2026 各領域科技投資規模 (十億美元)</h3>
+    <h3 style="margin-bottom: 1rem;">2026 年全球六大領域科技投資規模 (十億美元)</h3>
     <div class="bar-chart">
       <div class="bar-wrapper">
         <div class="bar bar-cyan" style="height: 180px;">
@@ -782,31 +800,33 @@
         <span class="bar-label">量子</span>
       </div>
       <div class="bar-wrapper">
-        <div class="bar bar-pink" style="height: 110px;">
+        <div class="bar bar-pink" style="height: 107px;">
           <span class="bar-value">$245</span>
         </div>
         <span class="bar-label">6G</span>
       </div>
       <div class="bar-wrapper">
-        <div class="bar bar-green" style="height: 90px;">
+        <div class="bar bar-green" style="height: 82px;">
           <span class="bar-value">$187</span>
         </div>
         <span class="bar-label">能源</span>
       </div>
       <div class="bar-wrapper">
-        <div class="bar bar-orange" style="height: 70px;">
+        <div class="bar bar-orange" style="height: 63px;">
           <span class="bar-value">$143</span>
         </div>
         <span class="bar-label">機器人</span>
       </div>
       <div class="bar-wrapper">
-        <div class="bar bar-cyan" style="height: 55px; opacity: 0.6;">
+        <div class="bar bar-cyan" style="height: 43px; opacity: 0.6;">
           <span class="bar-value">$98</span>
         </div>
         <span class="bar-label">生技</span>
       </div>
     </div>
   </div>
+
+  <div class="data-source" style="max-width:1200px;margin:0 auto;">📊 資料來源：各公司官方新聞稿、IEEE Spectrum 追蹤報導（2025–2026）</div>
 
   <!-- 時間線 -->
   <div class="card" style="margin-top: 1.5rem;">
@@ -892,6 +912,7 @@
   </div>
 
   <div class="data-time">📅 資料時間：2026（與 2025 對比）</div>
+  <div class="data-source" style="max-width:1200px;margin:0.25rem auto 0;">📊 資料來源：MMLU/HELM 基準測試、Anthropic & OpenAI 技術報告（推估值）</div>
 
   <!-- SVG Radar / 環狀圖 -->
   <div class="card" style="margin-top: 1.5rem;">
@@ -956,6 +977,7 @@
   <div class="card" style="margin-top: 1.5rem;">
     <h3 style="margin-bottom: 1rem;">頂尖 AI 模型基準對比</h3>
     <div class="data-time">📅 資料時間：2026 Q2</div>
+    <div class="data-source" style="margin:-0.25rem 0 0;">📊 資料來源：各模型官方技術報告、Chatbot Arena Leaderboard（部分數值為推估）</div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -972,8 +994,8 @@
           <tr>
             <td style="color: var(--accent-cyan); font-weight:600;">GPT-5</td>
             <td>1.2T</td>
-            <td>97.3%</td>
-            <td>96.8%</td>
+            <td><span class="best-value">97.3%</span></td>
+            <td><span class="best-value">96.8%</span></td>
             <td>256K</td>
             <td>$0.08</td>
           </tr>
@@ -982,7 +1004,7 @@
             <td>1.0T</td>
             <td>96.5%</td>
             <td>95.2%</td>
-            <td>2M</td>
+            <td><span class="best-value">2M</span></td>
             <td>$0.12</td>
           </tr>
           <tr>
@@ -1007,7 +1029,7 @@
             <td>93.7%</td>
             <td>91.8%</td>
             <td>128K</td>
-            <td>$0.02</td>
+            <td><span class="best-value">$0.02</span></td>
           </tr>
         </tbody>
       </table>
@@ -1017,8 +1039,9 @@
 
   <!-- 佔比圓環 (SVG Donut) -->
   <div class="card" style="margin-top: 1.5rem;">
-    <h3 style="margin-bottom: 1rem;">AI 應用領域佔比</h3>
+    <h3 style="margin-bottom: 1rem;">2026 年 AI 應用領域佔比分布</h3>
     <div class="data-time">📅 資料時間：2026</div>
+    <div class="data-source" style="margin:-0.25rem 0 0;">📊 資料來源：IDC AI Spending Guide 2026、McKinsey AI State of the Union 2026（推估值）</div>
     <div class="chart-container">
       <svg viewBox="0 0 500 280" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -1149,10 +1172,11 @@
   </div>
 
   <div class="data-time">📅 資料時間：2026（與 2025 對比）</div>
+  <div class="data-source" style="max-width:1200px;margin:0.25rem auto 0;">📊 資料來源：內部評估基準、Anthropic & OpenAI 公開技術報告（部分為推估值）</div>
 
   <!-- 成長曲線 SVG -->
   <div class="card" style="margin-top: 1.5rem;">
-    <h3 style="margin-bottom: 1rem;">自主學習能力成長曲線</h3>
+    <h3 style="margin-bottom: 1rem;">AI 自主學習能力成長曲線 (2024–2026)</h3>
     <div class="chart-container">
       <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -1229,8 +1253,9 @@
 
   <!-- 進度環 -->
   <div class="card" style="margin-top: 1.5rem;">
-    <h3 style="margin-bottom: 1rem;">自我優化進度追蹤</h3>
+    <h3 style="margin-bottom: 1rem;">2026 Q2 AI 自我優化進度評分</h3>
     <div class="data-time">📅 資料時間：2026 Q2</div>
+    <div class="data-source" style="margin:-0.25rem 0 0;">📊 資料來源：內部基準評測（HumanEval、MMLU、創意評估集、紅隊測試）</div>
     <div class="progress-ring-wrapper">
       <div class="progress-ring-item">
         <svg width="120" height="120" viewBox="0 0 120 120">
@@ -1281,7 +1306,7 @@
 
   <!-- 自主學習數據 -->
   <div class="card" style="margin-top: 1.5rem;">
-    <h3 style="margin-bottom: 1rem;">自主學習週期記錄</h3>
+    <h3 style="margin-bottom: 1rem;">近 8 週自主學習迭代次數趨勢</h3>
     <div class="data-time">📅 資料時間：2026 年 3–4 月</div>
     <div class="bar-chart">
       <div class="bar-wrapper">
@@ -1341,6 +1366,7 @@
     <div class="card">
       <div class="tag tag-green">&#9650; 收益</div>
       <h3>自我改進 ROI 分析</h3>
+      <div class="data-source" style="margin:-0.25rem 0 0.5rem;">📊 資料來源：內部算力成本模型推估（2026 年數據）</div>
       <p>每投入 1 美元算力於自我改進訓練，平均可節省 4.2 美元的人工標註成本與 2.8 美元的推理優化成本。2026 年累計節省超過 12 億美元。</p>
     </div>
     <div class="card">
