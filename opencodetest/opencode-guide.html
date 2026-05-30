@@ -162,6 +162,14 @@
     <tr><td>opencode export [sessionID]</td><td>匯出 session 成 JSON（含完整對話歷史）</td></tr>
     <tr><td>opencode import <file></td><td>從 JSON 檔案匯入 session</td></tr>
   </table>
+
+  <p style="color:var(--muted);font-size:0.9em;margin-top:0.75rem;">輸出範例：</p>
+  <pre><code>┌──────────────────────────────────────┬──────────────────────────────┬──────────────────┐
+│ ID                                   │ Title                        │ Updated          │
+├──────────────────────────────────────┼──────────────────────────────┼──────────────────┤
+│ ses_18830d080ffem4aVo5n5xupl2q       │ 建立 HTML 報告               │ 2026-05-30 07:45 │
+│ ses_18830d07f5035qiHJT6mlJ6Zbf       │ 修正雷達圖座標               │ 2026-05-30 07:50 │
+└──────────────────────────────────────┴──────────────────────────────┴──────────────────┘</code></pre>
 </div>
 
 <!-- 3. 實戰流程 -->
@@ -221,6 +229,13 @@ opencode run <span class="flag">--prompt</span> <span class="flag">"在 opencode
   <p style="color:var(--muted);font-size:0.85em;margin-top:0.75rem;">
     使用範例：<code>--model opencode/big-pickle</code>
   </p>
+  <p style="color:var(--muted);font-size:0.9em;margin-top:0.75rem;">輸出範例：</p>
+  <pre><code><span class="cmd">opencode models</span>
+Available models:
+  opencode/big-pickle              Big Pickle (預設, 多模態)
+  opencode/deepseek-v4-flash-free  DeepSeek V4 Flash (快速, 輕量)
+  opencode/mimo-v2.5-free          MIMO v2.5 (平衡, 成本低)
+  opencode/nemotron-3-super-free   Nemotron 3 Super (高效, 長文本)</code></pre>
 </div>
 
 <!-- 6. 重要 Flags -->
@@ -263,6 +278,113 @@ opencode run <span class="flag">--prompt</span> <span class="flag">"在 opencode
     <li><strong>沒有 stderr 區分錯誤</strong> — exit code 0 不等於任務完成，還是要看輸出內容</li>
     <li><strong>沒有直接檔案編輯回調</strong> — OpenCode 只能透過 tool use 改檔案，Hermes 之間需要靠寫檔案中轉</li>
   </ul>
+</div>
+
+<!-- 9. 與 Hermes Agent 整合實戰 -->
+<h2>9. 與 Hermes Agent 整合實戰</h2>
+<div class="card">
+  <p style="color:var(--muted);font-size:0.9em;margin-bottom:1rem;">
+    Hermes Agent 擔任 orchestrator，OpenCode 擔任 executor。<br>
+    核心模式：<strong>prompt 定義目標 → --session 保持上下文 → fork 建立分支實驗</strong>，形成可持續的對話式專案執行鏈。
+  </p>
+
+  <h3>基本 Chain 模式</h3>
+  <div class="flow-step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      起始任務：Hermes 派發初始需求
+      <pre><code><span class="cmd">opencode run</span> <span class="flag">"在 opencodetest/ 建立一份 API 文件 index.html，包含 RESTful 路由表與 curl 範例"</span> \
+  <span class="flag">--dir</span> ~/Desktop/special_topic/opencodetest \
+  <span class="flag">--model</span> <span class="model">opencode/big-pickle</span> \
+  <span class="flag">--format</span> json <span class="flag">--title</span> <span class="flag">"建立 API 文件"</span></code></pre>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      Hermes 從 JSON 輸出解析 <code>sessionID</code>，存入變數以串接下一個任務
+      <pre><code><span class="flag"># 假設回傳 sessionID = ses_abc123...</span>
+<span class="cmd">opencode run</span> <span class="flag">"新增一章關於錯誤碼的表格"</span> \
+  <span class="flag">--session</span> <span class="flag">ses_abc123...</span></code></pre>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      需要實驗性修改時使用 <code>--fork</code>，不影響原始 session
+      <pre><code><span class="cmd">opencode run</span> <span class="flag">"改用紫色主題重新設計"</span> \
+  <span class="flag">--fork</span> <span class="flag">--session</span> <span class="flag">ses_abc123...</span></code></pre>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      用 <code>session list --json</code> 讓 Hermes 程式化判斷 session 狀態
+      <pre><code><span class="cmd">opencode session list</span> <span class="flag">--format</span> json | jq <span class="flag">'.[] | select(.title | contains("API"))'</span></code></pre>
+    </div>
+  </div>
+
+  <h3 style="margin-top:1.5rem;">實戰案例：Hermes 腳本自動化</h3>
+  <pre><code><span class="flag">#!/usr/bin/env bash</span>
+<span class="flag"># Hermes 排程腳本：每日更新報告</span>
+SESSION_ID=$(opencode run --prompt <span class="flag">"更新 index.html 的市場數據表格"</span> \
+  --dir ~/Desktop/special_topic/opencodetest \
+  --model opencode/big-pickle --format json 2>&1 | grep sessionID | cut -d' ' -f2)
+
+opencode run --prompt <span class="flag">"將更新日誌寫入 CHANGELOG.md"</span> \
+  --session <span class="flag">$SESSION_ID</span></code></pre>
+
+  <div class="note">
+    <strong>關鍵技巧：</strong>每次 <code>opencode run</code> 都用 <code>--format json</code> 輸出，讓 Hermes 能程式化解析 sessionID、status、token 用量等資訊。Chain 的長度取決於模型 context window，建議每 5–8 次 iteration 後用 <code>--fork</code> 歸零 context。
+  </div>
+</div>
+
+<!-- 10. 常見問題與解決方案 -->
+<h2>10. 常見問題與解決方案（Limitations & Pitfalls）</h2>
+<div class="card">
+  <table>
+    <tr><th style="width:25%;">問題</th><th>原因</th><th>解決方案</th></tr>
+    <tr>
+      <td><code>--prompt</code> 沒有效果</td>
+      <td>未使用 <code>opencode run</code>，直接下 <code>opencode --prompt</code> 不會執行</td>
+      <td>完整指令：<code>opencode run --prompt "..."</code></td>
+    </tr>
+    <tr>
+      <td>輸出被截斷</td>
+      <td>模型 context window 限制或 token 上限</td>
+      <td>拆分任務、使用 <code>--fork</code> 開新 session、或換更大 context 的模型（如 nemotron）</td>
+    </tr>
+    <tr>
+      <td>Session 遺失</td>
+      <td>手動刪除 <code>~/.config/opencode/sessions.db</code> 或目錄重建</td>
+      <td>定期用 <code>opencode export &lt;id&gt;</code> 備份重要 session</td>
+    </tr>
+    <tr>
+      <td>模型無法存取</td>
+      <td>provider API 變更、斷線、或模型已下架</td>
+      <td>用 <code>opencode models</code> 確認可用清單，切換備用模型</td>
+    </tr>
+    <tr>
+      <td>檔案沒被修改</td>
+      <td>OpenCode 不知道目標目錄，或路徑錯誤</td>
+      <td>使用 <code>--dir</code> 明確指定目錄，prompt 中寫絕對/相對路徑</td>
+    </tr>
+    <tr>
+      <td>Session 無法繼續</td>
+      <td>session ID 拼錯、或資料庫損毀</td>
+      <td>用 <code>opencode session list</code> 確認正確 ID；備份 db 在 <code>~/.config/opencode/</code></td>
+    </tr>
+    <tr>
+      <td>Hermes 收不到 JSON</td>
+      <td><code>--format json</code> 輸出混在人類可讀文字中</td>
+      <td>用 <code>2>&1 | grep '{' | tail -1</code> 提取 JSON 行，或寫入暫存檔</td>
+    </tr>
+    <tr>
+      <td>Context 污染</td>
+      <td>長時間 session 累積太多歷史，模型開始混淆</td>
+      <td>定時用 <code>--fork</code> 開分支，只保留關鍵上下文；大任務拆成多個 session</td>
+    </tr>
+  </table>
 </div>
 
 <div class="note" style="text-align:center;font-size:0.85em;margin-top:2rem;">
