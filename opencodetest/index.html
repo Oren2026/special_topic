@@ -630,6 +630,15 @@
   }
 
   /* ─── Responsive ─── */
+  .data-time {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+    text-align: right;
+    margin-top: 0.5rem;
+    padding-right: 0.25rem;
+  }
+
   @media (max-width: 768px) {
     nav { padding: 0 1rem; }
     nav ul { gap: 1rem; }
@@ -823,6 +832,26 @@
         <h4>AI Agent 工作力元年</h4>
         <p>超過 30% 的企業導入自主 AI Agent 處理流程自動化。</p>
       </div>
+      <div class="timeline-item">
+        <div class="tl-date">2026 Q3</div>
+        <h4>制氫技術突破</h4>
+        <p>綠氫生產成本降至 $1.5/kg，固態氧化物電解槽效率突破 85%，全球氫能投資年增 240%。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">2026 Q3</div>
+        <h4>量子錯誤糾正實驗室成立</h4>
+        <p>IBM、Google 聯合成立量子錯誤糾正研究中心，邏輯量子位元錯誤率首次低於物理量子位元。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">2026 Q4</div>
+        <h4>TSMC 2nm 量產</h4>
+        <p>N2 製程正式進入量產階段，電晶體密度較 3nm 提升 15%，功耗降低 30%。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">2026 Q4</div>
+        <h4>AI Agent 應用爆發</h4>
+        <p>超過 50% 的企業部署自主 AI Agent 處理流程自動化，企業級 Agent 平台市場突破 200 億美元。</p>
+      </div>
     </div>
   </div>
 </section>
@@ -861,6 +890,8 @@
       <div class="metric-change up">&#9650; +6.2pp YoY</div>
     </div>
   </div>
+
+  <div class="data-time">📅 資料時間：2026（與 2025 對比）</div>
 
   <!-- SVG Radar / 環狀圖 -->
   <div class="card" style="margin-top: 1.5rem;">
@@ -924,6 +955,7 @@
   <!-- 模型對比表 -->
   <div class="card" style="margin-top: 1.5rem;">
     <h3 style="margin-bottom: 1rem;">頂尖 AI 模型基準對比</h3>
+    <div class="data-time">📅 資料時間：2026 Q2</div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -986,6 +1018,7 @@
   <!-- 佔比圓環 (SVG Donut) -->
   <div class="card" style="margin-top: 1.5rem;">
     <h3 style="margin-bottom: 1rem;">AI 應用領域佔比</h3>
+    <div class="data-time">📅 資料時間：2026</div>
     <div class="chart-container">
       <svg viewBox="0 0 500 280" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -1008,6 +1041,10 @@
           <linearGradient id="d5" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stop-color="#ff6b35"/>
             <stop offset="100%" stop-color="#c2410c"/>
+          </linearGradient>
+          <linearGradient id="d6" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#666688"/>
+            <stop offset="100%" stop-color="#444455"/>
           </linearGradient>
         </defs>
 
@@ -1042,9 +1079,15 @@
                 transform="rotate(-90 130 140)"
                 opacity="0.9"/>
 
-        <!-- 8% 其他 -->
+        <!-- 5% 智慧交通 -->
         <circle cx="130" cy="140" r="80" fill="none" stroke="url(#d5)" stroke-width="28"
-                stroke-dasharray="40.21 502.65" stroke-dashoffset="-462.44"
+                stroke-dasharray="25.13 502.65" stroke-dashoffset="-462.44"
+                transform="rotate(-90 130 140)"
+                opacity="0.9"/>
+
+        <!-- 3% 其他 -->
+        <circle cx="130" cy="140" r="80" fill="none" stroke="url(#d6)" stroke-width="28"
+                stroke-dasharray="15.08 502.65" stroke-dashoffset="-487.57"
                 transform="rotate(-90 130 140)"
                 opacity="0.9"/>
 
@@ -1066,7 +1109,10 @@
         <text x="282" y="152" fill="#e8e8f0" font-size="13" font-family="Inter">教育科技 12%</text>
 
         <rect x="260" y="170" width="14" height="14" rx="3" fill="url(#d5)"/>
-        <text x="282" y="182" fill="#e8e8f0" font-size="13" font-family="Inter">其他 8%</text>
+        <text x="282" y="182" fill="#e8e8f0" font-size="13" font-family="Inter">智慧交通 5%</text>
+
+        <rect x="260" y="200" width="14" height="14" rx="3" fill="url(#d6)"/>
+        <text x="282" y="212" fill="#e8e8f0" font-size="13" font-family="Inter">其他 3%</text>
       </svg>
     </div>
   </div>
@@ -1101,6 +1147,8 @@
       <div class="metric-change down">&#9660; 持續優化</div>
     </div>
   </div>
+
+  <div class="data-time">📅 資料時間：2026（與 2025 對比）</div>
 
   <!-- 成長曲線 SVG -->
   <div class="card" style="margin-top: 1.5rem;">
@@ -1182,6 +1230,7 @@
   <!-- 進度環 -->
   <div class="card" style="margin-top: 1.5rem;">
     <h3 style="margin-bottom: 1rem;">自我優化進度追蹤</h3>
+    <div class="data-time">📅 資料時間：2026 Q2</div>
     <div class="progress-ring-wrapper">
       <div class="progress-ring-item">
         <svg width="120" height="120" viewBox="0 0 120 120">
@@ -1233,6 +1282,7 @@
   <!-- 自主學習數據 -->
   <div class="card" style="margin-top: 1.5rem;">
     <h3 style="margin-bottom: 1rem;">自主學習週期記錄</h3>
+    <div class="data-time">📅 資料時間：2026 年 3–4 月</div>
     <div class="bar-chart">
       <div class="bar-wrapper">
         <div class="bar bar-cyan" style="height: 40px; opacity: 0.6;">
