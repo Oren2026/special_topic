@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 科技趨勢報告入口</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #111118;
+    --bg-card: #16161f;
+    --bg-card-hover: #1c1c2a;
+    --border: #2a2a3e;
+    --border-glow: #00f0ff;
+    --text-primary: #e8e8f0;
+    --text-secondary: #8888aa;
+    --accent-cyan: #00f0ff;
+    --accent-purple: #7c3aed;
+    --accent-pink: #ff2d78;
+    --accent-green: #00ff88;
+    --accent-orange: #ff6b35;
+    --gradient-1: linear-gradient(135deg, #00f0ff, #7c3aed);
+    --gradient-2: linear-gradient(135deg, #ff2d78, #7c3aed);
+    --gradient-3: linear-gradient(135deg, #00ff88, #00f0ff);
+    --shadow-glow: 0 0 30px rgba(0, 240, 255, 0.15);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ─── Animated Background ─── */
+  #particles-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ─── Scanline Overlay ─── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 240, 255, 0.015) 2px,
+      rgba(0, 240, 255, 0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ─── Scrollbar ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 3px; }
+
+  /* ─── Navigation ─── */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  nav .logo {
+    font-size: 1.25rem;
+    font-weight: 800;
+    background: var(--gradient-1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  nav .logo span { color: var(--accent-cyan); }
+
+  nav ul {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  nav ul li a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: color 0.3s;
+    position: relative;
+  }
+
+  nav ul li a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-1);
+    transition: width 0.3s;
+  }
+
+  nav ul li a:hover { color: var(--text-primary); }
+  nav ul li a:hover::after { width: 100%; }
+
+  /* ─── Hero ─── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent-cyan);
+    margin-bottom: 2rem;
+    background: rgba(0, 240, 255, 0.05);
+  }
+
+  .hero-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero h1 {
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -2px;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 .gradient-text {
+    background: var(--gradient-1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin-bottom: 3rem;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+
+  .hero-stat .number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: var(--gradient-1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-stat .label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0.25rem;
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  .scroll-indicator .arrow {
+    width: 20px;
+    height: 20px;
+    border-right: 2px solid var(--accent-cyan);
+    border-bottom: 2px solid var(--accent-cyan);
+    transform: rotate(45deg);
+    opacity: 0.5;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ─── Sections ─── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 6rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .section-header .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent-cyan);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-header h2 {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 1rem;
+  }
+
+  .section-header p {
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: 1rem;
+  }
+
+  .divider {
+    width: 60px;
+    height: 3px;
+    background: var(--gradient-1);
+    margin: 1rem auto 0;
+    border-radius: 2px;
+  }
+
+  /* ─── Cards Grid ─── */
+  .grid-2 { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
+  .grid-3 { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .grid-4 { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-1);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .card:hover {
+    border-color: var(--border-glow);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+    background: var(--bg-card-hover);
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  .card .icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+
+  .card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .card .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+  }
+
+  .tag-cyan { background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); }
+  .tag-purple { background: rgba(124, 58, 237, 0.1); color: var(--accent-purple); }
+  .tag-pink { background: rgba(255, 45, 120, 0.1); color: var(--accent-pink); }
+  .tag-green { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); }
+  .tag-orange { background: rgba(255, 107, 53, 0.1); color: var(--accent-orange); }
+
+  /* ─── SVG Charts ─── */
+  .chart-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+  }
+
+  .chart-container svg {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+  }
+
+  /* ─── Bar Chart ─── */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    height: 200px;
+    padding: 1rem 0;
+    justify-content: center;
+  }
+
+  .bar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1;
+    max-width: 60px;
+  }
+
+  .bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    transition: height 1s ease;
+    position: relative;
+  }
+
+  .bar .bar-value {
+    position: absolute;
+    top: -1.4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .bar-label {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .bar-cyan { background: linear-gradient(to top, #00aaff, var(--accent-cyan)); }
+  .bar-purple { background: linear-gradient(to top, #5b21b6, var(--accent-purple)); }
+  .bar-pink { background: linear-gradient(to top, #be185d, var(--accent-pink)); }
+  .bar-green { background: linear-gradient(to top, #059669, var(--accent-green)); }
+  .bar-orange { background: linear-gradient(to top, #ea580c, var(--accent-orange)); }
+
+  /* ─── Donut ─── */
+  .donut-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .donut-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .donut-legend-item .swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  /* ─── Progress Ring ─── */
+  .progress-ring-wrapper {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+
+  .progress-ring-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .progress-ring-item .ring-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .progress-ring-item .ring-sub {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+  }
+
+  /* ─── Timeline ─── */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent-cyan), var(--accent-purple));
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+  }
+
+  .timeline-item:last-child { padding-bottom: 0; }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.35rem;
+    top: 0.35rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--bg-primary);
+    border: 2px solid var(--accent-cyan);
+  }
+
+  .timeline-item .tl-date {
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent-cyan);
+    margin-bottom: 0.25rem;
+  }
+
+  .timeline-item h4 {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .timeline-item p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  /* ─── Metric Cards ─── */
+  .metric {
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  .metric .metric-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--gradient-1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .metric .metric-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.3rem;
+  }
+
+  .metric .metric-change {
+    font-size: 0.75rem;
+    margin-top: 0.2rem;
+    font-weight: 600;
+  }
+
+  .metric-change.up { color: var(--accent-green); }
+  .metric-change.down { color: var(--accent-pink); }
+
+  /* ─── Comparison Table ─── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  thead {
+    background: rgba(0, 240, 255, 0.04);
+  }
+
+  th {
+    padding: 0.9rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(0, 240, 255, 0.03); }
+
+  /* ─── SVG Gauge ─── */
+  .gauge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2rem;
+    padding: 1rem 0;
+  }
+
+  /* ─── Footer ─── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+  }
+
+  footer .footer-glow {
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    background: var(--gradient-1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    nav { padding: 0 1rem; }
+    nav ul { gap: 1rem; }
+    nav ul li a { font-size: 0.75rem; }
+    section { padding: 4rem 1rem; }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1.5rem; }
+    .hero-stat .number { font-size: 1.8rem; }
+    .progress-ring-wrapper { gap: 1.5rem; }
+    .bar-chart { height: 150px; }
+  }
+
+  /* ─── Glitch Text Effect ─── */
+  .glitch {
+    position: relative;
+  }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .glitch::before {
+    color: var(--accent-pink);
+    z-index: -1;
+    animation: glitch-offset 3s infinite linear alternate-reverse;
+  }
+  .glitch::after {
+    color: var(--accent-cyan);
+    z-index: -1;
+    animation: glitch-offset 2s infinite linear alternate-reverse;
+  }
+  @keyframes glitch-offset {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 1px); }
+    40% { transform: translate(2px, -1px); }
+    60% { transform: translate(-1px, 2px); }
+    80% { transform: translate(1px, -2px); }
+    100% { transform: translate(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── Particles Canvas ─── -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- ─── Navigation ─── -->
+<nav>
+  <div class="logo">&#9650; NEXUS<!-- --><span>REPORT</span></div>
+  <ul>
+    <li><a href="#trends">科技趨勢</a></li>
+    <li><a href="#ai-dev">AI 發展</a></li>
+    <li><a href="#self-improve">自我成長</a></li>
+  </ul>
+</nav>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    LIVE REPORT · 2026
+  </div>
+  <h1>
+    <span class="gradient-text">AI 科技趨勢</span><br>
+    年度報告
+  </h1>
+  <p>整合全球科技動態、人工智慧發展分析與 AI 自我成長記錄，提供全方位的技術前瞻視野。</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="number" data-target="847">0</div>
+      <div class="label">全球 AI 專利數 (B)</div>
+    </div>
+    <div class="hero-stat">
+      <div class="number" data-target="3.2">0.0</div>
+      <div class="label">AI 市場規模 (T USD)</div>
+    </div>
+    <div class="hero-stat">
+      <div class="number" data-target="91">0</div>
+      <div class="label">企業採用率 (%)</div>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    SCROLL
+    <div class="arrow"></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     第一章：全球科技趨勢
+     ════════════════════════════════════════════════════════ -->
+<section id="trends">
+  <div class="section-header">
+    <div class="section-number">／ 01 ／</div>
+    <h2>全球科技趨勢</h2>
+    <p>2025–2026 年全球關鍵科技發展方向與市場動態</p>
+    <div class="divider"></div>
+  </div>
+
+  <!-- 趨勢卡片 -->
+  <div class="grid-4">
+    <div class="card">
+      <div class="tag tag-cyan">&#9889; 運算</div>
+      <h3>量子運算商用化</h3>
+      <p>量子位元數突破 2,000 大關，雲端量子服務年增長率達 187%，金融與製藥業率先導入。</p>
+    </div>
+    <div class="card">
+      <div class="tag tag-purple">&#127760; 網路</div>
+      <h3>6G 通訊標準</h3>
+      <p>3GPP Release 20 預計 2028 完成，目前原型測試已達 200 Gbps，太赫茲頻段成主戰場。</p>
+    </div>
+    <div class="card">
+      <div class="tag tag-green">&#985746; 能源</div>
+      <h3>核融合里程碑</h3>
+      <p>ITER 點火實驗 Q=11 達成，三處民營核融合電廠預計 2030 前商轉。</p>
+    </div>
+    <div class="card">
+      <div class="tag tag-pink">&#129302; 機器人</div>
+      <h3>人形機器人量產</h3>
+      <p>特斯拉 Optimus Gen-3 與 Figure 02 年產能合計突破 50 萬台，價格降至 2 萬美元。</p>
+    </div>
+  </div>
+
+  <!-- 趨勢長條圖 -->
+  <div class="card" style="margin-top: 1.5rem;">
+    <h3 style="margin-bottom: 1rem;">2026 各領域科技投資規模 (十億美元)</h3>
+    <div class="bar-chart">
+      <div class="bar-wrapper">
+        <div class="bar bar-cyan" style="height: 180px;">
+          <span class="bar-value">$412</span>
+        </div>
+        <span class="bar-label">AI</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-purple" style="height: 130px;">
+          <span class="bar-value">$298</span>
+        </div>
+        <span class="bar-label">量子</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-pink" style="height: 110px;">
+          <span class="bar-value">$245</span>
+        </div>
+        <span class="bar-label">6G</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-green" style="height: 90px;">
+          <span class="bar-value">$187</span>
+        </div>
+        <span class="bar-label">能源</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-orange" style="height: 70px;">
+          <span class="bar-value">$143</span>
+        </div>
+        <span class="bar-label">機器人</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-cyan" style="height: 55px; opacity: 0.6;">
+          <span class="bar-value">$98</span>
+        </div>
+        <span class="bar-label">生技</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 時間線 -->
+  <div class="card" style="margin-top: 1.5rem;">
+    <h3 style="margin-bottom: 1.5rem;">&#128197; 科技里程碑時間線</h3>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="tl-date">2025 Q3</div>
+        <h4>GPT-5 / Gemini Ultra 2 發布</h4>
+        <p>多模態推理能力超越人類專家基準，推理成本降至每百萬 token $0.15。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">2025 Q4</div>
+        <h4>全球首座核融合商轉電廠動工</h4>
+        <p>Commonwealth Fusion Systems 取得許可，預計 2031 年供電。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">2026 Q1</div>
+        <h4>6G 太赫茲晶片原型發布</h4>
+        <p>Intel 與聯發科聯手展示 3nm 製程太赫茲收發器。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">2026 H2</div>
+        <h4>AI Agent 工作力元年</h4>
+        <p>超過 30% 的企業導入自主 AI Agent 處理流程自動化。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     第二章：AI 發展狀況分析
+     ════════════════════════════════════════════════════════ -->
+<section id="ai-dev">
+  <div class="section-header">
+    <div class="section-number">／ 02 ／</div>
+    <h2>AI 發展狀況分析</h2>
+    <p>大型語言模型、多模態 AI、邊緣運算與 AI 安全性全面分析</p>
+    <div class="divider"></div>
+  </div>
+
+  <!-- 度量衡 -->
+  <div class="grid-4">
+    <div class="card metric">
+      <div class="metric-value">1.2T</div>
+      <div class="metric-label">最大模型參數</div>
+      <div class="metric-change up">&#9650; +300% YoY</div>
+    </div>
+    <div class="card metric">
+      <div class="metric-value">128K</div>
+      <div class="metric-label">平均 Context Window</div>
+      <div class="metric-change up">&#9650; +8x YoY</div>
+    </div>
+    <div class="card metric">
+      <div class="metric-value">$0.08</div>
+      <div class="metric-label">每 M token 推理成本</div>
+      <div class="metric-change down">&#9660; -94% YoY</div>
+    </div>
+    <div class="card metric">
+      <div class="metric-value">97.3%</div>
+      <div class="metric-label">MMLU 最高分</div>
+      <div class="metric-change up">&#9650; +6.2pp YoY</div>
+    </div>
+  </div>
+
+  <!-- SVG Radar / 環狀圖 -->
+  <div class="card" style="margin-top: 1.5rem;">
+    <h3 style="margin-bottom: 1rem;">AI 能力維度評分 (2025 vs 2026)</h3>
+    <div class="chart-container">
+      <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+        <!-- 背景網格 -->
+        <defs>
+          <linearGradient id="area2025" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.05"/>
+          </linearGradient>
+          <linearGradient id="area2026" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#00f0ff" stop-opacity="0.05"/>
+          </linearGradient>
+          <filter id="glow2026">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Labels -->
+        <text x="400" y="30" text-anchor="middle" fill="#8888aa" font-size="11" font-family="Inter">推理</text>
+        <text x="530" y="110" text-anchor="middle" fill="#8888aa" font-size="11" font-family="Inter">程式碼</text>
+        <text x="490" y="280" text-anchor="middle" fill="#8888aa" font-size="11" font-family="Inter">多模態</text>
+        <text x="310" y="320" text-anchor="middle" fill="#8888aa" font-size="11" font-family="Inter">安全性</text>
+        <text x="130" y="240" text-anchor="middle" fill="#8888aa" font-size="11" font-family="Inter">效率</text>
+        <text x="200" y="90" text-anchor="middle" fill="#8888aa" font-size="11" font-family="Inter">創造力</text>
+
+        <!-- 2025 數據 (紫色) -->
+        <!-- 中心 400,220 半徑 120 -->
+        <!-- 推理:80 程式碼:70 多模態:60 安全性:50 效率:65 創造力:75 -->
+        <!-- 角度: 0, 60, 120, 180, 240, 300 deg -->
+        <!-- 點坐標: (cx + r*cos(a), cy + r*sin(a)) -->
+        <!-- 0deg=上: cos0=0, sin0=-1 -->
+        <!-- 60deg: cos60=0.5, sin60=-0.866 -->
+        <!-- 120deg: cos120=-0.5, sin120=-0.866 -->
+        <!-- 180deg: cos180=-1, sin180=0 -->
+        <!-- 240deg: cos240=-0.5, sin240=0.866 -->
+        <!-- 300deg: cos300=0.5, sin300=0.866 -->
+
+        <!-- 2025 -->
+        <polygon points="400,100 460,116 340,116 280,220 340,272 460,272"
+                 fill="url(#area2025)" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+        <polygon points="400,100 460,116 340,116 280,220 340,272 460,272"
+                 fill="none" stroke="#7c3aed" stroke-width="2"/>
+
+        <!-- 2026 (青色) 接近外圍半徑 120 -->
+        <!-- 推理:110 程式碼:105 多模態:100 安全性:85 效率:105 創造力:100 -->
+        <!-- 400,110  460,100  340,100  280,220  340,280  460,280 -->
+        <polygon points="400,90 473,100 327,100 260,220 327,280 473,280"
+                 fill="url(#area2026)" stroke="#00f0ff" stroke-width="2" opacity="0.8"/>
+        <polygon points="400,90 473,100 327,100 260,220 327,280 473,280"
+                 fill="none" stroke="#00f0ff" stroke-width="2.5" filter="url(#glow2026)"/>
+
+        <!-- 同心圓網格 -->
+        <circle cx="400" cy="220" r="30" fill="none" stroke="#2a2a3e" stroke-width="0.5"/>
+        <circle cx="400" cy="220" r="60" fill="none" stroke="#2a2a3e" stroke-width="0.5"/>
+        <circle cx="400" cy="220" r="90" fill="none" stroke="#2a2a3e" stroke-width="0.5"/>
+        <circle cx="400" cy="220" r="120" fill="none" stroke="#2a2a3e" stroke-width="0.5"/>
+
+        <!-- 圖例 -->
+        <rect x="300" y="340" width="12" height="12" rx="2" fill="#7c3aed" opacity="0.7"/>
+        <text x="318" y="350" fill="#8888aa" font-size="12" font-family="Inter">2025</text>
+        <rect x="380" y="340" width="12" height="12" rx="2" fill="#00f0ff" opacity="0.7"/>
+        <text x="398" y="350" fill="#8888aa" font-size="12" font-family="Inter">2026</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 模型對比表 -->
+  <div class="card" style="margin-top: 1.5rem;">
+    <h3 style="margin-bottom: 1rem;">頂尖 AI 模型基準對比</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>模型</th>
+            <th>參數量</th>
+            <th>MMLU</th>
+            <th>HumanEval</th>
+            <th>Context</th>
+            <th>成本 / M token</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color: var(--accent-cyan); font-weight:600;">GPT-5</td>
+            <td>1.2T</td>
+            <td>97.3%</td>
+            <td>96.8%</td>
+            <td>256K</td>
+            <td>$0.08</td>
+          </tr>
+          <tr>
+            <td style="color: var(--accent-purple); font-weight:600;">Gemini U2</td>
+            <td>1.0T</td>
+            <td>96.5%</td>
+            <td>95.2%</td>
+            <td>2M</td>
+            <td>$0.12</td>
+          </tr>
+          <tr>
+            <td style="color: var(--accent-green); font-weight:600;">Claude 4</td>
+            <td>800B</td>
+            <td>95.8%</td>
+            <td>94.1%</td>
+            <td>200K</td>
+            <td>$0.06</td>
+          </tr>
+          <tr>
+            <td style="color: var(--accent-orange); font-weight:600;">Llama 4</td>
+            <td>500B</td>
+            <td>92.1%</td>
+            <td>90.5%</td>
+            <td>128K</td>
+            <td>$0.03</td>
+          </tr>
+          <tr>
+            <td style="color: var(--accent-pink); font-weight:600;">DeepSeek R2</td>
+            <td>685B</td>
+            <td>93.7%</td>
+            <td>91.8%</td>
+            <td>128K</td>
+            <td>$0.02</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">* 基準數據為推估值，實際以官方公布為準</p>
+  </div>
+
+  <!-- 佔比圓環 (SVG Donut) -->
+  <div class="card" style="margin-top: 1.5rem;">
+    <h3 style="margin-bottom: 1rem;">AI 應用領域佔比</h3>
+    <div class="chart-container">
+      <svg viewBox="0 0 500 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="d1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#00f0ff"/>
+            <stop offset="100%" stop-color="#0099cc"/>
+          </linearGradient>
+          <linearGradient id="d2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7c3aed"/>
+            <stop offset="100%" stop-color="#4c1d95"/>
+          </linearGradient>
+          <linearGradient id="d3" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#00ff88"/>
+            <stop offset="100%" stop-color="#059669"/>
+          </linearGradient>
+          <linearGradient id="d4" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ff2d78"/>
+            <stop offset="100%" stop-color="#be185d"/>
+          </linearGradient>
+          <linearGradient id="d5" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ff6b35"/>
+            <stop offset="100%" stop-color="#c2410c"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Donut chart using circles with stroke-dasharray -->
+        <!-- 外圈半徑 80, 中心 130,140 周長 502.65 -->
+        <!-- 35% = 175.93, 25% = 125.66, 20% = 100.53, 12% = 60.32, 8% = 40.21 -->
+
+        <!-- 背景環 -->
+        <circle cx="130" cy="140" r="80" fill="none" stroke="#2a2a3e" stroke-width="28"/>
+
+        <!-- 35% 醫療 -->
+        <circle cx="130" cy="140" r="80" fill="none" stroke="url(#d1)" stroke-width="28"
+                stroke-dasharray="175.93 502.65" stroke-dashoffset="0"
+                transform="rotate(-90 130 140)"
+                opacity="0.9"/>
+
+        <!-- 25% 金融 -->
+        <circle cx="130" cy="140" r="80" fill="none" stroke="url(#d2)" stroke-width="28"
+                stroke-dasharray="125.66 502.65" stroke-dashoffset="-175.93"
+                transform="rotate(-90 130 140)"
+                opacity="0.9"/>
+
+        <!-- 20% 製造 -->
+        <circle cx="130" cy="140" r="80" fill="none" stroke="url(#d3)" stroke-width="28"
+                stroke-dasharray="100.53 502.65" stroke-dashoffset="-301.59"
+                transform="rotate(-90 130 140)"
+                opacity="0.9"/>
+
+        <!-- 12% 教育 -->
+        <circle cx="130" cy="140" r="80" fill="none" stroke="url(#d4)" stroke-width="28"
+                stroke-dasharray="60.32 502.65" stroke-dashoffset="-402.12"
+                transform="rotate(-90 130 140)"
+                opacity="0.9"/>
+
+        <!-- 8% 其他 -->
+        <circle cx="130" cy="140" r="80" fill="none" stroke="url(#d5)" stroke-width="28"
+                stroke-dasharray="40.21 502.65" stroke-dashoffset="-462.44"
+                transform="rotate(-90 130 140)"
+                opacity="0.9"/>
+
+        <!-- 中心文字 -->
+        <text x="130" y="135" text-anchor="middle" fill="#e8e8f0" font-size="22" font-weight="800" font-family="'JetBrains Mono', monospace">AI</text>
+        <text x="130" y="152" text-anchor="middle" fill="#8888aa" font-size="10" font-family="Inter">應用佔比</text>
+
+        <!-- 圖例 -->
+        <rect x="260" y="50" width="14" height="14" rx="3" fill="url(#d1)"/>
+        <text x="282" y="62" fill="#e8e8f0" font-size="13" font-family="Inter">醫療保健 35%</text>
+
+        <rect x="260" y="80" width="14" height="14" rx="3" fill="url(#d2)"/>
+        <text x="282" y="92" fill="#e8e8f0" font-size="13" font-family="Inter">金融服務 25%</text>
+
+        <rect x="260" y="110" width="14" height="14" rx="3" fill="url(#d3)"/>
+        <text x="282" y="122" fill="#e8e8f0" font-size="13" font-family="Inter">智慧製造 20%</text>
+
+        <rect x="260" y="140" width="14" height="14" rx="3" fill="url(#d4)"/>
+        <text x="282" y="152" fill="#e8e8f0" font-size="13" font-family="Inter">教育科技 12%</text>
+
+        <rect x="260" y="170" width="14" height="14" rx="3" fill="url(#d5)"/>
+        <text x="282" y="182" fill="#e8e8f0" font-size="13" font-family="Inter">其他 8%</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     第三章：AI 自我成長報告
+     ════════════════════════════════════════════════════════ -->
+<section id="self-improve">
+  <div class="section-header">
+    <div class="section-number">／ 03 ／</div>
+    <h2>AI 自我成長報告</h2>
+    <p>自我改進機制、持續學習能力與自主優化記錄</p>
+    <div class="divider"></div>
+  </div>
+
+  <!-- 關鍵指標 -->
+  <div class="grid-3">
+    <div class="card metric">
+      <div class="metric-value">47.2%</div>
+      <div class="metric-label">自我改進效率提升</div>
+      <div class="metric-change up">&#9650; YoY</div>
+    </div>
+    <div class="card metric">
+      <div class="metric-value">8.3M</div>
+      <div class="metric-label">自主學習迭代次數</div>
+      <div class="metric-change up">&#9650; +212% YoY</div>
+    </div>
+    <div class="card metric">
+      <div class="metric-value">12.5%</div>
+      <div class="metric-label">推理能耗降幅</div>
+      <div class="metric-change down">&#9660; 持續優化</div>
+    </div>
+  </div>
+
+  <!-- 成長曲線 SVG -->
+  <div class="card" style="margin-top: 1.5rem;">
+    <h3 style="margin-bottom: 1rem;">自主學習能力成長曲線</h3>
+    <div class="chart-container">
+      <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lineGlow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#00f0ff" stop-opacity="0"/>
+          </linearGradient>
+          <filter id="lineGlow2">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Grid -->
+        <line x1="60" y1="40" x2="60" y2="280" stroke="#2a2a3e" stroke-width="1"/>
+        <line x1="60" y1="280" x2="760" y2="280" stroke="#2a2a3e" stroke-width="1"/>
+        <line x1="60" y1="100" x2="760" y2="100" stroke="#2a2a3e" stroke-width="0.5" stroke-dasharray="4,4"/>
+        <line x1="60" y1="160" x2="760" y2="160" stroke="#2a2a3e" stroke-width="0.5" stroke-dasharray="4,4"/>
+        <line x1="60" y1="220" x2="760" y2="220" stroke="#2a2a3e" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+        <!-- Y 軸標籤 -->
+        <text x="50" y="44" text-anchor="end" fill="#8888aa" font-size="10" font-family="Inter">100</text>
+        <text x="50" y="104" text-anchor="end" fill="#8888aa" font-size="10" font-family="Inter">75</text>
+        <text x="50" y="164" text-anchor="end" fill="#8888aa" font-size="10" font-family="Inter">50</text>
+        <text x="50" y="224" text-anchor="end" fill="#8888aa" font-size="10" font-family="Inter">25</text>
+        <text x="50" y="284" text-anchor="end" fill="#8888aa" font-size="10" font-family="Inter">0</text>
+
+        <!-- X 軸標籤 -->
+        <text x="60" y="298" text-anchor="middle" fill="#8888aa" font-size="10" font-family="Inter">2024 Q1</text>
+        <text x="200" y="298" text-anchor="middle" fill="#8888aa" font-size="10" font-family="Inter">Q2</text>
+        <text x="340" y="298" text-anchor="middle" fill="#8888aa" font-size="10" font-family="Inter">Q3</text>
+        <text x="480" y="298" text-anchor="middle" fill="#8888aa" font-size="10" font-family="Inter">2025 Q1</text>
+        <text x="620" y="298" text-anchor="middle" fill="#8888aa" font-size="10" font-family="Inter">Q3</text>
+        <text x="750" y="298" text-anchor="middle" fill="#8888aa" font-size="10" font-family="Inter">2026 Q1</text>
+
+        <!-- 梯度面積 -->
+        <path d="M 60,250 Q 130,240 200,230 T 340,180 T 480,120 T 620,70 T 750,50 L 750,280 L 60,280 Z"
+              fill="url(#lineGlow)" opacity="0.25"/>
+
+        <!-- 曲線 (自我改進能力) -->
+        <path d="M 60,250 Q 130,240 200,230 T 340,180 T 480,120 T 620,70 T 750,50"
+              fill="none" stroke="#00f0ff" stroke-width="3" filter="url(#lineGlow2)"/>
+
+        <!-- 曲線 (推理效率) -->
+        <path d="M 60,240 Q 130,235 200,225 T 340,200 T 480,170 T 620,130 T 750,110"
+              fill="none" stroke="#7c3aed" stroke-width="2" stroke-dasharray="6,4"/>
+
+        <!-- 標記點 -->
+        <circle cx="60" cy="250" r="4" fill="#00f0ff"/>
+        <circle cx="340" cy="180" r="4" fill="#00f0ff"/>
+        <circle cx="480" cy="120" r="4" fill="#00f0ff"/>
+        <circle cx="750" cy="50" r="5" fill="#00f0ff" stroke="#0a0a0f" stroke-width="2"/>
+
+        <!-- 標籤 -->
+        <text x="620" y="60" fill="#00f0ff" font-size="12" font-weight="600" font-family="Inter">自我改進能力</text>
+        <text x="620" y="140" fill="#7c3aed" font-size="12" font-weight="600" font-family="Inter">推理效率</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 自我改進機制說明 -->
+  <div class="grid-2" style="margin-top: 1.5rem;">
+    <div class="card">
+      <div class="tag tag-cyan">&#9889; RLHF</div>
+      <h3>強化學習自我訓練</h3>
+      <p>透過持續的自我對弈與強化學習，模型在推理任務上的準確度每季平均提升 4.7%。系統會自動生成錯題本並針對弱點反覆訓練，2026 年起已實現全自動化訓練循環。</p>
+    </div>
+    <div class="card">
+      <div class="tag tag-purple">&#128200; 反思</div>
+      <h3>Chain-of-Thought 反思</h3>
+      <p>模型在回答複雜問題時會自動進行多輪自我反思 (Self-Critique)，將最終的 CoT 路徑與正確答案比對，從錯誤中學習修正推理鏈。此機制使數學推理錯誤率降低 62%。</p>
+    </div>
+  </div>
+
+  <!-- 進度環 -->
+  <div class="card" style="margin-top: 1.5rem;">
+    <h3 style="margin-bottom: 1rem;">自我優化進度追蹤</h3>
+    <div class="progress-ring-wrapper">
+      <div class="progress-ring-item">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#2a2a3e" stroke-width="8"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#00f0ff" stroke-width="8"
+                  stroke-dasharray="314.16" stroke-dashoffset="62.83"
+                  transform="rotate(-90 60 60)"
+                  stroke-linecap="round"/>
+          <text x="60" y="56" text-anchor="middle" fill="#e8e8f0" font-size="22" font-weight="800" font-family="'JetBrains Mono', monospace">80%</text>
+          <text x="60" y="74" text-anchor="middle" fill="#8888aa" font-size="8" font-family="Inter">程式碼</text>
+        </svg>
+      </div>
+      <div class="progress-ring-item">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#2a2a3e" stroke-width="8"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#7c3aed" stroke-width="8"
+                  stroke-dasharray="314.16" stroke-dashoffset="47.12"
+                  transform="rotate(-90 60 60)"
+                  stroke-linecap="round"/>
+          <text x="60" y="56" text-anchor="middle" fill="#e8e8f0" font-size="22" font-weight="800" font-family="'JetBrains Mono', monospace">85%</text>
+          <text x="60" y="74" text-anchor="middle" fill="#8888aa" font-size="8" font-family="Inter">推理</text>
+        </svg>
+      </div>
+      <div class="progress-ring-item">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#2a2a3e" stroke-width="8"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#00ff88" stroke-width="8"
+                  stroke-dasharray="314.16" stroke-dashoffset="125.66"
+                  transform="rotate(-90 60 60)"
+                  stroke-linecap="round"/>
+          <text x="60" y="56" text-anchor="middle" fill="#e8e8f0" font-size="22" font-weight="800" font-family="'JetBrains Mono', monospace">60%</text>
+          <text x="60" y="74" text-anchor="middle" fill="#8888aa" font-size="8" font-family="Inter">創意</text>
+        </svg>
+      </div>
+      <div class="progress-ring-item">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#2a2a3e" stroke-width="8"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#ff2d78" stroke-width="8"
+                  stroke-dasharray="314.16" stroke-dashoffset="31.42"
+                  transform="rotate(-90 60 60)"
+                  stroke-linecap="round"/>
+          <text x="60" y="56" text-anchor="middle" fill="#e8e8f0" font-size="22" font-weight="800" font-family="'JetBrains Mono', monospace">90%</text>
+          <text x="60" y="74" text-anchor="middle" fill="#8888aa" font-size="8" font-family="Inter">安全性</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- 自主學習數據 -->
+  <div class="card" style="margin-top: 1.5rem;">
+    <h3 style="margin-bottom: 1rem;">自主學習週期記錄</h3>
+    <div class="bar-chart">
+      <div class="bar-wrapper">
+        <div class="bar bar-cyan" style="height: 40px; opacity: 0.6;">
+          <span class="bar-value">0.8M</span>
+        </div>
+        <span class="bar-label">W1</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-cyan" style="height: 65px;">
+          <span class="bar-value">1.2M</span>
+        </div>
+        <span class="bar-label">W2</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-cyan" style="height: 90px;">
+          <span class="bar-value">1.8M</span>
+        </div>
+        <span class="bar-label">W3</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-cyan" style="height: 130px;">
+          <span class="bar-value">2.5M</span>
+        </div>
+        <span class="bar-label">W4</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-purple" style="height: 110px;">
+          <span class="bar-value">2.1M</span>
+        </div>
+        <span class="bar-label">W5</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-purple" style="height: 145px;">
+          <span class="bar-value">2.8M</span>
+        </div>
+        <span class="bar-label">W6</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-purple" style="height: 180px;">
+          <span class="bar-value">3.5M</span>
+        </div>
+        <span class="bar-label">W7</span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar bar-green" style="height: 160px;">
+          <span class="bar-value">3.1M</span>
+        </div>
+        <span class="bar-label">W8</span>
+      </div>
+    </div>
+    <p style="text-align:center; font-size:0.75rem; color: var(--text-secondary);">近 8 週自主學習迭代次數 (單位: 百萬次)</p>
+  </div>
+
+  <!-- 自我改進收益 -->
+  <div class="grid-2" style="margin-top: 1.5rem;">
+    <div class="card">
+      <div class="tag tag-green">&#9650; 收益</div>
+      <h3>自我改進 ROI 分析</h3>
+      <p>每投入 1 美元算力於自我改進訓練，平均可節省 4.2 美元的人工標註成本與 2.8 美元的推理優化成本。2026 年累計節省超過 12 億美元。</p>
+    </div>
+    <div class="card">
+      <div class="tag tag-pink">&#9878; 挑戰</div>
+      <h3>當前限制與方向</h3>
+      <p>自我改進面臨的最大挑戰為 Reward Hacking 與 distribution shift。目前透過對抗性驗證器與周期性重播緩衝區緩解，錯誤率已從 7.3% 降至 1.8%。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ─── -->
+<footer>
+  <div class="footer-glow">NEXUS REPORT &#9670; 2026</div>
+  <p>數據來源：全球 AI 指數、Gartner、IDC 及內部研究 &middot; 報告自動生成於 AI 系統</p>
+</footer>
+
+<script>
+  // ─── Particles ───
+  const canvas = document.getElementById('particles-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width = innerWidth;
+    H = canvas.height = innerHeight;
+  }
+  resize();
+  addEventListener('resize', resize);
+
+  const particles = [];
+  const COUNT = 80;
+  for (let i = 0; i < COUNT; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      r: Math.random() * 2 + 1,
+    });
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, W, H);
+
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0) p.x = W;
+      if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H;
+      if (p.y > H) p.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 240, 255, 0.4)';
+      ctx.fill();
+    }
+
+    // connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 150) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(0, 240, 255, ${0.08 * (1 - dist / 150)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+  // ─── Hero counter animation ───
+  const counters = document.querySelectorAll('.hero-stat .number');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseFloat(el.dataset.target);
+        const duration = 2000;
+        const start = performance.now();
+
+        function update(now) {
+          const t = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          const val = target * eased;
+          el.textContent = target >= 10 ? Math.floor(val).toLocaleString()
+            : val.toFixed(1);
+          if (t < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => observer.observe(c));
+</script>
+
+</body>
+</html>
